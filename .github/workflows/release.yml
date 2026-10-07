@@ -1,6 +1,7 @@
 name: Bản cài đặt (Windows, macOS, Linux)
 
-# Tạo bản phát hành: gắn tag dạng v1.0.0 rồi đẩy lên, hoặc chạy tay trong tab Actions
+# Tạo bản phát hành: vào tab Actions > "Bản cài đặt" > Run workflow,
+# hoặc gắn tag dạng v1.0.1 rồi đẩy lên. Số phiên bản lấy từ desktop/package.json.
 on:
   push:
     tags: ['v*']
@@ -53,14 +54,29 @@ jobs:
 
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Đọc số phiên bản
+        id: ver
+        run: echo "tag=v$(node -p "require('./desktop/package.json').version")" >> "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@v4
         with:
           path: out
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || steps.ver.outputs.tag }}
+          name: LabLog Analyzer ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: out/*
-          generate_release_notes: true
+          body: |
+            Tải bản phù hợp với máy của bạn:
+            - Windows 10/11: `LabLog-Analyzer-Setup-…-x64.exe`
+            - macOS chip Apple (M1–M4): `LabLog-Analyzer-…-mac-arm64.dmg`
+            - macOS chip Intel: `LabLog-Analyzer-…-mac-x64.dmg`
+            - Linux: `LabLog-Analyzer-…-linux-x86_64.AppImage`
+
+            Bản web (máy tính, iPad, iPhone): https://yeuthamclub.github.io/Lablog-XL-tool/
+
+            Lần mở đầu: Windows bấm More info > Run anyway; macOS nhấp phải > Mở (hoặc System Settings > Privacy & Security > Open Anyway).

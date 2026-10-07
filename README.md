@@ -73,11 +73,8 @@ Mỗi lần đẩy code lên nhánh `main`, GitHub Actions tự xuất bản l�
 Để tạo bản cài đặt mới:
 
 1. Tăng `version` trong `desktop/package.json`.
-2. Gắn tag và đẩy lên:
-   ```bash
-   git tag v1.0.1 && git push origin v1.0.1
-   ```
-3. GitHub Actions sẽ đóng gói bản Windows, macOS và Linux, rồi đưa vào mục Releases.
+2. Vào tab **Actions › Bản cài đặt (Windows, macOS, Linux) › Run workflow**. Cách khác: gắn tag rồi đẩy lên, ví dụ `git tag v1.0.1 && git push origin v1.0.1`.
+3. GitHub Actions sẽ đóng gói bản Windows, macOS và Linux, rồi đưa vào mục Releases. Mỗi lần chạy mất khoảng 10 phút.
 
 ## Lưu ý về dữ liệu
 
