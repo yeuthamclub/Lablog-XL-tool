@@ -1,0 +1,1016 @@
+<title>LabLog Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bảng điều khiển phòng xét nghiệm — thanh tiêu đề + tab, tóm tắt trên, chi tiết dưới */
+:root{
+  --bg:#F3F6F6; --surface:#FFFFFF; --sunk:#E8EEEE; --line:#D3DCDC;
+  --ink:#13222A; --muted:#5A6B72; --accent:#0B7480; --accent-soft:#D6ECEE;
+  --ok:#2E7D4F; --warn:#B26A00; --warn-soft:#FBEBD2; --crit:#B3261E; --crit-soft:#F8DEDB;
+  --c1:#0B7480; --c2:#C2571A; --c3:#5B57B8; --c4:#2E8B57; --c5:#B8366E; --c6:#7A6A12; --c7:#3A78C2; --c8:#7C4D2A;
+  --f-display:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1719; --surface:#162124; --sunk:#1D2A2E; --line:#2B3B40;
+  --ink:#E3ECEC; --muted:#93A6AB; --accent:#4CC2CC; --accent-soft:#16383C;
+  --ok:#5FC08A; --warn:#E5A13A; --warn-soft:#3A2C14; --crit:#F0756B; --crit-soft:#3E1D1A;
+  --c1:#4CC2CC; --c2:#EE8C55; --c3:#9C98EE; --c4:#62C48B; --c5:#E77BAA; --c6:#CDB64A; --c7:#79AEEB; --c8:#C69470;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1719; --surface:#162124; --sunk:#1D2A2E; --line:#2B3B40;
+  --ink:#E3ECEC; --muted:#93A6AB; --accent:#4CC2CC; --accent-soft:#16383C;
+  --ok:#5FC08A; --warn:#E5A13A; --warn-soft:#3A2C14; --crit:#F0756B; --crit-soft:#3E1D1A;
+  --c1:#4CC2CC; --c2:#EE8C55; --c3:#9C98EE; --c4:#62C48B; --c5:#E77BAA; --c6:#CDB64A; --c7:#79AEEB; --c8:#C69470;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:700;font-size:1.6rem;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-size:.8rem;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+h2{font-family:var(--f-display);font-size:1.05rem;font-weight:600;margin:0;text-wrap:balance}
+.src{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn:focus-visible,select:focus-visible,input:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filechip{font-size:.8rem;color:var(--muted)}
+.drop{border:1.5px dashed var(--line);border-radius:8px;padding:10px 14px;color:var(--muted);font-size:.85rem}
+.help{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:.88rem}
+.help summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.help ol{margin:10px 0 6px;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+.help p{margin:6px 0 0;color:var(--muted);max-width:80ch}
+.help code{font-family:var(--f-mono);font-size:.8rem;background:var(--sunk);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:inherit;font-weight:500;background:none;border:0;border-bottom:2px solid transparent;padding:9px 14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .n{font-family:var(--f-mono);font-size:.75rem;margin-left:6px;padding:1px 6px;border-radius:9px;background:var(--crit-soft);color:var(--crit)}
+.panel{display:flex;flex-direction:column;gap:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kpi .l{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.kpi .v{font-family:var(--f-mono);font-size:1.6rem;font-weight:500;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:.8rem;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .hd{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.card .sub{color:var(--muted);font-size:.82rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:18px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface);position:sticky;top:0}
+td{padding:6px 10px;border-bottom:1px solid var(--sunk);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+td.mono{font-family:var(--f-mono);font-size:.8rem}
+tr:hover td{background:var(--sunk)}
+.tablebox{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;padding:1px 7px;border-radius:10px;white-space:nowrap;margin:1px 2px 1px 0}
+.p-low{background:var(--sunk);color:var(--muted)}
+.p-high{background:var(--warn-soft);color:var(--warn)}
+.p-crit{background:var(--crit-soft);color:var(--crit)}
+.p-ok{background:var(--accent-soft);color:var(--accent)}
+.cat{font-size:.72rem;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.filters label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+select,input[type=text],input[type=date]{font:inherit;font-size:.86rem;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.qcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.qc .stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.qc .stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.alert{display:grid;grid-template-columns:6px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.alert .bar{background:var(--warn)}
+.alert.crit .bar{background:var(--crit)}
+.alert.info .bar{background:var(--accent)}
+.alert .body{padding:10px 14px 10px 0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.alert .t{font-weight:600}
+.alert .d{color:var(--muted);font-size:.84rem;overflow-wrap:anywhere}
+.empty{color:var(--muted);padding:14px 0}
+.note{font-size:.8rem;color:var(--muted)}
+#csvbox{width:100%;height:140px;font-family:var(--f-mono);font-size:.75rem;background:var(--sunk);color:var(--ink);border:1px solid var(--line);border-radius:6px}
+.files{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.82rem}
+.fchip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 4px 4px 10px}
+.fchip .m{color:var(--muted);font-family:var(--f-mono);font-size:.75rem}
+.fchip button{font:inherit;border:0;background:none;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:4px}
+.fchip button:hover{background:var(--crit-soft);color:var(--crit)}
+.cond{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;background:var(--sunk);border-radius:6px}
+.cond .op{font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--accent);min-width:28px}
+.cond input[type=number]{width:96px}
+#p-qc td input[type=number]{width:84px}
+input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.rr input{width:90px}
+.answer{font-size:1.05rem;line-height:1.55;max-width:70ch}
+.answer b{font-family:var(--f-mono);font-weight:600}
+.answer .big{font-family:var(--f-mono);font-size:2.2rem;font-weight:500;color:var(--accent);display:block;line-height:1.1}
+.bar100{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--sunk)}
+.bar100 span{display:block;height:100%}
+.st-low{color:var(--c7)} .st-normal{color:var(--ok)} .st-high{color:var(--crit)}
+.chk{display:flex;align-items:center;gap:6px;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
+.sum td{border-top:1px solid var(--line);background:var(--sunk);font-weight:500}
+.filters label.chk{flex-direction:row;align-items:center;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:.85rem}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1><small>Phân tích log máy miễn dịch · FinishedJobs</small>LabLog Analyzer</h1>
+    <div class="src">
+      <label class="btn primary" for="fileIn" tabindex="0">Thêm file log…</label>
+      <input id="fileIn" type="file" accept=".txt,.log,text/plain,application/octet-stream" multiple hidden>
+      <button class="btn" id="btnSample" type="button">Dùng dữ liệu mẫu</button>
+      <button class="btn" id="btnClear" type="button">Xoá tất cả file</button>
+    </div>
+  </header>
+  <div class="drop" id="drop">Kéo thả một hoặc nhiều file FinishedJobs vào đây. File mới được cộng thêm vào các file đang mở, kết quả trùng giữa các file tự loại bỏ. Dữ liệu chỉ xử lý trong trình duyệt của bạn.</div>
+  <details class="help" id="howto">
+    <summary>Lấy file FinishedJobs.txt từ máy LIAISON XL như thế nào?</summary>
+    <ol>
+      <li>Trên máy LIAISON XL, vào phần <b>Backup</b> và xuất file lưu trữ về máy tính. File có dạng <code>2210006840_temp_archive_2025_05.zip</code> (số máy, năm, tháng).</li>
+      <li>Giải nén file <code>.zip</code> đó.</li>
+      <li>Mở thư mục <b>Log</b> bên trong, tìm file <b>FinishedJobs.txt</b>.</li>
+      <li>Nạp vào công cụ: bấm <b>Thêm file log…</b> hoặc kéo thả file vào trang này.</li>
+    </ol>
+    <p>Muốn xem nhiều tháng: làm lại các bước trên với file lưu trữ của từng tháng và nạp lần lượt. Các file đều tên FinishedJobs.txt nhưng công cụ vẫn giữ riêng từng file, đánh số (2), (3)… và chỉ tính một lần các kết quả trùng.</p>
+  </details>
+  <div class="card" id="fileList"></div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Tổng quan</button>
+    <button class="tab" role="tab" data-tab="results" aria-selected="false">Kết quả</button>
+    <button class="tab" role="tab" data-tab="link" aria-selected="false">Lọc theo Sample ID</button>
+    <button class="tab" role="tab" data-tab="maint" aria-selected="false">Bảo trì (CLEAN)</button>
+    <button class="tab" role="tab" data-tab="qc" aria-selected="false">QC &amp; chuẩn</button>
+    <button class="tab" role="tab" data-tab="reagent" aria-selected="false">Thuốc thử &amp; hiệu chuẩn</button>
+    <button class="tab" role="tab" data-tab="alerts" aria-selected="false">Cảnh báo<span class="n" id="alertN" hidden></span></button>
+  </nav>
+
+  <section class="panel" id="p-overview"></section>
+  <section class="panel" id="p-results" hidden></section>
+  <section class="panel" id="p-link" hidden></section>
+  <section class="panel" id="p-maint" hidden></section>
+  <section class="panel" id="p-qc" hidden></section>
+  <section class="panel" id="p-reagent" hidden></section>
+  <section class="panel" id="p-alerts" hidden></section>
+</div>
+
+<script>
+const SAMPLE = __RAW__;
+const PALETTE = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
+const CAT_LABEL = {patient:'Bệnh nhân', control:'Control (#)', calibrator:'Chuẩn ($)', clean:'Vệ sinh'};
+const FLAG_VI = {
+  BelowAssayRange:'Dưới ngưỡng đo', AboveAssayRange:'Trên ngưỡng đo', AboveNormalRange:'Trên khoảng tham chiếu',
+  BelowNormalRange:'Dưới khoảng tham chiếu', ReagentOBSExpired:'Thuốc thử hết hạn on-board', CalibrationExpired:'Hiệu chuẩn hết hạn'
+};
+let S = {D:[], R:[], files:[], sample:false};
+let F = {assay:'', cat:'', flag:'', q:'', from:'', to:'', file:''};
+
+/* ---------- Parser ---------- */
+const KNOWN_KEYS = new Set(['SampleID','Replicate','RLU','Assay','StartCycle','DarkCountEvents','SpikeEvents','Article Number','Integral Lot','Integral Serial','Starter Lot A1','Starter Lot A2','Ancillary Lot','Ancillary Serial','Dilution Factor','Dose','CalibrationID','Flags']);
+function extractRange(extra){
+  // Nhận diện các trường khoảng giá trị nếu log có ghi (tên trường có thể khác nhau tuỳ cấu hình máy)
+  const num = v=>{ const m=String(v).replace(',','.').match(/-?\d+(\.\d+)?/); return m?parseFloat(m[0]):null; };
+  const r = {keys:[]};
+  for(const [k,v] of Object.entries(extra)){
+    if(v==='' ) continue; const kl=k.toLowerCase();
+    const kind = /normal|ref/.test(kl) ? 'ref' : 'qc';
+    const set=(f,val)=>{ if(val===null) return; (r[kind] ||= {})[f]=val; r.keys.push(k); };
+    if(/(range|limit|interval)/.test(kl) && !/(low|lower|min|high|upper|max)/.test(kl)){
+      const m=String(v).replace(/,/g,'.').match(/(-?[\d.]+)\s*(?:-|–|\.\.|~|to|÷)\s*(-?[\d.]+)/);
+      if(m){ set('lo',parseFloat(m[1])); set('hi',parseFloat(m[2])); }
+    } else if(/(low|lower|min)/.test(kl)) set('lo',num(v));
+    else if(/(high|upper|max)/.test(kl)) set('hi',num(v));
+    else if(/(target|mean|expected)/.test(kl)) set('mean',num(v));
+    else if(/(^|\b|_)(sd|stdev|std)(\b|$)/.test(kl)) set('sd',num(v));
+  }
+  return r.keys.length ? r : null;
+}
+function logFields(){ const s=new Set(); for(const r of S.D) for(const k in (r.extra||{})) s.add(k); return [...s]; }
+
+function parseText(text, file=''){
+  const D=[], R=[];
+  for(const raw of text.split(/\r?\n/)){
+    const line = raw.trim();
+    const m = line.match(/^([RD])-\|\((\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})\)\|(.*)$/);
+    if(!m) continue;
+    const o = {file, type:m[1], time:new Date(+m[2],+m[3]-1,+m[4],+m[5],+m[6],+m[7])};
+    o.ts = `${m[2]}-${m[3]}-${m[4]} ${m[5]}:${m[6]}:${m[7]}`; o.day = `${m[2]}-${m[3]}-${m[4]}`; o.hour=+m[5];
+    const kv = {};
+    for(const part of m[8].split('|')){ const i=part.indexOf(':'); if(i<0) continue; kv[part.slice(0,i).trim()] = part.slice(i+1).trim(); }
+    o.sid = (kv['SampleID']||'').replace(/^'|'$/g,'');
+    o.rep = +kv['Replicate']||1; o.rlu = +kv['RLU']; o.assay = kv['Assay']||'?';
+    o.cycle = (kv['StartCycle']||'').split(' ')[0];
+    o.article = kv['Article Number']||''; o.lot = kv['Integral Lot']||''; o.serial = kv['Integral Serial']||'';
+    o.a1 = kv['Starter Lot A1']||''; o.a2 = kv['Starter Lot A2']||''; o.dil = +kv['Dilution Factor']||1;
+    o.dark = kv['DarkCountEvents']||''; o.spike = kv['SpikeEvents']||'';
+    if(o.type==='D'){
+      o.doseRaw = kv['Dose']||''; const dm = o.doseRaw.match(/^([<>]?)\s*([\d.]+)/);
+      o.qual = dm?dm[1]:''; o.dose = dm?parseFloat(dm[2]):NaN;
+      o.calId = kv['CalibrationID']||'';
+      o.flags = (kv['Flags']||'').split(',').map(s=>s.trim()).filter(Boolean);
+      o.extra = {}; for(const k in kv) if(!KNOWN_KEYS.has(k)) o.extra[k]=kv[k];
+      o.logRange = extractRange(o.extra);
+    }
+    o.cat = o.assay==='CLEAN'||o.sid==='CLEAN' ? 'clean' : o.sid.startsWith('$') ? 'calibrator' : o.sid.startsWith('#') ? 'control' : 'patient';
+    o.key = [o.sid,o.assay,o.rep,o.cycle].join('|');
+    (o.type==='D'?D:R).push(o);
+  }
+  return {D,R};
+}
+function load(entries, isSample){
+  // entries: [{name,text}] — gộp, loại dòng trùng giữa các file
+  const seen = new Set(), D=[], R=[], stats=[];
+  for(const e of entries){
+    const p = parseText(e.text, e.label||e.name); let added=0, dup=0;
+    for(const r of [...p.D,...p.R]){ const k=r.type+r.ts+r.key; if(seen.has(k)){ if(r.type==='D') dup++; continue; } seen.add(k); (r.type==='D'?D:R).push(r); if(r.type==='D') added++; }
+    const ds=p.D.map(r=>r.ts).sort(); stats.push({name:e.name, label:e.label||e.name, size:e.text.length, total:p.D.length, added, dup, from:ds[0]||'', to:ds.at(-1)||'', assays:[...new Set(p.D.filter(r=>r.cat!=='clean').map(r=>r.assay))].sort(), pats:new Set(p.D.filter(r=>r.cat==='patient').map(r=>r.sid)).size});
+  }
+  D.sort((a,b)=>a.time-b.time); R.sort((a,b)=>a.time-b.time);
+  S = {D,R,files:entries,stats,sample:isSample};
+  F = {assay:'',cat:'',flag:'',q:'',from:'',to:'',file:''};
+  renderFiles(); renderAll();
+}
+function renderFiles(){
+  const el = document.getElementById('fileList');
+  const head = `<div class="hd"><h2>File log đã nạp <span class="sub">(${S.files.length})</span></h2><span class="sub">${S.sample?'Đang xem dữ liệu mẫu. File đầu tiên bạn thêm sẽ thay thế dữ liệu mẫu.':'Mọi số liệu bên dưới là tổng hợp của tất cả file trong danh sách.'}</span></div>`;
+  const how=document.getElementById('howto'); if(how && !S.files.length) how.open=true;
+  if(!S.files.length){ el.innerHTML = head+'<div class="empty">Chưa có file nào. Bấm “Thêm file log…” hoặc kéo thả file vào trang.</div>'; return; }
+  const kb = n=>n>1048576?fmt(n/1048576,1)+' MB':fmt(n/1024,0)+' KB';
+  const allD = S.D.map(r=>r.ts);
+  const rows = S.stats.map((s,i)=>`<tr>
+    <td class="num">${i+1}</td><td class="mono">${esc(s.label)}</td><td class="num">${kb(s.size)}</td>
+    <td class="mono" style="white-space:nowrap">${s.from.slice(0,16)}</td><td class="mono" style="white-space:nowrap">${s.to.slice(0,16)}</td>
+    <td class="num">${s.total}</td><td class="num">${s.added}</td><td class="num">${s.dup?`<span class="pill p-low">${s.dup}</span>`:'0'}</td>
+    <td class="num">${s.pats}</td><td style="min-width:220px">${esc(s.assays.join(', '))}</td>
+    <td><button class="btn" type="button" data-rm="${i}" aria-label="Bỏ file ${esc(s.label)}">Bỏ</button></td></tr>`).join('');
+  const sumPat = new Set(S.D.filter(r=>r.cat==='patient').map(r=>r.sid)).size;
+  el.innerHTML = head + `<div class="scroll"><table>
+    <thead><tr><th class="num">#</th><th>Tên file</th><th class="num">Dung lượng</th><th>Từ</th><th>Đến</th><th class="num">Kết quả trong file</th><th class="num">Được tính</th><th class="num">Trùng file trước</th><th class="num">Mẫu BN</th><th>Xét nghiệm</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr class="sum"><td></td><td><b>Tổng hợp</b></td><td class="num">${kb(S.stats.reduce((a,s)=>a+s.size,0))}</td>
+      <td class="mono" style="white-space:nowrap">${(allD[0]||'').slice(0,16)}</td><td class="mono" style="white-space:nowrap">${(allD.at(-1)||'').slice(0,16)}</td>
+      <td class="num">${S.stats.reduce((a,s)=>a+s.total,0)}</td><td class="num"><b>${S.D.length}</b></td><td class="num">${S.stats.reduce((a,s)=>a+s.dup,0)}</td>
+      <td class="num">${sumPat}</td><td style="min-width:220px">${esc(assays().join(', '))}</td><td></td></tr></tfoot></table></div>
+    <div class="note">“Được tính” là số kết quả mới mà file đó đóng góp. Kết quả đã có trong file nạp trước (cùng thời điểm, mã mẫu, xét nghiệm, lần lặp, chu kỳ) được đếm ở cột “Trùng” và chỉ tính một lần.</div>`;
+}
+
+/* ---------- Helpers ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = (n,d=2)=>Number.isFinite(n)?n.toLocaleString('vi-VN',{maximumFractionDigits:d}):'–';
+const css = v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const mean = a=>a.reduce((s,x)=>s+x,0)/a.length;
+const sd = a=>{ if(a.length<2) return NaN; const m=mean(a); return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1)); };
+const assays = ()=>[...new Set(S.D.filter(r=>r.cat!=='clean').map(r=>r.assay))].sort();
+function assayColor(a){ const i=assays().indexOf(a); return `var(${PALETTE[(i<0?0:i)%PALETTE.length]})`; }
+function flagPills(flags){
+  return flags.map(f=>{
+    const cls = /Expired/.test(f)?'p-crit':/Above/.test(f)?'p-high':'p-low';
+    return `<span class="pill ${cls}" title="${esc(f)}">${esc(FLAG_VI[f]||f)}</span>`;
+  }).join('');
+}
+const days = list=>[...new Set(list.map(r=>r.day))].sort();
+const shortDay = d=>d.slice(8,10)+'/'+d.slice(5,7);
+
+/* ---------- Alerts ---------- */
+function buildAlerts(){
+  const A=[];
+  const dKeys = new Set(S.D.map(r=>r.key));
+  for(const r of S.R) if(!dKeys.has(r.key)) A.push({sev:r.cat==='clean'?'info':'warn', time:r.time,
+    t:`Có RLU nhưng không có kết quả: ${r.sid} · ${r.assay}`, d:`${r.ts} · lần ${r.rep} · RLU ${fmt(r.rlu,0)} · chu kỳ ${r.cycle}. Lần chạy có thể bị huỷ hoặc chưa tính kết quả.`});
+  for(const r of S.D){
+    const ex = r.flags.filter(f=>/Expired/.test(f));
+    if(ex.length) A.push({sev:'crit', time:r.time, t:`Kết quả gắn cờ hết hạn: ${r.sid} · ${r.assay}`,
+      d:`${r.ts} · Dose ${r.doseRaw} · ${ex.map(f=>FLAG_VI[f]||f).join(', ')}. Cần kiểm tra lại thuốc thử/hiệu chuẩn trước khi trả kết quả.`});
+    if(r.flags.includes('AboveAssayRange') && r.cat==='patient') A.push({sev:'warn', time:r.time, t:`Vượt ngưỡng đo: ${r.sid} · ${r.assay}`,
+      d:`${r.ts} · Dose ${r.doseRaw} (hệ số pha loãng ${r.dil}). Cân nhắc chạy lại với pha loãng nếu cần giá trị định lượng.`});
+    if((r.dark && r.dark!=='Nothing') || (r.spike && r.spike!=='Nothing')) A.push({sev:'crit', time:r.time, t:`Sự kiện bất thường ở bộ đếm quang: ${r.sid}`,
+      d:`${r.ts} · DarkCount: ${r.dark} · Spike: ${r.spike}`});
+  }
+  // Mẫu chạy lặp lại
+  const g = {};
+  for(const r of S.D) if(r.cat==='patient'){ (g[r.sid+'|'+r.assay] ||= []).push(r); }
+  for(const k in g){ const L=g[k]; if(L.length<2) continue;
+    const vals = L.filter(r=>!r.qual && Number.isFinite(r.dose)).map(r=>r.dose);
+    let diff = ''; if(vals.length>=2){ const mx=Math.max(...vals), mn=Math.min(...vals); diff = ` · chênh lệch ${fmt((mx-mn)/mean(vals)*100,1)}%`; }
+    A.push({sev:'info', time:L[L.length-1].time, t:`Mẫu chạy lặp: ${L[0].sid} · ${L[0].assay} (${L.length} lần)`,
+      d:L.map(r=>`${r.ts.slice(5)} → ${r.doseRaw}`).join(' · ')+diff});
+  }
+  // Đổi serial/lot thuốc thử
+  const lastBy = {};
+  for(const r of S.D){ if(r.cat==='clean') continue; const p=lastBy[r.assay]; const cur=r.lot+'/'+r.serial;
+    if(p && p!==cur) A.push({sev:'info', time:r.time, t:`Đổi hộp thuốc thử ${r.assay}`, d:`${r.ts} · ${p} → ${cur} (lô/serial). Nên chạy control sau khi thay hộp.`});
+    lastBy[r.assay]=cur; }
+  const order={crit:0,warn:1,info:2};
+  return A.sort((a,b)=>order[a.sev]-order[b.sev] || b.time-a.time);
+}
+
+/* ---------- Charts ---------- */
+function stackedBars(cats, series, h=200){
+  // series: [{name,color,values[]}]
+  const W=Math.max(360, cats.length*44), pad={l:34,r:8,t:10,b:26};
+  const tot = cats.map((_,i)=>series.reduce((s,se)=>s+se.values[i],0));
+  const max = Math.max(1,...tot); const step = niceStep(max);
+  const top = Math.ceil(max/step)*step;
+  const y = v=>pad.t+(h-pad.t-pad.b)*(1-v/top);
+  const bw = (W-pad.l-pad.r)/cats.length;
+  let s = `<svg viewBox="0 0 ${W} ${h}" width="100%" style="min-width:${Math.min(W,560)}px;display:block" role="img">`;
+  for(let v=0; v<=top; v+=step) s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="${v?0.6:1}"/><text x="${pad.l-6}" y="${y(v)+3}" text-anchor="end">${v}</text>`;
+  cats.forEach((c,i)=>{
+    let acc=0; const x=pad.l+i*bw+bw*0.18, w=bw*0.64;
+    for(const se of series){ const v=se.values[i]; if(!v) continue;
+      s+=`<rect x="${x}" y="${y(acc+v)}" width="${w}" height="${y(acc)-y(acc+v)}" fill="${se.color}"><title>${esc(c)} · ${esc(se.name)}: ${v}</title></rect>`; acc+=v; }
+    if(tot[i]) s+=`<text x="${x+w/2}" y="${y(tot[i])-3}" text-anchor="middle" style="fill:var(--ink)">${tot[i]}</text>`;
+    s+=`<text x="${x+w/2}" y="${h-8}" text-anchor="middle">${esc(c)}</text>`;
+  });
+  return s+'</svg>';
+}
+function niceStep(max){ const raw=max/4, p=10**Math.floor(Math.log10(raw)), n=raw/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
+
+/* ---------- Views ---------- */
+function renderOverview(){
+  const res = S.D.filter(r=>r.cat!=='clean');
+  const pat = res.filter(r=>r.cat==='patient');
+  const flagged = res.filter(r=>r.flags.length);
+  const dlist = days(res);
+  const as = assays();
+  const span = dlist.length ? `${shortDay(dlist[0])}/${dlist[0].slice(0,4)} – ${shortDay(dlist.at(-1))}/${dlist.at(-1).slice(0,4)}` : '–';
+  const series = as.map(a=>({name:a,color:assayColor(a),values:dlist.map(d=>res.filter(r=>r.day===d&&r.assay===a).length)}));
+  const hours = Array.from({length:24},(_,h)=>pat.filter(r=>r.hour===h).length);
+  const h0 = hours.findIndex(v=>v), h1 = 23-[...hours].reverse().findIndex(v=>v);
+  const hrRange = h0<0?[]:Array.from({length:h1-h0+1},(_,i)=>h0+i);
+  const cleanDays = days(S.D.filter(r=>r.cat==='clean')).length;
+
+  const rows = as.map(a=>{
+    const L = res.filter(r=>r.assay===a), P = L.filter(r=>r.cat==='patient');
+    const below = P.filter(r=>r.flags.includes('BelowAssayRange')).length;
+    const above = P.filter(r=>r.flags.includes('AboveAssayRange')).length;
+    const abN = P.filter(r=>r.flags.includes('AboveNormalRange')).length;
+    const qc = L.filter(r=>r.cat!=='patient').length;
+    return `<tr><td><span class="legend"><span><i style="background:${assayColor(a)}"></i>${esc(a)}</span></span></td>
+      <td class="num">${P.length}</td><td class="num">${qc}</td><td class="num">${below}</td><td class="num">${P.length-below-above}</td><td class="num">${above}</td><td class="num">${abN}</td>
+      <td class="mono">${esc([...new Set(L.map(r=>r.lot))].join(', '))}</td></tr>`;
+  }).join('');
+
+  $('#p-overview').innerHTML = `
+  <div class="kpis">
+    <div class="kpi"><div class="l">Kết quả (không gồm vệ sinh)</div><div class="v">${res.length}</div><div class="s">${span} · ${dlist.length} ngày có chạy</div></div>
+    <div class="kpi"><div class="l">Mẫu bệnh nhân</div><div class="v">${new Set(pat.map(r=>r.sid)).size}</div><div class="s">${pat.length} lượt xét nghiệm</div></div>
+    <div class="kpi"><div class="l">Xét nghiệm khác nhau</div><div class="v">${as.length}</div><div class="s">${esc(as.join(' · '))}</div></div>
+    <div class="kpi"><div class="l">Kết quả có cờ</div><div class="v">${flagged.length}</div><div class="s">${fmt(res.length?flagged.length/res.length*100:0,1)}% tổng kết quả</div></div>
+    <div class="kpi"><div class="l">Chạy QC / chuẩn</div><div class="v">${res.filter(r=>r.cat!=='patient').length}</div><div class="s">CLEAN: ${cleanDays} ngày</div></div>
+  </div>
+  <div class="card"><div class="hd"><h2>Số kết quả theo ngày</h2><div class="legend">${series.map(s=>`<span><i style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div></div>
+    <div class="scroll">${dlist.length?stackedBars(dlist.map(shortDay),series):'<div class="empty">Không có dữ liệu.</div>'}</div></div>
+  <div class="grid2">
+    <div class="card"><div class="hd"><h2>Thống kê theo xét nghiệm</h2><span class="sub">Phân loại theo cờ của máy, chỉ mẫu bệnh nhân</span></div>
+      <div class="scroll"><table><thead><tr><th>Xét nghiệm</th><th class="num">BN</th><th class="num">QC</th><th class="num">Dưới ngưỡng đo</th><th class="num">Trong ngưỡng</th><th class="num">Trên ngưỡng đo</th><th class="num">Trên KTC</th><th>Lô</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="card"><div class="hd"><h2>Phân bố mẫu bệnh nhân theo giờ</h2><span class="sub">Theo thời điểm có kết quả</span></div>
+      <div class="scroll">${hrRange.length?stackedBars(hrRange.map(h=>h+'h'),[{name:'Mẫu',color:'var(--accent)',values:hrRange.map(h=>hours[h])}],180):'<div class="empty">Không có mẫu bệnh nhân.</div>'}</div></div>
+  </div>`;
+}
+
+function filtered(){
+  const q = F.q.trim().toLowerCase();
+  return S.D.filter(r=>
+    (!F.assay||r.assay===F.assay) && (!F.cat||r.cat===F.cat) &&
+    (!F.flag || (F.flag==='any'?r.flags.length>0 : F.flag==='none'?r.flags.length===0 : r.flags.includes(F.flag))) &&
+    (!F.file || r.file===F.file) && (!q || r.sid.toLowerCase().includes(q)) && (!F.from||r.day>=F.from) && (!F.to||r.day<=F.to));
+}
+function renderResults(){
+  const flagSet = [...new Set(S.D.flatMap(r=>r.flags))].sort();
+  const opt = (v,l,cur)=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(l)}</option>`;
+  $('#p-results').innerHTML = `
+  <div class="card">
+    <div class="filters">
+      <label>Mã mẫu<input type="text" id="fQ" placeholder="Nhập mã mẫu" value="${esc(F.q)}"></label>
+      <label>Xét nghiệm<select id="fAssay">${opt('','Tất cả',F.assay)}${[...new Set(S.D.map(r=>r.assay))].sort().map(a=>opt(a,a,F.assay)).join('')}</select></label>
+      <label>Loại mẫu<select id="fCat">${opt('','Tất cả',F.cat)}${Object.entries(CAT_LABEL).map(([k,v])=>opt(k,v,F.cat)).join('')}</select></label>
+      ${S.files.length>1?`<label>File<select id="fFile">${opt('','Tất cả file',F.file)}${S.stats.map(s=>opt(s.label,s.label,F.file)).join('')}</select></label>`:''}
+      <label>Cờ<select id="fFlag">${opt('','Tất cả',F.flag)}${opt('any','Có cờ bất kỳ',F.flag)}${opt('none','Không có cờ',F.flag)}${flagSet.map(f=>opt(f,FLAG_VI[f]||f,F.flag)).join('')}</select></label>
+      <label>Từ ngày<input type="date" id="fFrom" value="${F.from}"></label>
+      <label>Đến ngày<input type="date" id="fTo" value="${F.to}"></label>
+      <button class="btn" id="btnReset" type="button">Xoá lọc</button>
+      <button class="btn" id="btnCsv" type="button">Sao chép CSV</button>
+    </div>
+    <div class="sub" id="resCount"></div>
+    <div class="tablebox"><table><thead><tr><th>Thời gian</th><th>Mã mẫu</th><th>Loại</th><th>Xét nghiệm</th><th class="num">Lần</th><th class="num">RLU</th><th class="num">Dose</th><th>Cờ</th><th>Lô / Serial</th><th>Calib</th><th>File</th></tr></thead><tbody id="resBody"></tbody></table></div>
+    <textarea id="csvbox" hidden readonly aria-label="Dữ liệu CSV"></textarea>
+  </div>`;
+  fillResults();
+  const bind=(id,k,ev='change')=>$(id).addEventListener(ev,e=>{F[k]=e.target.value;fillResults();});
+  bind('#fQ','q','input'); bind('#fAssay','assay'); bind('#fCat','cat'); bind('#fFlag','flag'); if($('#fFile')) bind('#fFile','file'); bind('#fFrom','from'); bind('#fTo','to');
+  $('#btnReset').onclick=()=>{F={assay:'',cat:'',flag:'',q:'',from:'',to:''};renderResults();};
+  $('#btnCsv').onclick=copyCsv;
+}
+function fillResults(){
+  const L = filtered();
+  $('#resCount').textContent = `${L.length} / ${S.D.length} kết quả`;
+  $('#resBody').innerHTML = L.length ? L.slice().reverse().map(r=>`<tr>
+    <td class="mono">${r.ts}</td><td class="mono">${esc(r.sid)}</td><td class="cat">${CAT_LABEL[r.cat]}</td>
+    <td><span class="legend"><span><i style="background:${r.cat==='clean'?'var(--line)':assayColor(r.assay)}"></i>${esc(r.assay)}</span></span></td>
+    <td class="num">${r.rep}</td><td class="num">${fmt(r.rlu,0)}</td><td class="num">${esc(r.doseRaw)}</td>
+    <td>${flagPills(r.flags)}</td><td class="mono">${esc(r.lot)}/${esc(r.serial)}</td><td class="mono">${esc(r.calId||'–')}</td><td class="cat">${esc(r.file)}</td></tr>`).join('')
+    : `<tr><td colspan="11" class="empty">Không có kết quả khớp bộ lọc. Bấm “Xoá lọc” để xem lại toàn bộ.</td></tr>`;
+}
+function copyCsv(){
+  const L = filtered();
+  const head = ['Thoi gian','Ma mau','Loai','Xet nghiem','Lan','RLU','Dose','Dau','Gia tri','Co','Lot','Serial','CalibrationID','He so pha loang','File'];
+  const q = v=>/[",;\n]/.test(String(v))?`"${String(v).replace(/"/g,'""')}"`:v;
+  const csv = [head.join(','), ...L.map(r=>[r.ts,r.sid,CAT_LABEL[r.cat],r.assay,r.rep,r.rlu,r.doseRaw,r.qual,Number.isFinite(r.dose)?r.dose:'',r.flags.join(' '),r.lot,r.serial,r.calId,r.dil,r.file].map(q).join(','))].join('\n');
+  const box = $('#csvbox');
+  navigator.clipboard?.writeText(csv).then(()=>toast(`Đã sao chép ${L.length} dòng CSV`)).catch(()=>{
+    box.hidden=false; box.value=csv; box.select(); toast('Không truy cập được clipboard — đã chọn sẵn văn bản, nhấn Ctrl+C');
+  }) ?? (box.hidden=false, box.value=csv, box.select());
+}
+
+/* ---------- QC: giới hạn, Westgard, tần suất ---------- */
+const RULES = {
+  '1-2s':{sev:'warn', d:'1 điểm vượt ±2SD (cảnh báo)'},
+  '1-3s':{sev:'rej', d:'1 điểm vượt ±3SD'},
+  '2-2s':{sev:'rej', d:'2 điểm liên tiếp cùng phía vượt 2SD'},
+  'R-4s':{sev:'rej', d:'2 điểm lệch nhau >4SD (một trên +2SD, một dưới −2SD)'},
+  '4-1s':{sev:'rej', d:'4 điểm liên tiếp cùng phía vượt 1SD'},
+  '10x':{sev:'rej', d:'10 điểm liên tiếp cùng một phía của TB'}
+};
+let QCV = {assay:'', rules:{'1-2s':true,'1-3s':true,'2-2s':true,'R-4s':true,'4-1s':true,'10x':true}, qcEvery:''};
+try{ Object.assign(QCV, JSON.parse(localStorage.getItem('lablog-qcv')||'{}')); }catch(e){}
+const saveQCV = ()=>{ try{ localStorage.setItem('lablog-qcv', JSON.stringify({rules:QCV.rules, qcEvery:QCV.qcEvery})); }catch(e){} };
+
+function qcKey(assay,sid){ return assay+'|'+sid; }
+function logQCRange(series){
+  const q = series.slice().reverse().map(r=>r.logRange&&r.logRange.qc).find(Boolean);
+  if(!q) return null;
+  if(q.mean!=null && q.sd>0) return {m:q.mean, s:q.sd, src:'Mean/SD từ log', manual:true, fromLog:true};
+  if(q.lo!=null && q.hi!=null && q.hi>q.lo) return {m:(q.lo+q.hi)/2, s:(q.hi-q.lo)/4, src:'Khoảng QC từ log (±2SD)', manual:true, fromLog:true, lo:q.lo, hi:q.hi};
+  return null;
+}
+function qcTarget(assay, sid, series){
+  // Khoảng có trong log (nếu máy ghi) → TB/SD tính từ dữ liệu control
+  const lr = logQCRange(series);
+  if(lr) return lr;
+  const v = series.filter(r=>Number.isFinite(r.dose)).map(r=>r.dose);
+  return {m: v.length?mean(v):NaN, s: sd(v), src: v.length>=2?'TB/SD tính từ dữ liệu control':'Chưa đủ dữ liệu', manual:false, auto:true};
+}
+function controlGroups(){
+  const g={};
+  for(const r of S.D) if(r.cat==='control') (g[qcKey(r.assay,r.sid)] ||= []).push(r);
+  return Object.entries(g).map(([k,L])=>({key:k, assay:L[0].assay, sid:L[0].sid, L})).sort((a,b)=>a.assay.localeCompare(b.assay)||a.sid.localeCompare(b.sid));
+}
+function westgard(series, t){
+  // trả về mỗi điểm: z, các quy tắc vi phạm
+  const pts = series.filter(r=>Number.isFinite(r.dose)).map(r=>({r, z:(Number.isFinite(t.s)&&t.s>0)?(r.dose-t.m)/t.s:0, rules:[]}));
+  if(!(Number.isFinite(t.s)&&t.s>0)) return pts;
+  const on = QCV.rules;
+  pts.forEach((p,i)=>{
+    const z=p.z, prev=pts[i-1];
+    if(on['1-3s'] && Math.abs(z)>3) p.rules.push('1-3s');
+    else if(on['1-2s'] && Math.abs(z)>2) p.rules.push('1-2s');
+    if(on['2-2s'] && prev && ((z>2&&prev.z>2)||(z<-2&&prev.z<-2))) p.rules.push('2-2s');
+    if(on['R-4s'] && prev && ((z>2&&prev.z<-2)||(z<-2&&prev.z>2))) p.rules.push('R-4s');
+    if(on['4-1s'] && i>=3){ const w=pts.slice(i-3,i+1).map(q=>q.z); if(w.every(v=>v>1)||w.every(v=>v<-1)) p.rules.push('4-1s'); }
+    if(on['10x'] && i>=9){ const w=pts.slice(i-9,i+1).map(q=>q.z); if(w.every(v=>v>0)||w.every(v=>v<0)) p.rules.push('10x'); }
+  });
+  return pts;
+}
+function crossLevel(groups){
+  // 2-2s và R-4s giữa các mức control của cùng xét nghiệm trong cùng ngày
+  const out=[]; const by={};
+  for(const g of groups){ const t=qcTarget(g.assay,g.sid,g.L); if(!(t.s>0)) continue;
+    for(const p of westgard(g.L,t)) ((by[g.assay+'|'+p.r.day] ||= [])).push({sid:g.sid,z:p.z,r:p.r}); }
+  for(const k in by){ const L=by[k]; if(L.length<2) continue; const [assay,day]=k.split('|');
+    const hi=L.filter(p=>p.z>2), lo=L.filter(p=>p.z<-2);
+    if(QCV.rules['2-2s'] && (hi.length>=2||lo.length>=2)) out.push({assay,day,rule:'2-2s',d:`${(hi.length>=2?hi:lo).map(p=>p.sid).join(', ')} cùng vượt 2SD`});
+    if(QCV.rules['R-4s'] && hi.length && lo.length) out.push({assay,day,rule:'R-4s',d:`${hi[0].sid} > +2SD, ${lo[0].sid} < −2SD`});
+  }
+  return out;
+}
+function qcStatusOf(pts){
+  const r=new Set(pts.flatMap(p=>p.rules));
+  if([...r].some(x=>RULES[x].sev==='rej')) return 'rej';
+  return r.size?'warn':'ok';
+}
+
+function qcFrequency(groups){
+  const dl=dayRange();
+  const as=[...new Set([...groups.map(g=>g.assay), ...S.D.filter(r=>r.cat==='patient').map(r=>r.assay)])].sort();
+  return as.map(a=>{
+    const ctl=S.D.filter(r=>r.cat==='control'&&r.assay===a), pat=S.D.filter(r=>r.cat==='patient'&&r.assay===a);
+    const qcDays=new Set(ctl.map(r=>r.day)), patDays=new Set(pat.map(r=>r.day));
+    const noQC=[...patDays].filter(d=>!qcDays.has(d)).sort();
+    // số test BN tối đa giữa 2 lần QC
+    let run=0,maxRun=0; const ev=[...ctl.map(r=>({t:r.time,q:1})),...pat.map(r=>({t:r.time,q:0}))].sort((x,y)=>x.t-y.t);
+    for(const e of ev){ if(e.q){run=0;} else {run++; maxRun=Math.max(maxRun,run);} }
+    const lastQC=ctl.at(-1), lastAny=[...ctl,...pat].sort((x,y)=>x.time-y.time).at(-1);
+    const gaps=[...qcDays].sort().map(d=>new Date(d+'T00:00:00')).map((d,i,arr)=>i?(d-arr[i-1])/864e5:NaN).filter(Number.isFinite);
+    return {assay:a, nQC:ctl.length, levels:new Set(ctl.map(r=>r.sid)).size, qcDays, patDays, noQC, maxRun, after:run,
+      lastQC, sinceDays: lastQC&&lastAny?Math.round((new Date(lastAny.day)-new Date(lastQC.day))/864e5):null,
+      meanGap: gaps.length?mean(gaps):NaN, dl};
+  });
+}
+function freqMatrix(freq, viol){
+  const dl=dayRange(); if(!dl.length||!freq.length) return '';
+  const cw=26, lw=78, W=lw+dl.length*cw+8, rh=26, H=24+freq.length*rh+8;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" style="max-width:none;display:block" role="img" aria-label="Lịch QC theo ngày">`;
+  dl.forEach((d,i)=>{ const wk=new Date(d+'T00:00:00').getDay();
+    if(i%Math.max(1,Math.ceil(dl.length/12))===0) s+=`<text x="${lw+i*cw+cw/2}" y="12" text-anchor="middle">${shortDay(d)}</text>`;
+    if(wk===0) s+=`<rect x="${lw+i*cw}" y="18" width="${cw}" height="${freq.length*rh+4}" fill="var(--sunk)"/>`; });
+  freq.forEach((f,j)=>{
+    const y=20+j*rh;
+    s+=`<text x="${lw-8}" y="${y+rh/2+3}" text-anchor="end" style="fill:var(--ink);font-family:var(--f-body);font-size:11px">${esc(f.assay)}</text>`;
+    dl.forEach((d,i)=>{
+      const x=lw+i*cw+3, w=cw-6, h=rh-6, nP=S.D.filter(r=>r.cat==='patient'&&r.assay===f.assay&&r.day===d).length;
+      const qc=f.qcDays.has(d), bad=viol.has(f.assay+'|'+d);
+      let fill='none', stroke='var(--line)', txt='', tc='var(--muted)';
+      if(qc){ fill=bad?'var(--crit)':'var(--accent)'; stroke=fill; tc='var(--surface)'; txt=nP||'QC'; }
+      else if(nP){ fill='var(--warn-soft)'; stroke='var(--warn)'; tc='var(--warn)'; txt=nP; }
+      if(!qc&&!nP) { s+=`<rect x="${x+w/2-1.5}" y="${y+3+h/2-1.5}" width="3" height="3" fill="var(--line)"/>`; return; }
+      s+=`<rect x="${x}" y="${y+3}" width="${w}" height="${h}" rx="3" fill="${fill}" stroke="${stroke}"><title>${f.assay} · ${shortDay(d)}: ${qc?'có QC'+(bad?' (vi phạm Westgard)':''):'KHÔNG có QC'} · ${nP} mẫu BN</title></rect>`;
+      s+=`<text x="${x+w/2}" y="${y+3+h/2+3}" text-anchor="middle" style="fill:${tc};font-size:${String(txt).length>2?8:9.5}px">${txt}</text>`;
+    });
+  });
+  return s+'</svg>';
+}
+
+function ljMulti(levels, t0, t1){
+  // levels: [{name,color,pts:[{t,z,v,title,st,cens}]}] — trục tung theo đơn vị SD để gộp nhiều mức trên một biểu đồ
+  const W=720,H=230,pad={l:44,r:14,t:12,b:26};
+  const zmax=Math.max(3.6,...levels.flatMap(l=>l.pts.map(p=>Math.abs(p.z)+0.4)));
+  const y=z=>pad.t+(H-pad.t-pad.b)*(0.5-z/(2*zmax));
+  const span=Math.max(1,t1-t0), x=t=>pad.l+(W-pad.l-pad.r)*((t-t0)/span)*(t1>t0?1:0)+(t1>t0?0:(W-pad.l-pad.r)/2);
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:520px;display:block" role="img" aria-label="Biểu đồ Levey-Jennings">`;
+  g+=`<rect x="${pad.l}" y="${y(2)}" width="${W-pad.l-pad.r}" height="${y(-2)-y(2)}" fill="var(--accent-soft)" opacity=".5"/>`;
+  for(const k of [3,2,1,0,-1,-2,-3]){
+    const c=k===0?'var(--accent)':Math.abs(k)===3?'var(--crit)':Math.abs(k)===2?'var(--warn)':'var(--line)';
+    g+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(k)}" y2="${y(k)}" stroke="${c}" stroke-dasharray="${k===0?'':Math.abs(k)===1?'2 3':'5 3'}"/><text x="${pad.l-5}" y="${y(k)+3}" text-anchor="end">${k===0?'TB':(k>0?'+':'−')+Math.abs(k)+'SD'}</text>`;
+  }
+  // nhãn ngày
+  const d0=new Date(t0); d0.setHours(0,0,0,0); const nd=Math.round((t1-d0)/864e5)+1, every=Math.max(1,Math.ceil(nd/10));
+  for(let i=0;i<nd;i+=every){ const d=new Date(d0.getTime()+i*864e5); d.setHours(12); const xx=x(+d); if(xx<pad.l-2||xx>W-pad.r+2) continue;
+    g+=`<text x="${xx}" y="${H-8}" text-anchor="middle">${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</text>`; }
+  for(const l of levels){
+    if(l.pts.length>1) g+=`<polyline fill="none" stroke="${l.color}" stroke-width="1.4" opacity=".7" points="${l.pts.map(p=>x(p.t)+','+y(p.z)).join(' ')}"/>`;
+    for(const p of l.pts){ const cx=x(p.t), cy=y(p.z);
+      g+= p.st==='rej' ? `<path d="M${cx} ${cy-6}L${cx+6} ${cy}L${cx} ${cy+6}L${cx-6} ${cy}Z" fill="var(--crit)" stroke="${l.color}" stroke-width="1.5"><title>${esc(p.title)}</title></path>`
+        : `<circle cx="${cx}" cy="${cy}" r="4" fill="${p.cens?'var(--surface)':p.st==='warn'?'var(--warn)':l.color}" stroke="${l.color}" stroke-width="1.6"><title>${esc(p.title)}</title></circle>`;
+      if(p.flagged) g+=`<circle cx="${cx}" cy="${cy}" r="7.5" fill="none" stroke="var(--crit)" stroke-width="1.2" stroke-dasharray="2 2"/>`;
+    }
+  }
+  return g+'</svg>';
+}
+
+function renderQC(){
+  const groups = controlGroups();
+  const asList = [...new Set([...groups.map(g=>g.assay), ...S.D.filter(r=>r.cat==='patient').map(r=>r.assay)])].sort();
+  if(QCV.assay && !asList.includes(QCV.assay)) QCV.assay='';
+  const A = QCV.assay;
+  const opt=(v,l,cur)=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(l)}</option>`;
+  const shown = groups.filter(g=>!A||g.assay===A);
+  const violDays = new Set();
+  const cross = crossLevel(groups);
+
+  // Levey-Jennings theo từng xét nghiệm
+  const byAssay = {};
+  for(const g of shown) (byAssay[g.assay] ||= []).push(g);
+  let nRej=0, nWarn=0, nPts=0;
+  const ljCards = Object.keys(byAssay).sort().map(assay=>{
+    const gs = byAssay[assay];
+    const all = gs.flatMap(g=>g.L); const t0=Math.min(...all.map(r=>+r.time)), t1=Math.max(...all.map(r=>+r.time));
+    const levels=[], statRows=[], viol=[];
+    gs.forEach((g,i)=>{
+      const t=qcTarget(g.assay,g.sid,g.L), pts=westgard(g.L,t), color=`var(${PALETTE[i%PALETTE.length]})`;
+      nPts+=pts.length;
+      pts.forEach(p=>{ const rej=p.rules.some(x=>RULES[x].sev==='rej'); if(rej){nRej++;violDays.add(assay+'|'+p.r.day);} else if(p.rules.length) nWarn++;
+        if(p.rules.length||p.r.flags.length) viol.push({sid:g.sid,color,p}); });
+      levels.push({name:g.sid,color,pts:pts.map(p=>({t:+p.r.time, z:p.z, v:p.r.dose, cens:!!p.r.qual, flagged:p.r.flags.length>0,
+        st:p.rules.some(x=>RULES[x].sev==='rej')?'rej':p.rules.length?'warn':'ok',
+        title:`${g.sid} · ${p.r.ts} · ${p.r.doseRaw} · z = ${fmt(p.z,2)}${p.rules.length?' · '+p.rules.join(', '):''}${p.r.flags.length?' · cờ: '+p.r.flags.join(', '):''}`}))});
+      const cv=t.s/t.m*100;
+      statRows.push(`<tr><td><span class="legend"><span><i style="background:${color}"></i>${esc(g.sid)}</span></span></td><td class="num">${pts.length}</td><td class="num">${fmt(t.m,3)}</td><td class="num">${fmt(t.s,3)}</td><td class="num">${Number.isFinite(cv)?fmt(cv,1)+'%':'–'}</td>
+        <td class="num">${fmt(Math.min(...pts.map(p=>p.r.dose)),3)} – ${fmt(Math.max(...pts.map(p=>p.r.dose)),3)}</td><td class="mono">${pts.at(-1)?pts.at(-1).r.ts.slice(0,16):'–'}</td><td class="cat">${t.fromLog?'Range từ log':'Tính từ dữ liệu'}</td></tr>`);
+    });
+    const cx = cross.filter(c=>c.assay===assay);
+    cx.forEach(c=>violDays.add(assay+'|'+c.day));
+    const st = viol.some(v=>v.p.rules.some(x=>RULES[x].sev==='rej'))||cx.length ? 'rej' : viol.some(v=>v.p.rules.length) ? 'warn' : 'ok';
+    const enough = gs.some(g=>g.L.length>=3);
+    const pill = st==='rej'?'<span class="pill p-crit">Có vi phạm</span>':st==='warn'?'<span class="pill p-high">Cảnh báo 1-2s</span>':enough?'<span class="pill p-ok">Đạt</span>':'<span class="pill p-low">Ít dữ liệu</span>';
+    const vRows = viol.sort((a,b)=>a.p.r.time-b.p.r.time).map(v=>`<tr><td class="mono">${v.p.r.ts.slice(0,16)}</td><td><span class="legend"><span><i style="background:${v.color}"></i>${esc(v.sid)}</span></span></td><td class="num">${esc(v.p.r.doseRaw)}</td><td class="num">${fmt(v.p.z,2)}</td>
+      <td>${v.p.rules.map(x=>`<span class="pill ${RULES[x].sev==='rej'?'p-crit':'p-high'}" title="${esc(RULES[x].d)}">${x}</span>`).join('')}${flagPills(v.p.r.flags)}</td></tr>`).join('')
+      + cx.map(c=>`<tr><td class="mono">${c.day}</td><td>Giữa các mức</td><td></td><td></td><td><span class="pill p-crit">${c.rule}</span> ${esc(c.d)}</td></tr>`).join('');
+    return `<div class="card"><div class="hd"><h2>${esc(assay)} <span class="sub">· ${gs.length} mức control · ${all.length} lần chạy</span></h2>${pill}</div>
+      <div class="legend">${levels.map(l=>`<span><i style="background:${l.color}"></i>${esc(l.name)}</span>`).join('')}<span class="cat">Trục tung tính theo SD của từng mức · hình thoi đỏ: vi phạm · vòng nét đứt: kết quả có cờ</span></div>
+      <div class="scroll">${ljMulti(levels,t0,t1)}</div>
+      <div class="scroll"><table><thead><tr><th>Mức</th><th class="num">n</th><th class="num">TB</th><th class="num">SD</th><th class="num">CV</th><th class="num">Thấp – cao</th><th>Lần chạy cuối</th><th>Giới hạn</th></tr></thead><tbody>${statRows.join('')}</tbody></table></div>
+      ${vRows?`<div class="scroll"><table><thead><tr><th>Thời điểm</th><th>Mức</th><th class="num">Giá trị</th><th class="num">z</th><th>Quy tắc / cờ</th></tr></thead><tbody>${vRows}</tbody></table></div>`:''}
+      ${!enough?'<div class="note">Mỗi mức mới có 1–2 lần chạy nên TB/SD chưa đại diện; biểu đồ sẽ có ý nghĩa hơn khi gộp thêm file log.</div>':''}
+    </div>`;
+  }).join('');
+
+  // Tần suất QC
+  const freq = qcFrequency(groups).filter(f=>!A||f.assay===A);
+  const req = QCV.qcEvery;
+  const fRows = freq.map(f=>{
+    let comp='';
+    if(req==='day') comp = f.noQC.length?`<span class="pill p-crit">${f.noQC.length} ngày thiếu QC</span>`:(f.patDays.size?'<span class="pill p-ok">Đạt</span>':'');
+    else if(req==='week'){ const ql=[...f.qcDays].sort(), pd=[...f.patDays].sort();
+      const miss=pd.filter(d=>!ql.some(q=>q<=d&&(new Date(d)-new Date(q))/864e5<7)).length;
+      comp = miss?`<span class="pill p-crit">${miss} ngày quá 7 ngày từ QC</span>`:(pd.length?'<span class="pill p-ok">Đạt</span>':''); }
+    const cov=f.patDays.size?[...f.patDays].filter(d=>f.qcDays.has(d)).length/f.patDays.size*100:NaN;
+    return `<tr><td>${esc(f.assay)}</td><td class="num">${f.levels}</td><td class="num">${f.nQC}</td><td class="num">${f.qcDays.size}</td><td class="num">${f.patDays.size}</td>
+      <td class="num">${Number.isFinite(cov)?fmt(cov,0)+'%':'–'}</td><td class="num">${Number.isFinite(f.meanGap)?fmt(f.meanGap,1):'–'}</td><td class="num">${f.maxRun}</td>
+      <td class="mono">${f.lastQC?f.lastQC.ts.slice(0,16):'<span class="pill p-crit">Chưa có QC</span>'}</td><td class="num">${f.after}</td>${req?`<td>${comp}</td>`:''}</tr>`;
+  }).join('');
+  const noQCdays = freq.reduce((a,f)=>a+f.noQC.length,0);
+
+  // Mẫu có cờ báo
+  const flagged = S.D.filter(r=>r.cat!=='clean' && r.flags.length && (!A||r.assay===A));
+  const flagCount = {}; for(const r of flagged) for(const f of r.flags) flagCount[f]=(flagCount[f]||0)+1;
+  const fcRows = Object.entries(flagCount).sort((a,b)=>b[1]-a[1]).map(([f,n])=>`<span>${flagPills([f])} <b class="mono">${n}</b></span>`).join('');
+  const flRows = flagged.slice().reverse().map(r=>`<tr><td class="mono">${r.ts.slice(0,16)}</td><td class="mono">${esc(r.sid)}</td><td class="cat">${CAT_LABEL[r.cat]}</td><td>${esc(r.assay)}</td><td class="num">${esc(r.doseRaw)}</td><td>${flagPills(r.flags)}</td><td class="mono">${esc(r.lot)}/${esc(r.serial)}</td></tr>`).join('');
+
+  // Chuẩn
+  const cal=S.D.filter(r=>r.cat==='calibrator'&&(!A||r.assay===A)); const runs={};
+  for(const r of cal) (runs[r.assay+'|'+r.ts+'|'+r.sid] ||= []).push(r);
+  const runRows=Object.values(runs).sort((a,b)=>a[0].time-b[0].time).map(L=>{ const rl=L.map(r=>r.rlu), m=mean(rl), s=sd(rl), cv=s/m*100, cls=cv>10?'p-crit':cv>5?'p-high':'p-ok';
+    return `<tr><td class="mono">${L[0].ts}</td><td>${esc(L[0].assay)}</td><td class="mono">${esc(L[0].sid)}</td><td class="num">${L.length}</td><td class="num">${fmt(m,0)}</td><td class="num">${fmt(s,0)}</td><td class="num"><span class="pill ${cls}">${Number.isFinite(cv)?fmt(cv,1)+'%':'–'}</span></td><td class="mono">${esc(L.map(r=>r.doseRaw).join(' · '))}</td><td class="mono">${esc(L[0].calId)}</td></tr>`; }).join('');
+
+  $('#p-qc').innerHTML = `
+  <div class="filters">
+    <label>Xét nghiệm<select id="qcAssay">${opt('','Tất cả xét nghiệm',A)}${asList.map(a=>opt(a,a,A)).join('')}</select></label>
+    <label>Tần suất QC yêu cầu<select id="qcEvery">${opt('','Không đặt',req)}${opt('day','Mỗi ngày có chạy mẫu',req)}${opt('week','Ít nhất 1 lần / 7 ngày',req)}</select></label>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="l">Lần chạy control</div><div class="v">${nPts}</div><div class="s">${shown.length} mức · ${Object.keys(byAssay).length} xét nghiệm</div></div>
+    <div class="kpi"><div class="l">Vi phạm Westgard</div><div class="v" style="color:${nRej?'var(--crit)':'inherit'}">${nRej+cross.filter(c=>!A||c.assay===A).length}</div><div class="s">${nWarn} cảnh báo 1-2s</div></div>
+    <div class="kpi"><div class="l">Ngày chạy BN không có QC</div><div class="v" style="color:${noQCdays?'var(--warn)':'inherit'}">${noQCdays}</div><div class="s">cộng dồn theo từng xét nghiệm</div></div>
+    <div class="kpi"><div class="l">Kết quả có cờ báo</div><div class="v">${flagged.length}</div><div class="s">${flagged.filter(r=>r.cat==='patient').length} BN · ${flagged.filter(r=>r.cat!=='patient').length} QC/chuẩn</div></div>
+  </div>
+  <div class="card"><div class="hd"><h2>Tần suất chạy QC</h2>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Có QC (số = mẫu BN trong ngày)</span><span><i style="background:var(--crit)"></i>QC vi phạm</span><span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>Chạy BN không có QC</span></div></div>
+    <div class="scroll">${freqMatrix(freq, violDays)}</div>
+    <div class="scroll"><table><thead><tr><th>Xét nghiệm</th><th class="num">Số mức</th><th class="num">Lần chạy QC</th><th class="num">Ngày có QC</th><th class="num">Ngày có BN</th><th class="num">Ngày BN có QC</th><th class="num">TB ngày giữa 2 lần QC</th><th class="num">Max BN giữa 2 lần QC</th><th>QC gần nhất</th><th class="num">BN sau QC cuối</th>${req?'<th>Theo yêu cầu</th>':''}</tr></thead><tbody>${fRows}</tbody></table></div>
+  </div>
+  <div class="hd"><h2>Biểu đồ Levey-Jennings theo xét nghiệm</h2><span class="sub">Quy tắc Westgard: 1-2s cảnh báo; 1-3s, 2-2s, R-4s, 4-1s, 10x loại</span></div>
+  ${ljCards||'<div class="empty">Không có mẫu control (mã bắt đầu bằng #) cho lựa chọn này.</div>'}
+  <div class="card"><div class="hd"><h2>Mẫu có cờ báo</h2><span class="sub">${flagged.length} kết quả</span></div>
+    ${fcRows?`<div class="legend" style="gap:16px">${fcRows}</div>`:''}
+    ${flRows?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Thời điểm</th><th>Mã mẫu</th><th>Loại</th><th>Xét nghiệm</th><th class="num">Dose</th><th>Cờ</th><th>Lô/Serial</th></tr></thead><tbody>${flRows}</tbody></table></div>`:'<div class="empty">Không có kết quả nào có cờ.</div>'}
+  </div>
+  <div class="card"><div class="hd"><h2>Chạy chuẩn ($…$A / $…$B)</h2><span class="sub">CV% RLU giữa các lần lặp · ≤5% xanh, 5–10% vàng, >10% đỏ (tham khảo)</span></div>
+    <div class="scroll">${runRows?`<table><thead><tr><th>Thời gian</th><th>Xét nghiệm</th><th>Chuẩn</th><th class="num">n</th><th class="num">RLU TB</th><th class="num">SD</th><th class="num">CV</th><th>Dose các lần</th><th>Calib</th></tr></thead><tbody>${runRows}</tbody></table>`:'<div class="empty">Không có lần chạy chuẩn.</div>'}</div></div>`;
+  $('#qcAssay').onchange=e=>{QCV.assay=e.target.value; renderQC();};
+  $('#qcEvery').onchange=e=>{QCV.qcEvery=e.target.value; saveQCV(); renderQC();};
+}
+
+function renderReagent(){
+  const res = S.D.filter(r=>r.cat!=='clean');
+  const g = {};
+  for(const r of res) (g[[r.assay,r.article,r.lot,r.serial].join('|')] ||= []).push(r);
+  const rows = Object.values(g).sort((a,b)=>a[0].assay.localeCompare(b[0].assay)||a[0].time-b[0].time).map(L=>{
+    const f=L[0], l=L.at(-1); const exp = L.filter(r=>r.flags.some(x=>/Expired/.test(x))).length;
+    return `<tr><td><span class="legend"><span><i style="background:${assayColor(f.assay)}"></i>${esc(f.assay)}</span></span></td><td class="mono">${esc(f.article)}</td><td class="mono">${esc(f.lot)}</td><td class="mono">${esc(f.serial)}</td>
+      <td class="num">${L.length}</td><td class="num">${L.filter(r=>r.cat==='patient').length}</td><td class="mono">${f.ts.slice(0,16)}</td><td class="mono">${l.ts.slice(0,16)}</td>
+      <td class="mono">${esc([...new Set(L.map(r=>r.calId))].join(', '))}</td><td>${exp?`<span class="pill p-crit">${exp} hết hạn</span>`:''}</td></tr>`;
+  }).join('');
+  const st = {};
+  for(const r of S.D) (st[r.a1+'|'+r.a2] ||= []).push(r);
+  const stRows = Object.entries(st).map(([k,L])=>`<tr><td class="mono">${esc(L[0].a1)}</td><td class="mono">${esc(L[0].a2)}</td><td class="num">${L.length}</td><td class="mono">${L[0].ts.slice(0,16)}</td><td class="mono">${L.at(-1).ts.slice(0,16)}</td></tr>`).join('');
+  $('#p-reagent').innerHTML = `
+    <div class="card"><div class="hd"><h2>Hộp thuốc thử (Integral) theo xét nghiệm</h2><span class="sub">Mỗi dòng là một hộp: lô + serial</span></div>
+      <div class="scroll"><table><thead><tr><th>Xét nghiệm</th><th>Mã hàng</th><th>Lô</th><th>Serial</th><th class="num">Tổng test</th><th class="num">BN</th><th>Dùng lần đầu</th><th>Dùng lần cuối</th><th>Calib</th><th>Cờ</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="grid2">
+      <div class="card"><h2>Starter (A1 / A2)</h2><div class="scroll"><table><thead><tr><th>Lô A1</th><th>Lô A2</th><th class="num">Số kết quả</th><th>Từ</th><th>Đến</th></tr></thead><tbody>${stRows}</tbody></table></div></div>
+          </div>`;
+}
+
+function renderAlerts(){
+  const A = buildAlerts();
+  const n = A.filter(a=>a.sev!=='info').length;
+  const badge = $('#alertN'); badge.hidden = !n; badge.textContent = n;
+  const sec = (title,sev)=>{ const L=A.filter(a=>a.sev===sev); if(!L.length) return '';
+    return `<div class="hd"><h2>${title} <span class="sub">(${L.length})</span></h2></div>`+L.map(a=>`<div class="alert ${a.sev}"><div class="bar"></div><div class="body"><div class="t">${esc(a.t)}</div><div class="d">${esc(a.d)}</div></div></div>`).join(''); };
+  $('#p-alerts').innerHTML = A.length ? sec('Cần xử lý','crit')+sec('Cần xem lại','warn')+sec('Ghi nhận','info') : '<div class="empty">Không phát hiện bất thường.</div>';
+}
+
+/* ---------- Lọc theo Sample ID (liên kết nhiều xét nghiệm) ---------- */
+const STATE_VI = {any:'có kết quả', normal:'trong KTC', high:'trên KTC', low:'dưới KTC', out:'ngoài KTC (cao hoặc thấp)', between:'giá trị trong khoảng', none:'không làm'};
+const ST_SHORT = {low:'Thấp', normal:'Trong KTC', high:'Cao'};
+let RR = {}; try{ RR = JSON.parse(localStorage.getItem('lablog-rr')||'{}')||{}; }catch(e){ RR={}; }
+let LK = {conds:[], target:'', pick:'latest', patientOnly:true, sameDay:false};
+const saveRR = ()=>{ try{ localStorage.setItem('lablog-rr', JSON.stringify(RR)); }catch(e){} };
+const numOr = v=>{ const n=parseFloat(String(v).replace(',','.')); return Number.isFinite(n)?n:null; };
+
+function classify(r){
+  // Ưu tiên khoảng tham chiếu nhập tay; nếu không có thì dùng cờ NormalRange của máy
+  const rr = RR[r.assay]||{}; const lo=numOr(rr.lo), hi=numOr(rr.hi);
+  if(lo!==null || hi!==null){
+    const v=r.dose; if(!Number.isFinite(v)) return 'normal';
+    if(r.qual==='<'){ if(lo!==null && v<=lo) return 'low'; if(hi!==null && v>hi) return 'normal'; }
+    if(r.qual==='>'){ if(hi!==null && v>=hi) return 'high'; }
+    if(lo!==null && v<lo) return 'low'; if(hi!==null && v>hi) return 'high'; return 'normal';
+  }
+  const lref = r.logRange && r.logRange.ref;
+  if(lref && (lref.lo!=null || lref.hi!=null) && Number.isFinite(r.dose)){
+    if(lref.lo!=null && r.dose<lref.lo && r.qual!=='>') return 'low'; if(lref.hi!=null && r.dose>lref.hi && r.qual!=='<') return 'high'; return 'normal'; }
+  if(r.flags.includes('AboveNormalRange')) return 'high';
+  if(r.flags.includes('BelowNormalRange')) return 'low';
+  return 'normal';
+}
+function sampleMap(){
+  // sid -> assay -> kết quả được chọn (mới nhất / đầu tiên)
+  const M = new Map();
+  for(const r of S.D){
+    if(r.cat==='clean' || r.cat==='calibrator') continue;
+    if(LK.patientOnly && r.cat!=='patient') continue;
+    if(!M.has(r.sid)) M.set(r.sid,{});
+    const o=M.get(r.sid), cur=o[r.assay];
+    if(!cur || (LK.pick==='latest' ? r.time>=cur.time : r.time<cur.time)) o[r.assay]=r;
+  }
+  return M;
+}
+function condOk(c, r){
+  if(c.state==='none') return !r;
+  if(!r) return false;
+  const st = classify(r);
+  if(c.state==='any') return true;
+  if(c.state==='out') return st!=='normal';
+  if(c.state==='between'){ const lo=numOr(c.min), hi=numOr(c.max); const v=r.dose; if(!Number.isFinite(v)) return false;
+    return (lo===null||v>=lo) && (hi===null||v<=hi); }
+  return st===c.state;
+}
+function runLink(){
+  const M = sampleMap();
+  const conds = LK.conds.filter(c=>c.assay);
+  const pass = [];
+  for(const [sid,o] of M){
+    if(!conds.every(c=>condOk(c,o[c.assay]))) continue;
+    if(LK.sameDay){ const ds = new Set(conds.filter(c=>c.state!=='none').map(c=>o[c.assay].day)); if(o[LK.target]) ds.add(o[LK.target].day); if(ds.size>1) continue; }
+    pass.push({sid,o});
+  }
+  const withT = pass.filter(p=>p.o[LK.target]);
+  const cnt = {low:0,normal:0,high:0};
+  for(const p of withT) cnt[classify(p.o[LK.target])]++;
+  return {M, pass, withT, cnt, conds};
+}
+function condText(c){
+  if(c.state==='between') return `${c.assay} ${STATE_VI.between} [${c.min||'−∞'} ; ${c.max||'+∞'}]`;
+  return `${c.assay} ${STATE_VI[c.state]}`;
+}
+function renderLink(){
+  const all = [...new Set(S.D.filter(r=>r.cat==='patient'||r.cat==='control').map(r=>r.assay))].sort();
+  if(!LK.target || !all.includes(LK.target)){
+    // mặc định: tìm cặp xét nghiệm hay đi cùng nhất
+    const pr = pairCounts(); const top = pr[0];
+    LK.conds = top ? [{assay:top.a, state:'any', min:'', max:''}] : [{assay:all[0]||'', state:'any', min:'', max:''}];
+    LK.target = top ? top.b : (all[1]||all[0]||'');
+  }
+  const opt=(v,l,cur)=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(l)}</option>`;
+  const condRows = LK.conds.map((c,i)=>`<div class="cond" data-i="${i}">
+      <span class="op">${i?'VÀ':'NẾU'}</span>
+      <select data-k="assay" aria-label="Xét nghiệm điều kiện">${all.map(a=>opt(a,a,c.assay)).join('')}</select>
+      <select data-k="state" aria-label="Trạng thái">${Object.entries(STATE_VI).map(([k,v])=>opt(k,v,c.state)).join('')}</select>
+      ${c.state==='between'?`<input type="number" step="any" data-k="min" placeholder="từ" value="${esc(c.min)}" aria-label="Giá trị từ"><input type="number" step="any" data-k="max" placeholder="đến" value="${esc(c.max)}" aria-label="Giá trị đến">`:''}
+      ${LK.conds.length>1?`<button class="btn" type="button" data-del="${i}">Bỏ</button>`:''}
+    </div>`).join('');
+  const rrRows = all.map(a=>{ const rr=RR[a]||{}; const flagged = S.D.some(r=>r.assay===a && r.flags.some(f=>/NormalRange/.test(f)));
+    const manual = numOr(rr.lo)!==null||numOr(rr.hi)!==null;
+    return `<tr><td>${esc(a)}</td><td><input type="number" step="any" data-rr="${esc(a)}" data-b="lo" value="${esc(rr.lo??'')}" aria-label="Giới hạn dưới ${esc(a)}"></td>
+      <td><input type="number" step="any" data-rr="${esc(a)}" data-b="hi" value="${esc(rr.hi??'')}" aria-label="Giới hạn trên ${esc(a)}"></td>
+      <td class="cat">${manual?'Nhập tay':flagged?'Cờ của máy':'Cờ của máy (chưa thấy cờ KTC nào)'}</td><td class="mono">${inferRef(a)}</td></tr>`; }).join('');
+  const pr = pairCounts().slice(0,12);
+  $('#p-link').innerHTML = `
+  <div class="grid2">
+    <div class="card">
+      <div class="hd"><h2>Điều kiện lọc</h2><span class="sub">Ghép các xét nghiệm có cùng Sample ID, trên tất cả file đang mở</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="condBox">${condRows}</div>
+      <div><button class="btn" type="button" id="addCond">+ Thêm điều kiện</button></div>
+      <div class="filters">
+        <label>Xét nghiệm cần đánh giá<select id="lTarget">${all.map(a=>opt(a,a,LK.target)).join('')}</select></label>
+        <label>Mẫu làm nhiều lần<select id="lPick">${opt('latest','Lấy kết quả mới nhất',LK.pick)}${opt('first','Lấy kết quả đầu tiên',LK.pick)}</select></label>
+        <label class="chk"><input type="checkbox" id="lPat" ${LK.patientOnly?'checked':''}> Chỉ mẫu bệnh nhân</label>
+        <label class="chk"><input type="checkbox" id="lDay" ${LK.sameDay?'checked':''}> Các kết quả phải cùng ngày</label>
+      </div>
+    </div>
+    <div class="card rr">
+      <div class="hd"><h2>Khoảng tham chiếu (KTC)</h2><span class="sub">Để trống thì dùng cờ Above/BelowNormalRange trong log. Giá trị nhập được nhớ trên trình duyệt này.</span></div>
+      <div class="tablebox" style="max-height:260px"><table><thead><tr><th>Xét nghiệm</th><th>Thấp</th><th>Cao</th><th>Nguồn đánh giá</th><th>KTC suy ra từ cờ trong log</th></tr></thead><tbody>${rrRows}</tbody></table></div>
+    </div>
+  </div>
+  <div class="card" id="linkOut"></div>
+  <div class="card"><div class="hd"><h2>Các xét nghiệm hay làm cùng một Sample ID</h2><span class="sub">Gợi ý cặp để lọc · bấm để áp dụng</span></div>
+    ${pr.length?`<div class="scroll"><table><thead><tr><th>Xét nghiệm A</th><th>Xét nghiệm B</th><th class="num">Số mẫu có cả hai</th><th></th></tr></thead><tbody>${pr.map(p=>`<tr><td>${esc(p.a)}</td><td>${esc(p.b)}</td><td class="num">${p.n}</td><td><button class="btn" type="button" data-pair="${esc(p.a)}|${esc(p.b)}">Lọc ${esc(p.a)} → ${esc(p.b)}</button></td></tr>`).join('')}</tbody></table></div>`
+      :'<div class="empty">Chưa có Sample ID nào làm từ 2 xét nghiệm trở lên.</div>'}</div>`;
+  fillLink();
+  const box=$('#p-link');
+  box.querySelectorAll('.cond select, .cond input').forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',e=>{
+    const i=+e.target.closest('.cond').dataset.i; LK.conds[i][e.target.dataset.k]=e.target.value;
+    if(e.target.dataset.k==='state') renderLink(); else fillLink(); }));
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ LK.conds.splice(+b.dataset.del,1); renderLink(); });
+  $('#addCond').onclick=()=>{ LK.conds.push({assay:all[0]||'',state:'normal',min:'',max:''}); renderLink(); };
+  $('#lTarget').onchange=e=>{LK.target=e.target.value;fillLink();};
+  $('#lPick').onchange=e=>{LK.pick=e.target.value;fillLink();};
+  $('#lPat').onchange=e=>{LK.patientOnly=e.target.checked;fillLink();};
+  $('#lDay').onchange=e=>{LK.sameDay=e.target.checked;fillLink();};
+  box.querySelectorAll('[data-rr]').forEach(el=>el.addEventListener('input',e=>{
+    const a=e.target.dataset.rr; RR[a]={...(RR[a]||{}),[e.target.dataset.b]:e.target.value}; saveRR();
+    const cell=e.target.closest('tr').lastElementChild; const rr=RR[a];
+    cell.textContent = (numOr(rr.lo)!==null||numOr(rr.hi)!==null)?'Nhập tay':'Cờ của máy';
+    fillLink(); }));
+  box.querySelectorAll('[data-pair]').forEach(b=>b.onclick=()=>{ const [a,c]=b.dataset.pair.split('|'); LK.conds=[{assay:a,state:'normal',min:'',max:''}]; LK.target=c; renderLink(); $('#linkOut').scrollIntoView({behavior:'smooth',block:'start'}); });
+}
+function inferRef(a){
+  // Máy không ghi số KTC, nhưng từ cờ của các mẫu BN có thể khoanh vùng giới hạn
+  const L=S.D.filter(r=>r.cat==='patient'&&r.assay===a&&Number.isFinite(r.dose));
+  const hiF=L.filter(r=>r.flags.includes('AboveNormalRange')).map(r=>r.dose), loF=L.filter(r=>r.flags.includes('BelowNormalRange')).map(r=>r.dose);
+  const ok=L.filter(r=>!r.flags.some(f=>/NormalRange/.test(f))&&!r.qual).map(r=>r.dose);
+  const parts=[];
+  if(hiF.length) parts.push(`cao: ${ok.length?fmt(Math.max(...ok.filter(v=>v<Math.min(...hiF)),-Infinity),3):'?'} < giới hạn ≤ ${fmt(Math.min(...hiF),3)}`);
+  if(loF.length) parts.push(`thấp: ${fmt(Math.max(...loF),3)} < giới hạn`);
+  return parts.length?esc(parts.join(' · ').replace('-∞','?')):'<span class="cat">–</span>';
+}
+function pairCounts(){
+  const M=new Map();
+  for(const r of S.D){ if(r.cat!=='patient') continue; if(!M.has(r.sid)) M.set(r.sid,new Set()); M.get(r.sid).add(r.assay); }
+  const c={};
+  for(const set of M.values()){ const a=[...set].sort(); for(let i=0;i<a.length;i++) for(let j=i+1;j<a.length;j++){ const k=a[i]+'|'+a[j]; c[k]=(c[k]||0)+1; } }
+  return Object.entries(c).map(([k,n])=>{const [a,b]=k.split('|');return {a,b,n};}).sort((x,y)=>y.n-x.n);
+}
+function fillLink(){
+  const out=$('#linkOut'); if(!out) return;
+  const {pass, withT, cnt, conds} = runLink();
+  const T = LK.target; const n = withT.length;
+  const pct = k=>n?cnt[k]/n*100:0;
+  const desc = conds.map(condText).join(' và ');
+  const noT = pass.length - n;
+  const cols = [...new Set([...conds.filter(c=>c.state!=='none').map(c=>c.assay), T])];
+  const cell = r=>{ if(!r) return '<td class="num cat">–</td>'; const st=classify(r); return `<td class="num"><span class="st-${st}">${esc(r.doseRaw)}</span> <span class="cat">${ST_SHORT[st]}</span></td>`; };
+  const rows = withT.concat(pass.filter(p=>!p.o[T])).map(p=>{ const any=Object.values(p.o).sort((a,b)=>b.time-a.time)[0];
+    return `<tr><td class="mono">${esc(p.sid)}</td><td class="mono">${any.ts.slice(0,10)}</td>${cols.map(a=>cell(p.o[a])).join('')}</tr>`; }).join('');
+  out.innerHTML = `
+    <div class="hd"><h2>Kết quả lọc</h2><button class="btn" type="button" id="linkCsv">Sao chép CSV</button></div>
+    <div class="answer">${n
+      ? `<span class="big">${fmt(pct('high'),1)}%</span>Trong <b>${n}</b> Sample ID có <b>${esc(desc)}</b> và có làm <b>${esc(T)}</b>, có <b>${cnt.high}</b> mẫu ${esc(T)} trên KTC, <b>${cnt.low}</b> mẫu dưới KTC (${fmt(pct('low'),1)}%), <b>${cnt.normal}</b> mẫu trong KTC (${fmt(pct('normal'),1)}%).`
+      : `Không có Sample ID nào thoả <b>${esc(desc||'điều kiện')}</b> mà có làm <b>${esc(T)}</b>.`}
+      ${noT?`<div class="note">${noT} mẫu thoả điều kiện nhưng không làm ${esc(T)} (vẫn liệt kê ở bảng dưới).</div>`:''}</div>
+    ${n?`<div class="bar100" role="img" aria-label="Tỷ lệ dưới, trong, trên KTC">
+        <span style="width:${pct('low')}%;background:var(--c7)" title="Dưới KTC ${cnt.low}"></span>
+        <span style="width:${pct('normal')}%;background:var(--ok)" title="Trong KTC ${cnt.normal}"></span>
+        <span style="width:${pct('high')}%;background:var(--crit)" title="Trên KTC ${cnt.high}"></span></div>
+      <div class="legend"><span><i style="background:var(--c7)"></i>Dưới KTC ${cnt.low}</span><span><i style="background:var(--ok)"></i>Trong KTC ${cnt.normal}</span><span><i style="background:var(--crit)"></i>Trên KTC ${cnt.high}</span></div>`:''}
+    ${rows?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Sample ID</th><th>Ngày</th>${cols.map(a=>`<th class="num">${esc(a)}${a===T?' (đánh giá)':''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`:''}
+    <textarea id="linkCsvBox" hidden readonly aria-label="CSV kết quả lọc" style="width:100%;height:120px;font-family:var(--f-mono);font-size:.75rem"></textarea>`;
+  $('#linkCsv').onclick=()=>{
+    const q=v=>/[",;\n]/.test(String(v))?`"${String(v).replace(/"/g,'""')}"`:v;
+    const lines=[['SampleID',...cols.flatMap(a=>[a,a+' danh gia'])].join(','),
+      ...withT.concat(pass.filter(p=>!p.o[T])).map(p=>[p.sid,...cols.flatMap(a=>{const r=p.o[a];return r?[r.doseRaw,ST_SHORT[classify(r)]]:['','']})].map(q).join(','))];
+    const csv=lines.join('\n'), box=$('#linkCsvBox');
+    const fb=()=>{box.hidden=false;box.value=csv;box.select();toast('Đã chọn sẵn văn bản CSV, nhấn Ctrl+C');};
+    if(navigator.clipboard) navigator.clipboard.writeText(csv).then(()=>toast(`Đã sao chép ${lines.length-1} dòng`)).catch(fb); else fb();
+  };
+}
+
+/* ---------- Bảo trì / CLEAN ---------- */
+const MAINT = {gapMin:60};
+function cleanSessions(){
+  // Gom các lần chạy CLEAN (dòng R và D) cách nhau < 60 phút thành một phiên bảo trì
+  const dKeys = new Set(S.D.filter(r=>r.cat==='clean').map(r=>r.key));
+  const runs = [...S.R.filter(r=>r.cat==='clean'), ...S.D.filter(r=>r.cat==='clean' && !S.R.some(x=>x.key===r.key))].sort((a,b)=>a.time-b.time);
+  const out=[];
+  for(const r of runs){
+    const last=out.at(-1);
+    if(last && (r.time-last.end)/60000 < MAINT.gapMin){ last.items.push(r); last.end=r.time; }
+    else out.push({start:r.time, end:r.time, items:[r]});
+  }
+  const tests = S.D.filter(r=>r.cat!=='clean');
+  out.forEach((s,i)=>{
+    s.total=s.items.length; s.done=s.items.filter(r=>dKeys.has(r.key)).length;
+    s.day=s.items[0].day; s.ts=s.items[0].ts; s.kits=[...new Set(s.items.map(r=>r.lot+'/'+r.serial))];
+    const prev=out[i-1]; s.gapH = prev ? (s.start-prev.start)/3600000 : NaN;
+    s.testsSince = tests.filter(t=>t.time>(prev?prev.end:-Infinity) && t.time<=s.start).length;
+  });
+  return out;
+}
+function dayRange(){
+  const all=[...S.D,...S.R].map(r=>r.day).sort(); if(!all.length) return [];
+  const out=[]; const d=new Date(all[0]+'T00:00:00'), end=new Date(all.at(-1)+'T00:00:00');
+  for(;d<=end;d.setDate(d.getDate()+1)) out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  return out;
+}
+function maintChart(dlist, sess){
+  // Cột: số test mỗi ngày (nhạt) · chấm phía trên: phiên CLEAN, vị trí theo giờ trong ngày
+  const W=Math.max(1100,dlist.length*52), H=300, pad={l:40,r:10,t:12,b:30}, split=150;
+  const tests=dlist.map(d=>S.D.filter(r=>r.day===d&&r.cat!=='clean').length);
+  const max=Math.max(1,...tests), step=niceStep(max), top=Math.ceil(max/step)*step;
+  const bw=(W-pad.l-pad.r)/dlist.length, cx=i=>pad.l+i*bw+bw/2;
+  // vùng trên: giờ 0..24 (pad.t .. split-14) ; vùng dưới: cột test (split+6 .. H-pad.b)
+  const yh=h=>pad.t+(split-14-pad.t)*(h/24);
+  const yb=v=>H-pad.b-(H-pad.b-split-6)*(v/top);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:${Math.min(W,600)}px;display:block" role="img" aria-label="Lịch CLEAN và số test theo ngày">`;
+  for(const h of [0,6,12,18,24]) s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${yh(h)}" y2="${yh(h)}" stroke="var(--line)" stroke-width="${h%12?0.5:0.8}"/><text x="${pad.l-6}" y="${yh(h)+3}" text-anchor="end">${h}h</text>`;
+  s+=`<text x="${pad.l}" y="${pad.t-2}" style="fill:var(--ink)">Giờ chạy CLEAN</text>`;
+  for(let v=0;v<=top;v+=step) s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${yb(v)}" y2="${yb(v)}" stroke="var(--line)" stroke-width="${v?0.5:1}"/><text x="${pad.l-6}" y="${yb(v)+3}" text-anchor="end">${v}</text>`;
+  s+=`<text x="${pad.l}" y="${split+2}" style="fill:var(--ink)">Số test trong ngày</text>`;
+  dlist.forEach((d,i)=>{
+    const wk=new Date(d+'T00:00:00').getDay();
+    if(wk===0) s+=`<rect x="${pad.l+i*bw}" y="${pad.t}" width="${bw}" height="${H-pad.b-pad.t}" fill="var(--sunk)"><title>Chủ nhật ${shortDay(d)}</title></rect>`;
+    const has=sess.some(x=>x.day===d);
+    if(tests[i]) s+=`<rect x="${cx(i)-bw*0.3}" y="${yb(tests[i])}" width="${bw*0.6}" height="${yb(0)-yb(tests[i])}" fill="${has?'var(--accent)':'var(--warn)'}" opacity="${has?0.55:0.85}"><title>${shortDay(d)}: ${tests[i]} test${has?'':' · không có CLEAN'}</title></rect>`;
+    if(i%Math.ceil(dlist.length/20)===0||dlist.length<=20) s+=`<text x="${cx(i)}" y="${H-12}" text-anchor="middle">${shortDay(d)}</text>`;
+  });
+  for(const x of sess){
+    const i=dlist.indexOf(x.day); if(i<0) continue; const h=x.start.getHours()+x.start.getMinutes()/60;
+    const ok=x.done===x.total;
+    s+=`<circle cx="${cx(i)}" cy="${yh(h)}" r="${3+Math.min(x.total,5)}" fill="${ok?'var(--accent)':'var(--surface)'}" stroke="${ok?'var(--accent)':'var(--warn)'}" stroke-width="2"><title>${x.ts.slice(0,16)} · ${x.done}/${x.total} lần CLEAN hoàn tất</title></circle>`;
+  }
+  return s+'</svg>';
+}
+function renderMaint(){
+  const sess=cleanSessions(), dlist=dayRange();
+  const testDays=new Set(S.D.filter(r=>r.cat!=='clean').map(r=>r.day));
+  const cleanDays=new Set(sess.map(s=>s.day));
+  const covered=[...testDays].filter(d=>cleanDays.has(d)).length;
+  const missing=[...testDays].filter(d=>!cleanDays.has(d)).sort();
+  const gaps=sess.map(s=>s.gapH).filter(Number.isFinite);
+  const incomplete=sess.filter(s=>s.done<s.total);
+  const hrs=sess.map(s=>s.start.getHours()+s.start.getMinutes()/60);
+  const hm=h=>`${Math.floor(h)}:${String(Math.round((h%1)*60)).padStart(2,'0')}`;
+  const last=sess.at(-1);
+  const rows=sess.slice().reverse().map(s=>`<tr>
+    <td class="mono">${s.ts.slice(0,16)}</td><td class="num">${s.total}</td><td class="num">${s.done===s.total?s.done:`<span class="pill p-high">${s.done}</span>`}</td>
+    <td class="num">${Number.isFinite(s.gapH)?fmt(s.gapH,1)+' h':'–'}</td><td class="num">${s.testsSince}</td><td class="mono">${esc(s.kits.join(', '))}</td></tr>`).join('');
+  $('#p-maint').innerHTML = sess.length ? `
+  <div class="kpis">
+    <div class="kpi"><div class="l">Phiên CLEAN</div><div class="v">${sess.length}</div><div class="s">${sess.reduce((a,s)=>a+s.total,0)} lần chạy · ${dlist.length} ngày trong log</div></div>
+    <div class="kpi"><div class="l">Ngày có test được CLEAN</div><div class="v">${fmt(testDays.size?covered/testDays.size*100:0,0)}%</div><div class="s">${covered}/${testDays.size} ngày có chạy mẫu</div></div>
+    <div class="kpi"><div class="l">Khoảng cách giữa 2 phiên</div><div class="v">${gaps.length?fmt(mean(gaps)/24,1):'–'}<span class="s"> ngày</span></div><div class="s">dài nhất ${gaps.length?fmt(Math.max(...gaps)/24,1):'–'} ngày</div></div>
+    <div class="kpi"><div class="l">Giờ chạy thường gặp</div><div class="v">${hm(hrs.slice().sort((a,b)=>a-b)[Math.floor(hrs.length/2)])}</div><div class="s">trung vị · sớm nhất ${hm(Math.min(...hrs))}, muộn nhất ${hm(Math.max(...hrs))}</div></div>
+    <div class="kpi"><div class="l">Phiên gần nhất</div><div class="v" style="font-size:1.15rem;padding-block:.35rem">${last.ts.slice(0,16)}</div><div class="s">${incomplete.length?`${incomplete.length} phiên có lần chạy không ra kết quả`:'Tất cả phiên hoàn tất'}</div></div>
+  </div>
+  <div class="card"><div class="hd"><h2>Tần suất CLEAN theo ngày</h2>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Phiên CLEAN hoàn tất</span><span><i style="background:var(--surface);border:2px solid var(--warn)"></i>Phiên có lần chạy không ra kết quả</span><span><i style="background:var(--warn)"></i>Ngày chạy mẫu không có CLEAN</span><span><i style="background:var(--sunk);border:1px solid var(--line)"></i>Chủ nhật</span></div></div>
+    <div class="sub">Nửa trên: mỗi chấm là một phiên CLEAN, đặt theo giờ bắt đầu; chấm càng to càng nhiều lần chạy. Nửa dưới: số test trong ngày.</div>
+    <div class="scroll">${maintChart(dlist,sess)}</div></div>
+  <div class="grid2">
+    <div class="card"><div class="hd"><h2>Nhật ký phiên CLEAN</h2><span class="sub">Các lần chạy cách nhau dưới ${MAINT.gapMin} phút được gộp thành một phiên</span></div>
+      <div class="tablebox" style="max-height:420px"><table><thead><tr><th>Bắt đầu</th><th class="num">Số lần chạy</th><th class="num">Ra kết quả</th><th class="num">Từ phiên trước</th><th class="num">Test kể từ phiên trước</th><th>Lô/Serial</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="card"><div class="hd"><h2>Ngày chạy mẫu nhưng không có CLEAN</h2><span class="sub">${missing.length} ngày</span></div>
+      ${missing.length?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Ngày</th><th>Thứ</th><th class="num">Số test</th></tr></thead><tbody>${missing.map(d=>`<tr><td class="mono">${d}</td><td>${['CN','T2','T3','T4','T5','T6','T7'][new Date(d+'T00:00:00').getDay()]}</td><td class="num">${S.D.filter(r=>r.day===d&&r.cat!=='clean').length}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Mọi ngày có chạy mẫu đều có CLEAN.</div>'}
+      <div class="note">Chỉ đối chiếu theo log. Lịch bảo trì bắt buộc tuỳ quy trình của phòng và hướng dẫn của hãng.</div></div>
+  </div>` : '<div class="empty">Không có lần chạy CLEAN nào trong các file đang mở.</div>';
+}
+
+function renderAll(){ renderOverview(); renderResults(); renderLink(); renderMaint(); renderQC(); renderReagent(); renderAlerts(); }
+
+/* ---------- UI wiring ---------- */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));
+  document.querySelectorAll('.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
+}));
+async function readFiles(list){
+  const files=[...list]; if(!files.length) return;
+  const texts = await Promise.all(files.map(f=>f.text()));
+  addEntries(files.map((f,i)=>({name:f.name, text:texts[i]})));
+}
+function addEntries(entries){
+  const good=[], bad=[];
+  entries.forEach(f=> parseText(f.text).D.length ? good.push({name:f.name,text:f.text}) : bad.push(f.name));
+  if(bad.length) toast(`Bỏ qua ${bad.join(', ')}: không có dòng kết quả dạng “D-|(yyyy/mm/dd hh:mm:ss)|SampleID: …”.`);
+  if(!good.length) return;
+  const base = S.sample ? [] : S.files.slice();
+  // Máy luôn đặt tên FinishedJobs.txt: giữ cả hai file trùng tên, chỉ bỏ file có nội dung y hệt
+  const fresh = [];
+  for(const g of good){
+    if(base.concat(fresh).some(e=>e.text===g.text)){ toast(`${g.name} đã được nạp trước đó, bỏ qua.`); continue; }
+    const same = base.concat(fresh).filter(e=>e.name===g.name).length;
+    fresh.push({...g, label: same?`${g.name} (${same+1})`:g.name});
+  }
+  good.length=0; good.push(...fresh); if(!good.length) return;
+  load(base.concat(good), false);
+  if(!bad.length) toast(`Đã thêm ${good.length} file · tổng ${S.files.length} file`);
+}
+$('#fileIn').addEventListener('change',e=>{readFiles(e.target.files); e.target.value='';});
+$('#btnSample').onclick=()=>load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
+$('#btnClear').onclick=()=>load([],false);
+$('#fileList').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const f=S.files.slice(); f.splice(+b.dataset.rm,1); load(f, S.sample && f.length>0); });
+document.querySelector('label[for="fileIn"]').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#fileIn').click(); } });
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault(); if(ev==='drop'||e.target===drop) drop.classList.remove('over');}));
+document.addEventListener('drop',e=>readFiles(e.dataTransfer.files));
+let tt; function toast(msg){ let el=$('.toast'); if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el);} el.textContent=msg; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,3200); }
+
+if(window.lablogDesktop){
+  // Bản cài đặt Windows: mở trống, nhận file từ menu Tệp hoặc khi mở file bằng ứng dụng
+  const mod = window.lablogDesktop.platform==='darwin' ? '⌘O' : 'Ctrl+O';
+  $('#drop').textContent=`Kéo thả một hoặc nhiều file FinishedJobs vào cửa sổ này, hoặc dùng Tệp > Mở file log… (${mod}). File mới được cộng thêm vào các file đang mở; kết quả trùng tự loại bỏ. Dữ liệu chỉ xử lý trên máy này.`;
+  load([],false);
+  window.lablogDesktop.onOpenFiles(list=>addEntries(list));
+  window.lablogDesktop.onCommand(c=>{ if(c==='clear') load([],false); if(c==='sample') $('#btnSample').click(); });
+} else {
+  if(matchMedia('(pointer: coarse)').matches) $('#drop').textContent='Chạm “Thêm file log…” để chọn một hoặc nhiều file FinishedJobs từ ứng dụng Tệp (Files), iCloud Drive hoặc Google Drive. File mới được cộng thêm vào các file đang mở. Dữ liệu chỉ xử lý trên thiết bị này.';
+  load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
+}
+</script>

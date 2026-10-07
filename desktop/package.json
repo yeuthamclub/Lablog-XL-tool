@@ -1,0 +1,121 @@
+{
+  "name": "lablog-analyzer",
+  "productName": "LabLog Analyzer",
+  "version": "1.0.0",
+  "description": "Phân tích log FinishedJobs của máy xét nghiệm miễn dịch",
+  "author": "LabLog Analyzer",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --x64",
+    "dist:mac": "electron-builder --mac --arm64 --x64",
+    "dist:linux": "electron-builder --linux --x64"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "vn.lablog.analyzer",
+    "productName": "LabLog Analyzer",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "electronLanguages": [
+      "vi",
+      "en",
+      "en-US"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "extraFiles": [
+        {
+          "from": "build/HUONG-DAN-WINDOWS.txt",
+          "to": "HUONG-DAN.txt"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LabLog Analyzer",
+      "installerLanguages": [
+        "vi_VN",
+        "en_US"
+      ],
+      "language": "1066",
+      "artifactName": "LabLog-Analyzer-Setup-${version}-x64.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.medical",
+      "identity": "-",
+      "artifactName": "LabLog-Analyzer-${version}-mac-${arch}.${ext}",
+      "extendInfo": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "File log",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": [
+              "public.plain-text",
+              "public.log",
+              "public.data"
+            ]
+          }
+        ]
+      },
+      "extraResources": []
+    },
+    "dmg": {
+      "title": "LabLog Analyzer ${version}"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "build/icon.png",
+      "category": "Science",
+      "artifactName": "LabLog-Analyzer-${version}-linux-x86_64.${ext}"
+    }
+  },
+  "homepage": "https://yeuthamclub.github.io/Lablog-XL-tool/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeuthamclub/Lablog-XL-tool.git"
+  }
+}

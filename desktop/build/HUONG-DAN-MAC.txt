@@ -1,0 +1,34 @@
+LabLog Analyzer 1.0.0 cho macOS
+===============================
+
+Cài đặt
+1. Nhấp đúp file .zip để giải nén, được "LabLog Analyzer.app".
+2. Kéo "LabLog Analyzer.app" vào thư mục Applications (Ứng dụng).
+3. Lần mở đầu tiên: nhấp phải (Control-click) vào ứng dụng > Mở > Mở.
+   Trên macOS 15 Sequoia trở lên: nếu chỉ có nút "Xong", vào System Settings > Privacy & Security,
+   kéo xuống mục Security, bấm "Open Anyway" (Vẫn mở), nhập mật khẩu máy.
+   Cảnh báo này xuất hiện vì ứng dụng chưa được Apple công chứng (notarize).
+
+Chọn đúng bản
+- Mac chip Apple (M1, M2, M3, M4…): dùng bản mac-arm64.
+- Mac chip Intel: dùng bản mac-x64.
+  (Kiểm tra:  > About This Mac / Giới thiệu về máy Mac này > Chip hoặc Processor.)
+
+Lấy file FinishedJobs.txt từ máy LIAISON XL
+1. Trên máy LIAISON XL, vào phần Backup và xuất file lưu trữ về máy tính.
+   File có dạng 2210006840_temp_archive_2025_05.zip (số máy, năm, tháng).
+2. Giải nén file .zip đó.
+3. Mở thư mục Log bên trong, tìm file FinishedJobs.txt.
+4. Nạp vào công cụ: Tệp > Mở file log… (⌘O) hoặc kéo thả file vào cửa sổ.
+Muốn xem nhiều tháng: lấy file của từng tháng rồi nạp lần lượt; kết quả trùng chỉ tính một lần.
+
+Cách dùng
+- Tệp > Mở file log… (⌘O): chọn một hoặc nhiều file FinishedJobs.txt; mỗi lần mở được cộng thêm.
+- Có thể kéo thả file log vào cửa sổ hoặc thả lên biểu tượng ứng dụng ở Dock.
+- Tệp > In / Lưu PDF… (⌘P).  ⌘+ / ⌘- để chỉnh cỡ chữ.
+
+Dữ liệu
+- Mọi xử lý diễn ra trên máy, không cần Internet, không gửi dữ liệu ra ngoài.
+- Thiết lập lưu tại ~/Library/Application Support/LabLog Analyzer.
+
+Yêu cầu: macOS 11 Big Sur trở lên.

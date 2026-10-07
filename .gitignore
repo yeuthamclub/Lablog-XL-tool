@@ -1,0 +1,8 @@
+node_modules/
+desktop/dist/
+*.log
+!samples/*.txt
+.DS_Store
+# Không đưa log thật của phòng xét nghiệm lên GitHub
+FinishedJobs*.txt
+!samples/demo-FinishedJobs.txt

@@ -1,0 +1,31 @@
+LabLog Analyzer 1.0.0
+=====================
+
+Phần mềm phân tích log FinishedJobs của máy xét nghiệm miễn dịch.
+
+Lấy file FinishedJobs.txt từ máy LIAISON XL
+1. Trên máy LIAISON XL, vào phần Backup và xuất file lưu trữ về máy tính.
+   File có dạng 2210006840_temp_archive_2025_05.zip (số máy, năm, tháng).
+2. Giải nén file .zip đó.
+3. Mở thư mục Log bên trong, tìm file FinishedJobs.txt.
+4. Nạp vào công cụ: Tệp > Mở file log… hoặc kéo thả file vào cửa sổ.
+Muốn xem nhiều tháng: lấy file của từng tháng rồi nạp lần lượt; kết quả trùng chỉ tính một lần.
+
+Cách dùng
+- Tệp > Mở file log… (Ctrl+O): chọn một hoặc nhiều file FinishedJobs.txt. Mỗi lần mở được cộng thêm vào dữ liệu đang xem.
+- Có thể kéo thả file log vào cửa sổ, hoặc nhấp phải file > Open with > LabLog Analyzer.
+- Tệp > In / Lưu PDF… (Ctrl+P) để in hoặc lưu báo cáo dạng PDF.
+- Xem > Phóng to / Thu nhỏ (Ctrl + / Ctrl -) để chỉnh cỡ chữ.
+
+Các tab
+- Tổng quan, Kết quả, Lọc theo Sample ID, Bảo trì (CLEAN), QC & chuẩn, Thuốc thử & hiệu chuẩn, Cảnh báo.
+
+Thành phần đi kèm (không cần cài thêm gì)
+- Electron 33.2.1 (Chromium 130, Node.js 20) – nền chạy giao diện, đã đóng gói sẵn.
+- Font Be Vietnam Pro và IBM Plex Mono (giấy phép SIL OFL) – chạy được khi không có Internet.
+
+Dữ liệu
+- Mọi xử lý diễn ra trên máy này, phần mềm không gửi dữ liệu ra ngoài và không cần Internet.
+- Thiết lập (khoảng tham chiếu đã nhập, lựa chọn QC) lưu tại %APPDATA%\LabLog Analyzer.
+
+Yêu cầu: Windows 10 hoặc 11, 64-bit.
