@@ -83,7 +83,7 @@
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.medical",
-      "identity": "-",
+      "identity": null,
       "artifactName": "LabLog-Analyzer-${version}-mac-${arch}.${ext}",
       "extendInfo": {
         "CFBundleDocumentTypes": [
@@ -111,7 +111,8 @@
       "icon": "build/icon.png",
       "category": "Science",
       "artifactName": "LabLog-Analyzer-${version}-linux-x86_64.${ext}"
-    }
+    },
+    "afterPack": "build/adhoc-sign.js"
   },
   "homepage": "https://yeuthamclub.github.io/Lablog-XL-tool/",
   "repository": {
