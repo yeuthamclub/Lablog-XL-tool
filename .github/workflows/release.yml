@@ -39,7 +39,13 @@ jobs:
         run: python3 scripts/build.py
       - run: npm install --no-audit --no-fund
       - name: Đóng gói
-        run: npm run ${{ matrix.target }} -- --publish never
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run ${{ matrix.target }} -- --publish never 2>&1 | tee build.log || {
+            # Đưa phần cuối nhật ký lỗi lên mục Annotations để dễ xem
+            tail -n 40 build.log | sed 's/%/%25/g' | while IFS= read -r l; do echo "::error title=build::$l"; done
+            exit 1; }
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
