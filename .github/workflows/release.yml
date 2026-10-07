@@ -44,7 +44,8 @@ jobs:
           set -o pipefail
           npm run ${{ matrix.target }} -- --publish never 2>&1 | tee build.log || {
             # Đưa phần cuối nhật ký lỗi lên mục Annotations để dễ xem
-            tail -n 40 build.log | sed 's/%/%25/g' | while IFS= read -r l; do echo "::error title=build::$l"; done
+            msg=$( (grep -n -i -E '⨯|error|cannot|failed' build.log | tail -n 6; tail -n 4 build.log) | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=build::$msg"
             exit 1; }
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
