@@ -42,7 +42,11 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          npm run ${{ matrix.target }} -- --publish never 2>&1 | tee build.log || {
+          # hdiutil (tạo .dmg) trên máy GitHub thỉnh thoảng báo bận: thử lại tối đa 3 lần
+          for n in 1 2 3; do
+            npm run ${{ matrix.target }} -- --publish never 2>&1 | tee build.log && break
+            [ $n = 3 ] && false; echo "Thử lại lần $((n+1))…"; sleep 20
+          done || {
             # Đưa phần cuối nhật ký lỗi lên mục Annotations để dễ xem
             msg=$( (grep -n -i -E '⨯|error|cannot|failed' build.log | tail -n 6; tail -n 4 build.log) | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
             echo "::error title=build::$msg"
