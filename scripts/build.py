@@ -10,6 +10,10 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 tpl = (ROOT / 'src/template.html').read_text(encoding='utf-8')
 sample = (ROOT / 'samples/demo-FinishedJobs.txt').read_text(encoding='utf-8')
 tpl = tpl.replace('__RAW__', json.dumps(sample, ensure_ascii=False).replace('</', '<\\/'))
+# Các mô-đun JS trong src/modules/ (theo thứ tự tên file) được chèn vào chỗ /*__MODULES__*/
+mods = ''.join(f'\n/* ===== {m.name} ===== */\n' + m.read_text(encoding='utf-8') for m in sorted((ROOT / 'src/modules').glob('*.js')))
+assert '</script' not in mods.lower()
+tpl = tpl.replace('/*__MODULES__*/', mods, 1)
 
 BASE_CSS = """<style>
 :root{color-scheme:light}
@@ -17,7 +21,7 @@ html,body{margin:0}
 body{font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
-@media print{nav.tabs,.src,.drop,.btn,.filters{display:none!important}.panel[hidden]{display:flex!important}.tablebox{max-height:none!important;overflow:visible!important}.card{break-inside:avoid}}
+@media print{body:not(.rp-open) :is(nav.tabs,.src,.drop,.btn,.filters,.help){display:none!important}body:not(.rp-open) section.panel[hidden]{display:flex!important}body:not(.rp-open) .tablebox{max-height:none!important;overflow:visible!important}body:not(.rp-open) .card{break-inside:avoid}}
 </style>"""
 
 FONT_FACES = """<style>

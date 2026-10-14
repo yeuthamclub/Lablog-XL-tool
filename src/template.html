@@ -79,8 +79,8 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
 .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .qcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
-.qc .stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
-.qc .stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
 .alert{display:grid;grid-template-columns:6px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .alert .bar{background:var(--warn)}
 .alert.crit .bar{background:var(--crit)}
@@ -111,6 +111,74 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
 .chk{display:flex;align-items:center;gap:6px;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
 .sum td{border-top:1px solid var(--line);background:var(--sunk);font-weight:500}
 .filters label.chk{flex-direction:row;align-items:center;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
+.btn.sm{padding:3px 9px;font-size:.78rem}
+.btn.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--line)}
+tr.hl td{background:var(--warn-soft)}
+tr.sel td{background:var(--accent-soft)}
+ol.steps,ol.refs{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:100ch;font-size:.86rem}
+ol.refs{color:var(--muted);font-size:.8rem}
+
+/* ----- Xuất báo cáo ----- */
+.modal{position:fixed;inset:0;z-index:40;background:rgba(10,20,24,.45);display:flex;align-items:flex-start;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 12px 24px;overflow:auto}
+.modal-box{background:var(--surface);color:var(--ink);border-radius:10px;border:1px solid var(--line);max-width:980px;width:100%;padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal-box > .hd{flex-wrap:nowrap}
+.modal-box h3{margin:6px 0 2px;font-size:.9rem;font-family:var(--f-display)}
+.rp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px}
+.rp-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rp-col > label:not(.chk),.rp-fields label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.rp-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.rp-fields input{font:inherit;font-size:.86rem;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.rp-checks{display:flex;flex-direction:column;gap:4px}
+.rp-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;border-top:1px solid var(--line);padding-top:12px}
+.rp-actions .note{margin-right:auto}
+.btn:disabled{opacity:.5;cursor:progress}
+#rpView{position:fixed;inset:0;z-index:45;overflow:auto;display:flex;flex-direction:column;
+  --bg:#F3F6F6; --surface:#FFFFFF; --sunk:#EEF2F2; --line:#D3DCDC; --ink:#13222A; --muted:#5A6B72; --accent:#0B7480; --accent-soft:#D6ECEE;
+  --ok:#2E7D4F; --warn:#B26A00; --warn-soft:#FBEBD2; --crit:#B3261E; --crit-soft:#F8DEDB;
+  --c1:#0B7480; --c2:#C2571A; --c3:#5B57B8; --c4:#2E8B57; --c5:#B8366E; --c6:#7A6A12; --c7:#3A78C2; --c8:#7C4D2A;
+  color-scheme:light;background:#DDE4E4;color:var(--ink)}
+.rp-toolbar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+.rp-paper{background:#fff;width:min(210mm,100%);margin:16px auto;padding:12mm 11mm;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.report{font-size:11px;line-height:1.45;display:flex;flex-direction:column;gap:10px}
+.report .card{padding:10px;gap:8px;border-radius:6px;box-shadow:none}
+.report h2{font-size:12.5px}
+.report table{font-size:10px}
+.report td,.report th{padding:3px 6px}
+.report .pill{white-space:normal}
+.report th{white-space:normal}
+.report .kpis{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.report .kpi{padding:6px 8px}.report .kpi .v{font-size:1.15rem}
+.report .grid2,.report .qcgrid{grid-template-columns:1fr;gap:10px}
+.report .tablebox,.report .scroll{max-height:none!important;overflow:visible!important;border:0}
+.report .help,.report .drop{display:none}
+.report svg{max-width:100%!important;height:auto}
+.rp-head{display:flex;flex-direction:column;gap:6px;border-bottom:2px solid var(--accent);padding-bottom:8px}
+.rp-org{display:flex;justify-content:space-between;gap:10px;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.rp-title h1{font-family:var(--f-display);font-size:20px;margin:2px 0}
+.rp-meta{font-size:9.5px;color:var(--muted)}
+.rp-sec{display:flex;flex-direction:column;gap:10px}
+.rp-h{font-family:var(--f-display);font-size:15px;margin:8px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.rp-sign{margin-top:18px;display:flex;flex-direction:column;gap:8px;break-inside:avoid}
+.rp-sign table{width:100%;border-collapse:collapse;text-align:center}
+.rp-sign th{position:static;text-align:center;font-size:10.5px;text-transform:none;letter-spacing:0;color:var(--ink);border:0}
+.rp-sign td{border:0;text-align:center}
+.rp-sign .rp-sp td{height:64px}
+body.rp-open{overflow:hidden}
+@page{size:A4;margin:12mm 10mm 14mm}
+@media print{
+  body.rp-open{overflow:visible;background:#fff}
+  body.rp-open > *:not(#rpView){display:none!important}
+  body.rp-open #rpView{position:static;overflow:visible;background:#fff;display:block}
+  .rp-toolbar{display:none!important}
+  .rp-paper{box-shadow:none;margin:0;padding:0;width:auto}
+  .rp-break{break-before:page}
+  .report svg,.report tr,.report .kpi,.report .alert{break-inside:avoid}
+  .report h1,.report h2,.report .hd{break-after:avoid}
+}
+.filters label{max-width:100%;min-width:0}
+.filters select,.filters input[type=text]{max-width:100%}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:.85rem}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -123,6 +191,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
       <input id="fileIn" type="file" accept=".txt,.log,text/plain,application/octet-stream" multiple hidden>
       <button class="btn" id="btnSample" type="button">Dùng dữ liệu mẫu</button>
       <button class="btn" id="btnClear" type="button">Xoá tất cả file</button>
+      <button class="btn" id="btnReport" type="button">Xuất báo cáo…</button>
     </div>
   </header>
   <div class="drop" id="drop">Kéo thả một hoặc nhiều file FinishedJobs vào đây. File mới được cộng thêm vào các file đang mở, kết quả trùng giữa các file tự loại bỏ. Dữ liệu chỉ xử lý trong trình duyệt của bạn.</div>
@@ -142,6 +211,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
     <button class="tab" role="tab" data-tab="overview" aria-selected="true">Tổng quan</button>
     <button class="tab" role="tab" data-tab="results" aria-selected="false">Kết quả</button>
     <button class="tab" role="tab" data-tab="link" aria-selected="false">Lọc theo Sample ID</button>
+    <button class="tab" role="tab" data-tab="ri" aria-selected="false">Khảo sát KTC</button>
     <button class="tab" role="tab" data-tab="maint" aria-selected="false">Bảo trì (CLEAN)</button>
     <button class="tab" role="tab" data-tab="qc" aria-selected="false">QC &amp; chuẩn</button>
     <button class="tab" role="tab" data-tab="reagent" aria-selected="false">Thuốc thử &amp; hiệu chuẩn</button>
@@ -151,6 +221,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
   <section class="panel" id="p-overview"></section>
   <section class="panel" id="p-results" hidden></section>
   <section class="panel" id="p-link" hidden></section>
+  <section class="panel" id="p-ri" hidden></section>
   <section class="panel" id="p-maint" hidden></section>
   <section class="panel" id="p-qc" hidden></section>
   <section class="panel" id="p-reagent" hidden></section>
@@ -230,6 +301,7 @@ function load(entries, isSample){
   }
   D.sort((a,b)=>a.time-b.time); R.sort((a,b)=>a.time-b.time);
   S = {D,R,files:entries,stats,sample:isSample};
+  resetRefCache(); RIS.res.clear(); RIS.ver++;
   F = {assay:'',cat:'',flag:'',q:'',from:'',to:'',file:''};
   renderFiles(); renderAll();
 }
@@ -655,12 +727,14 @@ function renderQC(){
   </div>
   <div class="hd"><h2>Biểu đồ Levey-Jennings theo xét nghiệm</h2><span class="sub">Quy tắc Westgard: 1-2s cảnh báo; 1-3s, 2-2s, R-4s, 4-1s, 10x loại</span></div>
   ${ljCards||'<div class="empty">Không có mẫu control (mã bắt đầu bằng #) cho lựa chọn này.</div>'}
+  <div class="panel" id="pbrtqc"></div>
   <div class="card"><div class="hd"><h2>Mẫu có cờ báo</h2><span class="sub">${flagged.length} kết quả</span></div>
     ${fcRows?`<div class="legend" style="gap:16px">${fcRows}</div>`:''}
     ${flRows?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Thời điểm</th><th>Mã mẫu</th><th>Loại</th><th>Xét nghiệm</th><th class="num">Dose</th><th>Cờ</th><th>Lô/Serial</th></tr></thead><tbody>${flRows}</tbody></table></div>`:'<div class="empty">Không có kết quả nào có cờ.</div>'}
   </div>
   <div class="card"><div class="hd"><h2>Chạy chuẩn ($…$A / $…$B)</h2><span class="sub">CV% RLU giữa các lần lặp · ≤5% xanh, 5–10% vàng, >10% đỏ (tham khảo)</span></div>
     <div class="scroll">${runRows?`<table><thead><tr><th>Thời gian</th><th>Xét nghiệm</th><th>Chuẩn</th><th class="num">n</th><th class="num">RLU TB</th><th class="num">SD</th><th class="num">CV</th><th>Dose các lần</th><th>Calib</th></tr></thead><tbody>${runRows}</tbody></table>`:'<div class="empty">Không có lần chạy chuẩn.</div>'}</div></div>`;
+  fillPBRTQC();
   $('#qcAssay').onchange=e=>{QCV.assay=e.target.value; renderQC();};
   $('#qcEvery').onchange=e=>{QCV.qcEvery=e.target.value; saveQCV(); renderQC();};
 }
@@ -700,25 +774,9 @@ const STATE_VI = {any:'có kết quả', normal:'trong KTC', high:'trên KTC', l
 const ST_SHORT = {low:'Thấp', normal:'Trong KTC', high:'Cao'};
 let RR = {}; try{ RR = JSON.parse(localStorage.getItem('lablog-rr')||'{}')||{}; }catch(e){ RR={}; }
 let LK = {conds:[], target:'', pick:'latest', patientOnly:true, sameDay:false};
-const saveRR = ()=>{ try{ localStorage.setItem('lablog-rr', JSON.stringify(RR)); }catch(e){} };
+const saveRR = ()=>{ resetRefCache(); try{ localStorage.setItem('lablog-rr', JSON.stringify(RR)); }catch(e){} };
 const numOr = v=>{ const n=parseFloat(String(v).replace(',','.')); return Number.isFinite(n)?n:null; };
 
-function classify(r){
-  // Ưu tiên khoảng tham chiếu nhập tay; nếu không có thì dùng cờ NormalRange của máy
-  const rr = RR[r.assay]||{}; const lo=numOr(rr.lo), hi=numOr(rr.hi);
-  if(lo!==null || hi!==null){
-    const v=r.dose; if(!Number.isFinite(v)) return 'normal';
-    if(r.qual==='<'){ if(lo!==null && v<=lo) return 'low'; if(hi!==null && v>hi) return 'normal'; }
-    if(r.qual==='>'){ if(hi!==null && v>=hi) return 'high'; }
-    if(lo!==null && v<lo) return 'low'; if(hi!==null && v>hi) return 'high'; return 'normal';
-  }
-  const lref = r.logRange && r.logRange.ref;
-  if(lref && (lref.lo!=null || lref.hi!=null) && Number.isFinite(r.dose)){
-    if(lref.lo!=null && r.dose<lref.lo && r.qual!=='>') return 'low'; if(lref.hi!=null && r.dose>lref.hi && r.qual!=='<') return 'high'; return 'normal'; }
-  if(r.flags.includes('AboveNormalRange')) return 'high';
-  if(r.flags.includes('BelowNormalRange')) return 'low';
-  return 'normal';
-}
 function sampleMap(){
   // sid -> assay -> kết quả được chọn (mới nhất / đầu tiên)
   const M = new Map();
@@ -779,7 +837,8 @@ function renderLink(){
     const manual = numOr(rr.lo)!==null||numOr(rr.hi)!==null;
     return `<tr><td>${esc(a)}</td><td><input type="number" step="any" data-rr="${esc(a)}" data-b="lo" value="${esc(rr.lo??'')}" aria-label="Giới hạn dưới ${esc(a)}"></td>
       <td><input type="number" step="any" data-rr="${esc(a)}" data-b="hi" value="${esc(rr.hi??'')}" aria-label="Giới hạn trên ${esc(a)}"></td>
-      <td class="cat">${manual?'Nhập tay':flagged?'Cờ của máy':'Cờ của máy (chưa thấy cờ KTC nào)'}</td><td class="mono">${inferRef(a)}</td></tr>`; }).join('');
+      <td><input type="text" data-rr="${esc(a)}" data-b="unit" value="${esc(rr.unit??'')}" placeholder="${esc(refInfo(a).unitGuess?refInfo(a).unit:'')}" aria-label="Đơn vị ${esc(a)}" style="width:80px"></td>
+      <td class="cat" data-src-of="${esc(a)}">${manual?'Nhập tay':flagged?'Cờ của máy':'Cờ của máy (chưa thấy cờ KTC nào)'}</td><td class="mono" data-inf-of="${esc(a)}">${inferRef(a)}</td></tr>`; }).join('');
   const pr = pairCounts().slice(0,12);
   $('#p-link').innerHTML = `
   <div class="grid2">
@@ -795,11 +854,12 @@ function renderLink(){
       </div>
     </div>
     <div class="card rr">
-      <div class="hd"><h2>Khoảng tham chiếu (KTC)</h2><span class="sub">Để trống thì dùng cờ Above/BelowNormalRange trong log. Giá trị nhập được nhớ trên trình duyệt này.</span></div>
-      <div class="tablebox" style="max-height:260px"><table><thead><tr><th>Xét nghiệm</th><th>Thấp</th><th>Cao</th><th>Nguồn đánh giá</th><th>KTC suy ra từ cờ trong log</th></tr></thead><tbody>${rrRows}</tbody></table></div>
+      <div class="hd"><h2>Khoảng tham chiếu (KTC)</h2><span class="sub">Để trống thì dùng cờ Above/BelowNormalRange trong log; kết quả có dấu &lt; / &gt; được so với KTC suy ra từ cờ. Đơn vị có dấu * là suy đoán theo độ lớn, sửa được. Giá trị nhập được nhớ trên máy này.</span></div>
+      <div class="tablebox" style="max-height:260px"><table><thead><tr><th>Xét nghiệm</th><th>Thấp</th><th>Cao</th><th>Đơn vị</th><th>Nguồn đánh giá</th><th>KTC suy ra từ cờ trong log</th></tr></thead><tbody>${rrRows}</tbody></table></div>
     </div>
   </div>
   <div class="card" id="linkOut"></div>
+  <div class="panel" id="distOut"></div>
   <div class="card"><div class="hd"><h2>Các xét nghiệm hay làm cùng một Sample ID</h2><span class="sub">Gợi ý cặp để lọc · bấm để áp dụng</span></div>
     ${pr.length?`<div class="scroll"><table><thead><tr><th>Xét nghiệm A</th><th>Xét nghiệm B</th><th class="num">Số mẫu có cả hai</th><th></th></tr></thead><tbody>${pr.map(p=>`<tr><td>${esc(p.a)}</td><td>${esc(p.b)}</td><td class="num">${p.n}</td><td><button class="btn" type="button" data-pair="${esc(p.a)}|${esc(p.b)}">Lọc ${esc(p.a)} → ${esc(p.b)}</button></td></tr>`).join('')}</tbody></table></div>`
       :'<div class="empty">Chưa có Sample ID nào làm từ 2 xét nghiệm trở lên.</div>'}</div>`;
@@ -816,20 +876,11 @@ function renderLink(){
   $('#lDay').onchange=e=>{LK.sameDay=e.target.checked;fillLink();};
   box.querySelectorAll('[data-rr]').forEach(el=>el.addEventListener('input',e=>{
     const a=e.target.dataset.rr; RR[a]={...(RR[a]||{}),[e.target.dataset.b]:e.target.value}; saveRR();
-    const cell=e.target.closest('tr').lastElementChild; const rr=RR[a];
-    cell.textContent = (numOr(rr.lo)!==null||numOr(rr.hi)!==null)?'Nhập tay':'Cờ của máy';
+    const tr=e.target.closest('tr'), rr=RR[a];
+    tr.querySelector('[data-src-of]').textContent = (numOr(rr.lo)!==null||numOr(rr.hi)!==null)?'Nhập tay':'Cờ của máy';
+    tr.querySelector('[data-inf-of]').innerHTML = inferRef(a);
     fillLink(); }));
   box.querySelectorAll('[data-pair]').forEach(b=>b.onclick=()=>{ const [a,c]=b.dataset.pair.split('|'); LK.conds=[{assay:a,state:'normal',min:'',max:''}]; LK.target=c; renderLink(); $('#linkOut').scrollIntoView({behavior:'smooth',block:'start'}); });
-}
-function inferRef(a){
-  // Máy không ghi số KTC, nhưng từ cờ của các mẫu BN có thể khoanh vùng giới hạn
-  const L=S.D.filter(r=>r.cat==='patient'&&r.assay===a&&Number.isFinite(r.dose));
-  const hiF=L.filter(r=>r.flags.includes('AboveNormalRange')).map(r=>r.dose), loF=L.filter(r=>r.flags.includes('BelowNormalRange')).map(r=>r.dose);
-  const ok=L.filter(r=>!r.flags.some(f=>/NormalRange/.test(f))&&!r.qual).map(r=>r.dose);
-  const parts=[];
-  if(hiF.length) parts.push(`cao: ${ok.length?fmt(Math.max(...ok.filter(v=>v<Math.min(...hiF)),-Infinity),3):'?'} < giới hạn ≤ ${fmt(Math.min(...hiF),3)}`);
-  if(loF.length) parts.push(`thấp: ${fmt(Math.max(...loF),3)} < giới hạn`);
-  return parts.length?esc(parts.join(' · ').replace('-∞','?')):'<span class="cat">–</span>';
 }
 function pairCounts(){
   const M=new Map();
@@ -870,6 +921,7 @@ function fillLink(){
     const fb=()=>{box.hidden=false;box.value=csv;box.select();toast('Đã chọn sẵn văn bản CSV, nhấn Ctrl+C');};
     if(navigator.clipboard) navigator.clipboard.writeText(csv).then(()=>toast(`Đã sao chép ${lines.length-1} dòng`)).catch(fb); else fb();
   };
+  fillDist();
 }
 
 /* ---------- Bảo trì / CLEAN ---------- */
@@ -962,12 +1014,16 @@ function renderMaint(){
   </div>` : '<div class="empty">Không có lần chạy CLEAN nào trong các file đang mở.</div>';
 }
 
-function renderAll(){ renderOverview(); renderResults(); renderLink(); renderMaint(); renderQC(); renderReagent(); renderAlerts(); }
+/*__MODULES__*/
+
+function renderAll(){ renderOverview(); renderResults(); renderLink(); renderRI(); renderMaint(); renderQC(); renderReagent(); renderAlerts();
+  const pr=document.getElementById('p-ri'); if(pr && !pr.hidden) runRIQueue(); }
 
 /* ---------- UI wiring ---------- */
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));
-  document.querySelectorAll('.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
+  document.querySelectorAll('section.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
+  if(t.dataset.tab==='ri') riOnShow();
 }));
 async function readFiles(list){
   const files=[...list]; if(!files.length) return;
@@ -994,6 +1050,7 @@ function addEntries(entries){
 $('#fileIn').addEventListener('change',e=>{readFiles(e.target.files); e.target.value='';});
 $('#btnSample').onclick=()=>load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
 $('#btnClear').onclick=()=>load([],false);
+$('#btnReport').onclick=()=>{ if(!S.D.length){ toast('Chưa có dữ liệu. Hãy nạp file log trước.'); return; } openReportDialog(); };
 $('#fileList').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const f=S.files.slice(); f.splice(+b.dataset.rm,1); load(f, S.sample && f.length>0); });
 document.querySelector('label[for="fileIn"]').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#fileIn').click(); } });
 const drop=$('#drop');

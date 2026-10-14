@@ -143,3 +143,30 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 ipcMain.handle('open-dialog', openDialog);
+
+// Lưu báo cáo đang xem trước thành PDF khổ A4 (dùng CSS @media print của trang)
+ipcMain.handle('save-pdf', async (e, name) => {
+  const w = BrowserWindow.fromWebContents(e.sender);
+  const r = await dialog.showSaveDialog(w, {
+    title: 'Lưu báo cáo PDF',
+    defaultPath: path.join(app.getPath('documents'), String(name || 'Bao-cao.pdf').replace(/[\\/:*?"<>|]/g, '-')),
+    filters: [{ name: 'PDF', extensions: ['pdf'] }]
+  });
+  if (r.canceled || !r.filePath) return null;
+  const pdf = await e.sender.printToPDF({
+    pageSize: 'A4', printBackground: true, preferCSSPageSize: true,
+    displayHeaderFooter: true, headerTemplate: '<div></div>',
+    footerTemplate: '<div style="font-size:8px;width:100%;text-align:center;color:#6b7a80;font-family:sans-serif">Trang <span class="pageNumber"></span> / <span class="totalPages"></span></div>'
+  });
+  fs.writeFileSync(r.filePath, pdf);
+  shell.showItemInFolder(r.filePath);
+  return path.basename(r.filePath);
+});
+
+// Tải file (Excel, CSV) từ trang: luôn hỏi nơi lưu
+app.on('browser-window-created', (ev, w) => {
+  w.webContents.session.on('will-download', (event, item) => {
+    const p = dialog.showSaveDialogSync(w, { defaultPath: path.join(app.getPath('documents'), item.getFilename()) });
+    if (p) item.setSavePath(p); else item.cancel();
+  });
+});

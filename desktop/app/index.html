@@ -19,7 +19,7 @@ html,body{margin:0}
 body{font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
-@media print{nav.tabs,.src,.drop,.btn,.filters{display:none!important}.panel[hidden]{display:flex!important}.tablebox{max-height:none!important;overflow:visible!important}.card{break-inside:avoid}}
+@media print{body:not(.rp-open) :is(nav.tabs,.src,.drop,.btn,.filters,.help){display:none!important}body:not(.rp-open) section.panel[hidden]{display:flex!important}body:not(.rp-open) .tablebox{max-height:none!important;overflow:visible!important}body:not(.rp-open) .card{break-inside:avoid}}
 </style>
 <style>
 /* Layout: bảng điều khiển phòng xét nghiệm — thanh tiêu đề + tab, tóm tắt trên, chi tiết dưới */
@@ -99,8 +99,8 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
 .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .qcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
-.qc .stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
-.qc .stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
 .alert{display:grid;grid-template-columns:6px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .alert .bar{background:var(--warn)}
 .alert.crit .bar{background:var(--crit)}
@@ -131,6 +131,74 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
 .chk{display:flex;align-items:center;gap:6px;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
 .sum td{border-top:1px solid var(--line);background:var(--sunk);font-weight:500}
 .filters label.chk{flex-direction:row;align-items:center;font-size:.84rem;text-transform:none;letter-spacing:0;color:var(--ink)}
+.btn.sm{padding:3px 9px;font-size:.78rem}
+.btn.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--line)}
+tr.hl td{background:var(--warn-soft)}
+tr.sel td{background:var(--accent-soft)}
+ol.steps,ol.refs{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:100ch;font-size:.86rem}
+ol.refs{color:var(--muted);font-size:.8rem}
+
+/* ----- Xuất báo cáo ----- */
+.modal{position:fixed;inset:0;z-index:40;background:rgba(10,20,24,.45);display:flex;align-items:flex-start;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 12px 24px;overflow:auto}
+.modal-box{background:var(--surface);color:var(--ink);border-radius:10px;border:1px solid var(--line);max-width:980px;width:100%;padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal-box > .hd{flex-wrap:nowrap}
+.modal-box h3{margin:6px 0 2px;font-size:.9rem;font-family:var(--f-display)}
+.rp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px}
+.rp-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rp-col > label:not(.chk),.rp-fields label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.rp-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.rp-fields input{font:inherit;font-size:.86rem;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.rp-checks{display:flex;flex-direction:column;gap:4px}
+.rp-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;border-top:1px solid var(--line);padding-top:12px}
+.rp-actions .note{margin-right:auto}
+.btn:disabled{opacity:.5;cursor:progress}
+#rpView{position:fixed;inset:0;z-index:45;overflow:auto;display:flex;flex-direction:column;
+  --bg:#F3F6F6; --surface:#FFFFFF; --sunk:#EEF2F2; --line:#D3DCDC; --ink:#13222A; --muted:#5A6B72; --accent:#0B7480; --accent-soft:#D6ECEE;
+  --ok:#2E7D4F; --warn:#B26A00; --warn-soft:#FBEBD2; --crit:#B3261E; --crit-soft:#F8DEDB;
+  --c1:#0B7480; --c2:#C2571A; --c3:#5B57B8; --c4:#2E8B57; --c5:#B8366E; --c6:#7A6A12; --c7:#3A78C2; --c8:#7C4D2A;
+  color-scheme:light;background:#DDE4E4;color:var(--ink)}
+.rp-toolbar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+.rp-paper{background:#fff;width:min(210mm,100%);margin:16px auto;padding:12mm 11mm;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.report{font-size:11px;line-height:1.45;display:flex;flex-direction:column;gap:10px}
+.report .card{padding:10px;gap:8px;border-radius:6px;box-shadow:none}
+.report h2{font-size:12.5px}
+.report table{font-size:10px}
+.report td,.report th{padding:3px 6px}
+.report .pill{white-space:normal}
+.report th{white-space:normal}
+.report .kpis{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.report .kpi{padding:6px 8px}.report .kpi .v{font-size:1.15rem}
+.report .grid2,.report .qcgrid{grid-template-columns:1fr;gap:10px}
+.report .tablebox,.report .scroll{max-height:none!important;overflow:visible!important;border:0}
+.report .help,.report .drop{display:none}
+.report svg{max-width:100%!important;height:auto}
+.rp-head{display:flex;flex-direction:column;gap:6px;border-bottom:2px solid var(--accent);padding-bottom:8px}
+.rp-org{display:flex;justify-content:space-between;gap:10px;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.rp-title h1{font-family:var(--f-display);font-size:20px;margin:2px 0}
+.rp-meta{font-size:9.5px;color:var(--muted)}
+.rp-sec{display:flex;flex-direction:column;gap:10px}
+.rp-h{font-family:var(--f-display);font-size:15px;margin:8px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.rp-sign{margin-top:18px;display:flex;flex-direction:column;gap:8px;break-inside:avoid}
+.rp-sign table{width:100%;border-collapse:collapse;text-align:center}
+.rp-sign th{position:static;text-align:center;font-size:10.5px;text-transform:none;letter-spacing:0;color:var(--ink);border:0}
+.rp-sign td{border:0;text-align:center}
+.rp-sign .rp-sp td{height:64px}
+body.rp-open{overflow:hidden}
+@page{size:A4;margin:12mm 10mm 14mm}
+@media print{
+  body.rp-open{overflow:visible;background:#fff}
+  body.rp-open > *:not(#rpView){display:none!important}
+  body.rp-open #rpView{position:static;overflow:visible;background:#fff;display:block}
+  .rp-toolbar{display:none!important}
+  .rp-paper{box-shadow:none;margin:0;padding:0;width:auto}
+  .rp-break{break-before:page}
+  .report svg,.report tr,.report .kpi,.report .alert{break-inside:avoid}
+  .report h1,.report h2,.report .hd{break-after:avoid}
+}
+.filters label{max-width:100%;min-width:0}
+.filters select,.filters input[type=text]{max-width:100%}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:.85rem}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -145,6 +213,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
       <input id="fileIn" type="file" accept=".txt,.log,text/plain,application/octet-stream" multiple hidden>
       <button class="btn" id="btnSample" type="button">Dùng dữ liệu mẫu</button>
       <button class="btn" id="btnClear" type="button">Xoá tất cả file</button>
+      <button class="btn" id="btnReport" type="button">Xuất báo cáo…</button>
     </div>
   </header>
   <div class="drop" id="drop">Kéo thả một hoặc nhiều file FinishedJobs vào đây. File mới được cộng thêm vào các file đang mở, kết quả trùng giữa các file tự loại bỏ. Dữ liệu chỉ xử lý trong trình duyệt của bạn.</div>
@@ -164,6 +233,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
     <button class="tab" role="tab" data-tab="overview" aria-selected="true">Tổng quan</button>
     <button class="tab" role="tab" data-tab="results" aria-selected="false">Kết quả</button>
     <button class="tab" role="tab" data-tab="link" aria-selected="false">Lọc theo Sample ID</button>
+    <button class="tab" role="tab" data-tab="ri" aria-selected="false">Khảo sát KTC</button>
     <button class="tab" role="tab" data-tab="maint" aria-selected="false">Bảo trì (CLEAN)</button>
     <button class="tab" role="tab" data-tab="qc" aria-selected="false">QC &amp; chuẩn</button>
     <button class="tab" role="tab" data-tab="reagent" aria-selected="false">Thuốc thử &amp; hiệu chuẩn</button>
@@ -173,6 +243,7 @@ input[type=number]{font:inherit;font-size:.86rem;color:var(--ink);background:var
   <section class="panel" id="p-overview"></section>
   <section class="panel" id="p-results" hidden></section>
   <section class="panel" id="p-link" hidden></section>
+  <section class="panel" id="p-ri" hidden></section>
   <section class="panel" id="p-maint" hidden></section>
   <section class="panel" id="p-qc" hidden></section>
   <section class="panel" id="p-reagent" hidden></section>
@@ -252,6 +323,7 @@ function load(entries, isSample){
   }
   D.sort((a,b)=>a.time-b.time); R.sort((a,b)=>a.time-b.time);
   S = {D,R,files:entries,stats,sample:isSample};
+  resetRefCache(); RIS.res.clear(); RIS.ver++;
   F = {assay:'',cat:'',flag:'',q:'',from:'',to:'',file:''};
   renderFiles(); renderAll();
 }
@@ -677,12 +749,14 @@ function renderQC(){
   </div>
   <div class="hd"><h2>Biểu đồ Levey-Jennings theo xét nghiệm</h2><span class="sub">Quy tắc Westgard: 1-2s cảnh báo; 1-3s, 2-2s, R-4s, 4-1s, 10x loại</span></div>
   ${ljCards||'<div class="empty">Không có mẫu control (mã bắt đầu bằng #) cho lựa chọn này.</div>'}
+  <div class="panel" id="pbrtqc"></div>
   <div class="card"><div class="hd"><h2>Mẫu có cờ báo</h2><span class="sub">${flagged.length} kết quả</span></div>
     ${fcRows?`<div class="legend" style="gap:16px">${fcRows}</div>`:''}
     ${flRows?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Thời điểm</th><th>Mã mẫu</th><th>Loại</th><th>Xét nghiệm</th><th class="num">Dose</th><th>Cờ</th><th>Lô/Serial</th></tr></thead><tbody>${flRows}</tbody></table></div>`:'<div class="empty">Không có kết quả nào có cờ.</div>'}
   </div>
   <div class="card"><div class="hd"><h2>Chạy chuẩn ($…$A / $…$B)</h2><span class="sub">CV% RLU giữa các lần lặp · ≤5% xanh, 5–10% vàng, >10% đỏ (tham khảo)</span></div>
     <div class="scroll">${runRows?`<table><thead><tr><th>Thời gian</th><th>Xét nghiệm</th><th>Chuẩn</th><th class="num">n</th><th class="num">RLU TB</th><th class="num">SD</th><th class="num">CV</th><th>Dose các lần</th><th>Calib</th></tr></thead><tbody>${runRows}</tbody></table>`:'<div class="empty">Không có lần chạy chuẩn.</div>'}</div></div>`;
+  fillPBRTQC();
   $('#qcAssay').onchange=e=>{QCV.assay=e.target.value; renderQC();};
   $('#qcEvery').onchange=e=>{QCV.qcEvery=e.target.value; saveQCV(); renderQC();};
 }
@@ -722,25 +796,9 @@ const STATE_VI = {any:'có kết quả', normal:'trong KTC', high:'trên KTC', l
 const ST_SHORT = {low:'Thấp', normal:'Trong KTC', high:'Cao'};
 let RR = {}; try{ RR = JSON.parse(localStorage.getItem('lablog-rr')||'{}')||{}; }catch(e){ RR={}; }
 let LK = {conds:[], target:'', pick:'latest', patientOnly:true, sameDay:false};
-const saveRR = ()=>{ try{ localStorage.setItem('lablog-rr', JSON.stringify(RR)); }catch(e){} };
+const saveRR = ()=>{ resetRefCache(); try{ localStorage.setItem('lablog-rr', JSON.stringify(RR)); }catch(e){} };
 const numOr = v=>{ const n=parseFloat(String(v).replace(',','.')); return Number.isFinite(n)?n:null; };
 
-function classify(r){
-  // Ưu tiên khoảng tham chiếu nhập tay; nếu không có thì dùng cờ NormalRange của máy
-  const rr = RR[r.assay]||{}; const lo=numOr(rr.lo), hi=numOr(rr.hi);
-  if(lo!==null || hi!==null){
-    const v=r.dose; if(!Number.isFinite(v)) return 'normal';
-    if(r.qual==='<'){ if(lo!==null && v<=lo) return 'low'; if(hi!==null && v>hi) return 'normal'; }
-    if(r.qual==='>'){ if(hi!==null && v>=hi) return 'high'; }
-    if(lo!==null && v<lo) return 'low'; if(hi!==null && v>hi) return 'high'; return 'normal';
-  }
-  const lref = r.logRange && r.logRange.ref;
-  if(lref && (lref.lo!=null || lref.hi!=null) && Number.isFinite(r.dose)){
-    if(lref.lo!=null && r.dose<lref.lo && r.qual!=='>') return 'low'; if(lref.hi!=null && r.dose>lref.hi && r.qual!=='<') return 'high'; return 'normal'; }
-  if(r.flags.includes('AboveNormalRange')) return 'high';
-  if(r.flags.includes('BelowNormalRange')) return 'low';
-  return 'normal';
-}
 function sampleMap(){
   // sid -> assay -> kết quả được chọn (mới nhất / đầu tiên)
   const M = new Map();
@@ -801,7 +859,8 @@ function renderLink(){
     const manual = numOr(rr.lo)!==null||numOr(rr.hi)!==null;
     return `<tr><td>${esc(a)}</td><td><input type="number" step="any" data-rr="${esc(a)}" data-b="lo" value="${esc(rr.lo??'')}" aria-label="Giới hạn dưới ${esc(a)}"></td>
       <td><input type="number" step="any" data-rr="${esc(a)}" data-b="hi" value="${esc(rr.hi??'')}" aria-label="Giới hạn trên ${esc(a)}"></td>
-      <td class="cat">${manual?'Nhập tay':flagged?'Cờ của máy':'Cờ của máy (chưa thấy cờ KTC nào)'}</td><td class="mono">${inferRef(a)}</td></tr>`; }).join('');
+      <td><input type="text" data-rr="${esc(a)}" data-b="unit" value="${esc(rr.unit??'')}" placeholder="${esc(refInfo(a).unitGuess?refInfo(a).unit:'')}" aria-label="Đơn vị ${esc(a)}" style="width:80px"></td>
+      <td class="cat" data-src-of="${esc(a)}">${manual?'Nhập tay':flagged?'Cờ của máy':'Cờ của máy (chưa thấy cờ KTC nào)'}</td><td class="mono" data-inf-of="${esc(a)}">${inferRef(a)}</td></tr>`; }).join('');
   const pr = pairCounts().slice(0,12);
   $('#p-link').innerHTML = `
   <div class="grid2">
@@ -817,11 +876,12 @@ function renderLink(){
       </div>
     </div>
     <div class="card rr">
-      <div class="hd"><h2>Khoảng tham chiếu (KTC)</h2><span class="sub">Để trống thì dùng cờ Above/BelowNormalRange trong log. Giá trị nhập được nhớ trên trình duyệt này.</span></div>
-      <div class="tablebox" style="max-height:260px"><table><thead><tr><th>Xét nghiệm</th><th>Thấp</th><th>Cao</th><th>Nguồn đánh giá</th><th>KTC suy ra từ cờ trong log</th></tr></thead><tbody>${rrRows}</tbody></table></div>
+      <div class="hd"><h2>Khoảng tham chiếu (KTC)</h2><span class="sub">Để trống thì dùng cờ Above/BelowNormalRange trong log; kết quả có dấu &lt; / &gt; được so với KTC suy ra từ cờ. Đơn vị có dấu * là suy đoán theo độ lớn, sửa được. Giá trị nhập được nhớ trên máy này.</span></div>
+      <div class="tablebox" style="max-height:260px"><table><thead><tr><th>Xét nghiệm</th><th>Thấp</th><th>Cao</th><th>Đơn vị</th><th>Nguồn đánh giá</th><th>KTC suy ra từ cờ trong log</th></tr></thead><tbody>${rrRows}</tbody></table></div>
     </div>
   </div>
   <div class="card" id="linkOut"></div>
+  <div class="panel" id="distOut"></div>
   <div class="card"><div class="hd"><h2>Các xét nghiệm hay làm cùng một Sample ID</h2><span class="sub">Gợi ý cặp để lọc · bấm để áp dụng</span></div>
     ${pr.length?`<div class="scroll"><table><thead><tr><th>Xét nghiệm A</th><th>Xét nghiệm B</th><th class="num">Số mẫu có cả hai</th><th></th></tr></thead><tbody>${pr.map(p=>`<tr><td>${esc(p.a)}</td><td>${esc(p.b)}</td><td class="num">${p.n}</td><td><button class="btn" type="button" data-pair="${esc(p.a)}|${esc(p.b)}">Lọc ${esc(p.a)} → ${esc(p.b)}</button></td></tr>`).join('')}</tbody></table></div>`
       :'<div class="empty">Chưa có Sample ID nào làm từ 2 xét nghiệm trở lên.</div>'}</div>`;
@@ -838,20 +898,11 @@ function renderLink(){
   $('#lDay').onchange=e=>{LK.sameDay=e.target.checked;fillLink();};
   box.querySelectorAll('[data-rr]').forEach(el=>el.addEventListener('input',e=>{
     const a=e.target.dataset.rr; RR[a]={...(RR[a]||{}),[e.target.dataset.b]:e.target.value}; saveRR();
-    const cell=e.target.closest('tr').lastElementChild; const rr=RR[a];
-    cell.textContent = (numOr(rr.lo)!==null||numOr(rr.hi)!==null)?'Nhập tay':'Cờ của máy';
+    const tr=e.target.closest('tr'), rr=RR[a];
+    tr.querySelector('[data-src-of]').textContent = (numOr(rr.lo)!==null||numOr(rr.hi)!==null)?'Nhập tay':'Cờ của máy';
+    tr.querySelector('[data-inf-of]').innerHTML = inferRef(a);
     fillLink(); }));
   box.querySelectorAll('[data-pair]').forEach(b=>b.onclick=()=>{ const [a,c]=b.dataset.pair.split('|'); LK.conds=[{assay:a,state:'normal',min:'',max:''}]; LK.target=c; renderLink(); $('#linkOut').scrollIntoView({behavior:'smooth',block:'start'}); });
-}
-function inferRef(a){
-  // Máy không ghi số KTC, nhưng từ cờ của các mẫu BN có thể khoanh vùng giới hạn
-  const L=S.D.filter(r=>r.cat==='patient'&&r.assay===a&&Number.isFinite(r.dose));
-  const hiF=L.filter(r=>r.flags.includes('AboveNormalRange')).map(r=>r.dose), loF=L.filter(r=>r.flags.includes('BelowNormalRange')).map(r=>r.dose);
-  const ok=L.filter(r=>!r.flags.some(f=>/NormalRange/.test(f))&&!r.qual).map(r=>r.dose);
-  const parts=[];
-  if(hiF.length) parts.push(`cao: ${ok.length?fmt(Math.max(...ok.filter(v=>v<Math.min(...hiF)),-Infinity),3):'?'} < giới hạn ≤ ${fmt(Math.min(...hiF),3)}`);
-  if(loF.length) parts.push(`thấp: ${fmt(Math.max(...loF),3)} < giới hạn`);
-  return parts.length?esc(parts.join(' · ').replace('-∞','?')):'<span class="cat">–</span>';
 }
 function pairCounts(){
   const M=new Map();
@@ -892,6 +943,7 @@ function fillLink(){
     const fb=()=>{box.hidden=false;box.value=csv;box.select();toast('Đã chọn sẵn văn bản CSV, nhấn Ctrl+C');};
     if(navigator.clipboard) navigator.clipboard.writeText(csv).then(()=>toast(`Đã sao chép ${lines.length-1} dòng`)).catch(fb); else fb();
   };
+  fillDist();
 }
 
 /* ---------- Bảo trì / CLEAN ---------- */
@@ -984,12 +1036,1244 @@ function renderMaint(){
   </div>` : '<div class="empty">Không có lần chạy CLEAN nào trong các file đang mở.</div>';
 }
 
-function renderAll(){ renderOverview(); renderResults(); renderLink(); renderMaint(); renderQC(); renderReagent(); renderAlerts(); }
+
+/* ===== 10-refrange.js ===== */
+/* ---------- Khoảng tham chiếu (KTC) suy ra từ cờ của máy, đơn vị, phân loại kết quả ----------
+   Log FinishedJobs không ghi con số KTC; máy chỉ gắn cờ AboveNormalRange / BelowNormalRange.
+   Từ các mẫu có cờ và không có cờ, giới hạn được khoanh trong một khoảng (a ; b]:
+     giới hạn trên  H: mẫu không cờ lớn nhất  <  H  ≤  mẫu có cờ "trên" nhỏ nhất
+     giới hạn dưới  L: mẫu có cờ "dưới" lớn nhất  <  L  ≤  mẫu không cờ nhỏ nhất
+   Giá trị đại diện là số "gọn" nhất trong khoảng đó (vd 3,598–3,602 → 3,6). */
+
+const UNIT_HINTS = [
+  [/^TSH/i, () => 'µIU/mL'],
+  [/^FT4/i, hi => hi != null && hi > 6 ? 'pmol/L' : 'ng/dL'],
+  [/^FT3/i, hi => hi != null && hi > 8 ? 'pmol/L' : 'pg/mL'],
+  [/^(T4|TT4)$/i, hi => hi != null && hi > 30 ? 'nmol/L' : 'µg/dL'],
+  [/^(T3|TT3)$/i, hi => hi != null && hi > 5 ? 'nmol/L' : 'ng/mL'],
+  [/^(f?PSA|tPSA)/i, () => 'ng/mL'], [/^CEA/i, () => 'ng/mL'], [/^AFP/i, () => 'ng/mL'],
+  [/^CA ?(15-?3|125|19-?9|72-?4)/i, () => 'U/mL'], [/^Ferr/i, () => 'ng/mL'],
+  [/^HBsAgQ/i, () => 'IU/mL'], [/^aHBs|anti-?HBs/i, () => 'mIU/mL'],
+  [/^Ren/i, () => 'µIU/mL'], [/^ALDO/i, hi => hi != null && hi > 150 ? 'pg/mL' : 'ng/dL'],
+  [/^Cort/i, hi => hi != null && hi > 100 ? 'nmol/L' : 'µg/dL'], [/^(25)?-?OH|^VitD|^Vit ?D/i, () => 'ng/mL'],
+  [/^PTH/i, () => 'pg/mL'], [/^PRL|Prolact/i, () => 'ng/mL'], [/^(FSH|LH)$/i, () => 'mIU/mL'],
+  [/^(E2|Estrad)/i, () => 'pg/mL'], [/^Testo/i, () => 'ng/mL'], [/^Prog/i, () => 'ng/mL'],
+  [/^Insul/i, () => 'µIU/mL'], [/^C-?Pep/i, () => 'ng/mL'], [/^(hCG|bhCG|βhCG)/i, () => 'mIU/mL'],
+  [/^PCT|Procalc/i, () => 'ng/mL'], [/^IgE/i, () => 'IU/mL']
+];
+
+// Số "gọn" nhất (ít chữ số có nghĩa nhất) nằm trong (a ; b]; nếu nhiều số cùng độ gọn thì lấy số lớn nhất (gần b)
+function niceIn(a, b) {
+  if (!(b > a)) return b;
+  const top = Math.ceil(Math.log10(Math.max(Math.abs(a), Math.abs(b), 1e-9))) + 1;
+  for (let k = top; k >= -7; k--) {
+    for (const step of [10 ** k, 10 ** k / 2]) {
+      const c = Math.floor((b + step * 1e-9) / step) * step;
+      if (c > a + step * 1e-9 && c <= b + 1e-12) return +c.toPrecision(12);
+    }
+  }
+  return b;
+}
+
+// Giới hạn coi là xác định được khi khoảng (a ; b] hẹp (≤ 2%), hoặc tương đối hẹp (≤ 12%) và số "gọn" trong đó chỉ có 1–2 chữ số có nghĩa
+const sigDigits = v => { const s = Math.abs(v).toPrecision(12).replace(/e.*$/, '').replace('.', '').replace(/^0+/, '').replace(/0+$/, ''); return s.length || 1; };
+function isPrecise(a, b) { if (!(b > 0)) return false; const w = (b - a) / b; return w <= 0.02 || (w <= 0.12 && sigDigits(niceIn(a, b)) <= 2); }
+
+let REF_CACHE = new Map();
+function resetRefCache() { REF_CACHE = new Map(); }
+
+/* Thông tin KTC của một xét nghiệm: {lo, hi, unit, unitGuess, src, n} – lo/hi: {value,a,b,nFlag,conflicts} */
+function refInfo(assay) {
+  if (REF_CACHE.has(assay)) return REF_CACHE.get(assay);
+  const P = S.D.filter(r => r.assay === assay && r.cat === 'patient' && Number.isFinite(r.dose));
+  const exact = P.filter(r => !r.qual);
+  const hiF = exact.filter(r => r.flags.includes('AboveNormalRange')).map(r => r.dose);
+  const loF = exact.filter(r => r.flags.includes('BelowNormalRange')).map(r => r.dose);
+  const ok = exact.filter(r => !r.flags.some(f => /NormalRange/.test(f))).map(r => r.dose);
+  const res = { assay, n: P.length, nExact: exact.length, src: 'cờ' };
+  if (hiF.length) {
+    const b = Math.min(...hiF), below = ok.filter(v => v < b), a = below.length ? Math.max(...below) : 0;
+    res.hi = { value: niceIn(a, b), a, b, nFlag: hiF.length, conflicts: ok.filter(v => v >= b).length, precise: isPrecise(a, b) };
+  }
+  if (loF.length) {
+    const a = Math.max(...loF), above = ok.filter(v => v > a), b = above.length ? Math.min(...above) : a * 2;
+    res.lo = { value: niceIn(a, b), a, b, nFlag: loF.length, conflicts: ok.filter(v => v <= a).length, precise: isPrecise(a, b) };
+  }
+  const man = RR[assay] || {};
+  const mlo = numOr(man.lo), mhi = numOr(man.hi);
+  if (mlo !== null) res.lo = { value: mlo, manual: true, precise: true };
+  if (mhi !== null) res.hi = { value: mhi, manual: true, precise: true };
+  if (mlo !== null || mhi !== null) res.src = 'nhập tay';
+  const hint = UNIT_HINTS.find(([re]) => re.test(assay));
+  if (man.unit) { res.unit = man.unit; res.unitGuess = false; }
+  else if (hint) { res.unit = hint[1](res.hi ? res.hi.value : null); res.unitGuess = true; }
+  else { res.unit = ''; res.unitGuess = true; }
+  res.hasRef = !!(res.lo || res.hi);
+  REF_CACHE.set(assay, res);
+  return res;
+}
+const refLo = a => { const r = refInfo(a).lo; return r ? r.value : null; };
+const refHi = a => { const r = refInfo(a).hi; return r ? r.value : null; };
+const unitOf = a => refInfo(a).unit || '';
+
+/* Phân loại một kết quả: 'low' | 'normal' | 'high'
+   - Có KTC nhập tay: so trực tiếp với số nhập.
+   - Không: theo cờ của máy; riêng kết quả có dấu < hoặc > (ngoài ngưỡng đo, máy không gắn cờ KTC)
+     thì so với KTC suy ra từ cờ. */
+function classify(r) {
+  const lo = refLo(r.assay), hi = refHi(r.assay), info = refInfo(r.assay);
+  const v = r.dose;
+  if (info.src === 'nhập tay' || r.qual) {
+    if (!Number.isFinite(v)) return 'normal';
+    if (r.qual === '<') return (lo !== null && v <= lo) ? 'low' : 'normal';
+    if (r.qual === '>') return (hi !== null && v >= hi) ? 'high' : 'normal';
+    if (lo !== null && v < lo) return 'low';
+    if (hi !== null && v > hi) return 'high';
+    return 'normal';
+  }
+  const lref = r.logRange && r.logRange.ref;
+  if (lref && (lref.lo != null || lref.hi != null) && Number.isFinite(v)) {
+    if (lref.lo != null && v < lref.lo) return 'low';
+    if (lref.hi != null && v > lref.hi) return 'high';
+    return 'normal';
+  }
+  if (r.flags.includes('AboveNormalRange')) return 'high';
+  if (r.flags.includes('BelowNormalRange')) return 'low';
+  return 'normal';
+}
+
+function fmtRef(assay) {
+  const i = refInfo(assay);
+  if (!i.hasRef) return '–';
+  const fx = x => (x.precise || x.manual ? '' : '≈') + fmt(x.value, 4);
+  const lo = i.lo ? fx(i.lo) : '', hi = i.hi ? fx(i.hi) : '';
+  const s = i.lo && i.hi ? `${lo} – ${hi}` : i.hi ? `≤ ${hi}` : `≥ ${lo}`;
+  return s + (i.unit ? ' ' + i.unit : '');
+}
+
+// Cột "KTC suy ra từ cờ" trong bảng khoảng tham chiếu
+function inferRef(a) {
+  const i = refInfo(a);
+  if (!i.hasRef) return '<span class="cat">Không có cờ KTC</span>';
+  const part = (x, nm) => x ? `${nm} ${esc(fmt(x.value, 4))}${x.manual ? '' : ` <span class="cat">(${esc(fmt(x.a, 4))} – ${esc(fmt(x.b, 4))})</span>`}` : '';
+  return [part(i.lo, 'thấp'), part(i.hi, 'cao')].filter(Boolean).join(' · ') + (i.unit ? ` <span class="cat">${esc(i.unit)}${i.unitGuess ? '*' : ''}</span>` : '');
+}
+
+/* ===== 20-distribution.js ===== */
+/* ---------- Phân bố (biểu đồ chuông), nhóm lâm sàng, ma trận 9 ô, cặp trái chiều ---------- */
+
+// Thống kê dùng chung
+function quantile(sorted, p) {
+  if (!sorted.length) return NaN;
+  const h = (sorted.length - 1) * p, i = Math.floor(h);
+  return sorted[i] + (h - i) * ((sorted[Math.min(i + 1, sorted.length - 1)]) - sorted[i]);
+}
+const normPdf = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+function normCdf(x) { // Abramowitz–Stegun 7.1.26 (sai số < 1,5e-7)
+  const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x / 2);
+  return x >= 0 ? (1 + y) / 2 : (1 - y) / 2;
+}
+
+let DIST = { scale: {}, cell: null };
+try { Object.assign(DIST.scale, JSON.parse(localStorage.getItem('lablog-scale') || '{}')); } catch (e) {}
+const saveScale = () => { try { localStorage.setItem('lablog-scale', JSON.stringify(DIST.scale)); } catch (e) {} };
+
+// Thang log hay tuyến tính cho một xét nghiệm (tự chọn nếu dữ liệu lệch phải mạnh)
+function useLog(assay, vals) {
+  if (DIST.scale[assay]) return DIST.scale[assay] === 'log';
+  if (/^TSH/i.test(assay)) return true;
+  const v = vals.filter(x => x > 0).sort((a, b) => a - b);
+  if (v.length < 20 || v[0] <= 0) return false;
+  return quantile(v, 0.975) / quantile(v, 0.5) > 5;
+}
+
+// Mốc chia nhóm lâm sàng mặc định
+function defaultCuts(assay) {
+  const lo = refLo(assay), hi = refHi(assay), u = unitOf(assay);
+  if (/^TSH/i.test(assay)) return [0.1, lo, hi, 10];
+  if (/^FT4/i.test(assay) && u === 'ng/dL') return [lo, hi, 2.5];
+  if (/^FT4/i.test(assay) && u === 'pmol/L') return [lo, hi, 32];
+  return [lo, hi];
+}
+function cutsOf(assay) {
+  const s = (RR[assay] || {}).cuts;
+  const raw = s ? String(s).split(/[;\s]+/).map(numOr) : defaultCuts(assay);
+  return [...new Set(raw.filter(x => x !== null && Number.isFinite(x)))].sort((a, b) => a - b);
+}
+const valOf = r => r.qual === '<' ? r.dose * 0.999999 : r.qual === '>' ? r.dose * 1.000001 : r.dose;
+function groupCounts(recs, cuts) {
+  const g = Array(cuts.length + 1).fill(0);
+  for (const r of recs) { const v = valOf(r); let i = 0; while (i < cuts.length && v >= cuts[i]) i++; g[i]++; }
+  return g.map((n, i) => ({ label: i === 0 ? `< ${fmt(cuts[0], 4)}` : i === cuts.length ? `≥ ${fmt(cuts[i - 1], 4)}` : `${fmt(cuts[i - 1], 4)} – < ${fmt(cuts[i], 4)}`, n }));
+}
+
+function distStats(recs, log) {
+  const ex = recs.filter(r => !r.qual && Number.isFinite(r.dose) && (!log || r.dose > 0)).map(r => r.dose).sort((a, b) => a - b);
+  const all = recs.map(valOf).sort((a, b) => a - b);
+  const tr = ex.map(v => log ? Math.log10(v) : v);
+  const m = tr.length ? mean(tr) : NaN, s = sd(tr);
+  return { n: recs.length, nExact: ex.length, cens: recs.length - ex.length, median: quantile(all, .5), p025: quantile(all, .025), p975: quantile(all, .975),
+    mean: log ? 10 ** m : m, sd: s, gmean: log ? 10 ** m : NaN, tm: m, ts: s, ex };
+}
+
+// Trục log: các mốc 1-2-5
+function logTicks(lo, hi) {
+  const t = [];
+  for (let e = Math.floor(lo) - 1; e <= Math.ceil(hi) + 1; e++) for (const m of [1, 2, 5]) { const v = Math.log10(m) + e; if (v >= lo - 1e-9 && v <= hi + 1e-9) t.push(v); }
+  return t.length > 12 ? t.filter(v => Math.abs(v - Math.round(v)) < 1e-9) : t;
+}
+const tickLabel = (v, log) => { const x = log ? 10 ** v : v; return fmt(+x.toPrecision(3), 4); };
+
+/* Biểu đồ chuông: histogram + đường cong chuẩn (trên thang đã biến đổi) + vùng KTC + trung vị, P2,5, P97,5 */
+function bellChart(recs, assay, opt = {}) {
+  const vals = recs.map(r => r.dose).filter(Number.isFinite);
+  const log = opt.log ?? useLog(assay, vals);
+  const st = distStats(recs, log);
+  const W = opt.w || 640, H = opt.h || 260, pad = { l: 44, r: 14, t: 22, b: 34 };
+  if (st.n < 3) return { svg: '<div class="empty">Chưa đủ dữ liệu để vẽ phân bố.</div>', st, log };
+  const T = x => log ? Math.log10(Math.max(x, 1e-12)) : x;
+  const tex = st.ex.map(T).sort((a, b) => a - b);
+  let x0 = quantile(tex, 0.005), x1 = quantile(tex, 0.995);
+  const lo = refLo(assay), hi = refHi(assay);
+  for (const v of [lo, hi]) if (v !== null && (!log || v > 0)) { x0 = Math.min(x0, T(v)); x1 = Math.max(x1, T(v)); }
+  const span = (x1 - x0) || 1; x0 -= span * 0.04; x1 += span * 0.04;
+  const NB = opt.bins || 34, bw = (x1 - x0) / NB;
+  const bins = Array(NB).fill(0); let cl = 0, ch = 0;
+  for (const r of recs) {
+    if (!Number.isFinite(r.dose)) continue;
+    if (r.qual === '<') { cl++; continue; } if (r.qual === '>') { ch++; continue; }
+    let i = Math.floor((T(r.dose) - x0) / bw); i = Math.max(0, Math.min(NB - 1, i)); bins[i]++;
+  }
+  const side = (cl || ch) ? 30 : 0;
+  const pl = pad.l + (cl ? side : 0), pr = W - pad.r - (ch ? side : 0);
+  const X = v => pl + (v - x0) / (x1 - x0) * (pr - pl);
+  const curve = Number.isFinite(st.ts) && st.ts > 0 ? i => st.nExact * bw * normPdf(i, st.tm, st.ts) : null;
+  let ymax = Math.max(1, ...bins, cl, ch);
+  if (curve) ymax = Math.max(ymax, curve(st.tm));
+  const yStep = niceStep(ymax), ytop = Math.ceil(ymax / yStep) * yStep;
+  const Y = v => pad.t + (H - pad.t - pad.b) * (1 - v / ytop);
+  const colOf = c => { const v = log ? 10 ** c : c; return lo !== null && v < lo ? 'var(--c7)' : hi !== null && v > hi ? 'var(--crit)' : 'var(--ok)'; };
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px" role="img" aria-label="Phân bố ${esc(assay)}">`;
+  for (let v = 0; v <= ytop; v += yStep) s += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="${v ? .5 : 1}"/><text x="${pad.l - 5}" y="${Y(v) + 3}" text-anchor="end">${v}</text>`;
+  if (lo !== null || hi !== null) {
+    const a = lo !== null && (!log || lo > 0) ? X(T(lo)) : pl, b = hi !== null ? X(T(hi)) : pr;
+    s += `<rect x="${a}" y="${pad.t}" width="${Math.max(0, b - a)}" height="${H - pad.t - pad.b}" fill="var(--accent-soft)" opacity=".55"><title>Vùng KTC ${esc(fmtRef(assay))}</title></rect>`;
+    for (const [v, l] of [[lo, 'KTC'], [hi, 'KTC']]) if (v !== null && (!log || v > 0)) s += `<line x1="${X(T(v))}" x2="${X(T(v))}" y1="${pad.t}" y2="${H - pad.b}" stroke="var(--accent)" stroke-width="1.2"/><text x="${X(T(v))}" y="${pad.t - 6}" text-anchor="middle" style="fill:var(--accent)">${tickLabel(T(v), log)}</text>`;
+  }
+  bins.forEach((n, i) => { if (!n) return; const c = x0 + (i + .5) * bw;
+    s += `<rect x="${X(x0 + i * bw) + .6}" y="${Y(n)}" width="${Math.max(1, X(x0 + (i + 1) * bw) - X(x0 + i * bw) - 1.2)}" height="${Y(0) - Y(n)}" fill="${colOf(c)}" opacity=".78"><title>${tickLabel(x0 + i * bw, log)} – ${tickLabel(x0 + (i + 1) * bw, log)}: ${n} mẫu</title></rect>`; });
+  if (cl) s += `<rect x="${pad.l + 4}" y="${Y(cl)}" width="${side - 10}" height="${Y(0) - Y(cl)}" fill="var(--c7)" opacity=".5" stroke="var(--c7)" stroke-dasharray="3 2"><title>${cl} kết quả có dấu &lt; (dưới ngưỡng đo)</title></rect><text x="${pad.l + side / 2 - 1}" y="${H - pad.b + 14}" text-anchor="middle">&lt;LoD</text>`;
+  if (ch) s += `<rect x="${pr + 6}" y="${Y(ch)}" width="${side - 10}" height="${Y(0) - Y(ch)}" fill="var(--crit)" opacity=".5" stroke="var(--crit)" stroke-dasharray="3 2"><title>${ch} kết quả có dấu &gt; (trên ngưỡng đo)</title></rect><text x="${pr + side / 2 + 1}" y="${H - pad.b + 14}" text-anchor="middle">&gt;max</text>`;
+  if (curve) { const pts = []; for (let i = 0; i <= 120; i++) { const v = x0 + (x1 - x0) * i / 120; pts.push(`${X(v).toFixed(1)},${Y(Math.min(curve(v), ytop)).toFixed(1)}`); }
+    s += `<polyline fill="none" stroke="var(--ink)" stroke-width="1.6" points="${pts.join(' ')}"><title>Đường cong chuẩn khớp dữ liệu${log ? ' (trên thang log)' : ''}</title></polyline>`; }
+  for (const [v, l, da] of [[st.median, 'Trung vị', ''], [st.p025, 'P2,5', '3 3'], [st.p975, 'P97,5', '3 3']]) {
+    if (!Number.isFinite(v) || (log && v <= 0)) continue; const xv = T(v); if (xv < x0 || xv > x1) continue;
+    s += `<line x1="${X(xv)}" x2="${X(xv)}" y1="${pad.t + 8}" y2="${H - pad.b}" stroke="var(--c2)" stroke-dasharray="${da}" stroke-width="1.3"><title>${l}: ${fmt(v, 4)}</title></line><text x="${X(xv)}" y="${pad.t + 6}" text-anchor="middle" style="fill:var(--c2)">${l}</text>`;
+  }
+  for (const v of (log ? logTicks(x0, x1) : (() => { const st2 = niceStep(x1 - x0); const a = []; for (let v = Math.ceil(x0 / st2) * st2; v <= x1; v += st2) a.push(+v.toPrecision(10)); return a; })()))
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H - pad.b}" y2="${H - pad.b + 4}" stroke="var(--muted)"/><text x="${X(v)}" y="${H - pad.b + 15}" text-anchor="middle">${tickLabel(v, log)}</text>`;
+  s += `<text x="${(pl + pr) / 2}" y="${H - 4}" text-anchor="middle">${esc(assay)}${unitOf(assay) ? ' (' + esc(unitOf(assay)) + ')' : ''}${log ? ' · thang log' : ''}</text></svg>`;
+  return { svg: s, st, log };
+}
+
+function groupTable(assay, recs) {
+  const n = recs.length; if (!n) return '';
+  const c3 = { low: 0, normal: 0, high: 0 }; for (const r of recs) c3[classify(r)]++;
+  const g = groupCounts(recs, cutsOf(assay));
+  const row = (lbl, k, cls) => `<tr><td>${cls ? `<span class="st-${cls}">${lbl}</span>` : lbl}</td><td class="num">${k}</td><td class="num">${fmt(k / n * 100, 1)}%</td><td style="width:40%"><div class="bar100" style="height:10px"><span style="width:${k / n * 100}%;background:${cls === 'low' ? 'var(--c7)' : cls === 'high' ? 'var(--crit)' : cls === 'normal' ? 'var(--ok)' : 'var(--accent)'}"></span></div></td></tr>`;
+  return `<table><thead><tr><th>Nhóm</th><th class="num">Số mẫu</th><th class="num">Tỷ lệ</th><th></th></tr></thead><tbody>
+    ${row('Dưới KTC', c3.low, 'low')}${row('Trong KTC', c3.normal, 'normal')}${row('Trên KTC', c3.high, 'high')}
+    <tr><td colspan="4" class="cat" style="padding-top:10px">Nhóm theo mốc ${esc(cutsOf(assay).map(x => fmt(x, 4)).join(' · '))} ${esc(unitOf(assay))}</td></tr>
+    ${g.map(x => row(esc(x.label), x.n, '')).join('')}</tbody></table>`;
+}
+
+function distCard(title, assay, recs, idPrefix) {
+  const b = bellChart(recs, assay);
+  const st = b.st;
+  return `<div class="card"><div class="hd"><h2>${title}</h2>
+      <div class="seg" role="group" aria-label="Thang trục">${['auto', 'log', 'lin'].map(k => `<button type="button" class="btn sm${(DIST.scale[assay] || 'auto') === k ? ' on' : ''}" data-scale="${esc(assay)}|${k}">${k === 'auto' ? 'Tự động' : k === 'log' ? 'Log' : 'Tuyến tính'}</button>`).join('')}</div></div>
+    <div class="stats"><span>n <b>${st.n}</b></span><span>Trung vị <b>${fmt(st.median, 4)}</b></span><span>P2,5 – P97,5 <b>${fmt(st.p025, 4)} – ${fmt(st.p975, 4)}</b></span>${b.log ? `<span>TB hình học <b>${fmt(st.gmean, 4)}</b></span>` : `<span>TB ± SD <b>${fmt(st.mean, 4)} ± ${fmt(st.sd, 4)}</b></span>`}${st.cens ? `<span>Có dấu &lt;/&gt; <b>${st.cens}</b></span>` : ''}<span>KTC <b>${esc(fmtRef(assay))}</b></span></div>
+    <div class="scroll">${b.svg}</div>
+    ${groupTable(assay, recs)}
+    <label class="cat" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">Mốc chia nhóm ${esc(assay)}:
+      <input type="text" data-cuts="${esc(assay)}" value="${esc((RR[assay] || {}).cuts ?? cutsOf(assay).map(x => String(x)).join('; '))}" style="width:220px" aria-label="Mốc chia nhóm ${esc(assay)}">
+      <button type="button" class="btn sm" data-cuts-reset="${esc(assay)}">Mặc định</button></label>
+  </div>`;
+}
+
+/* ---------- Ma trận 9 ô ---------- */
+const THYROID_HORMONE = /^(FT4|FT3|T4|T3|TT4|TT3)$/i;
+function thyroidPair(a, b) { return (/^TSH/i.test(a) && THYROID_HORMONE.test(b)) || (/^TSH/i.test(b) && THYROID_HORMONE.test(a)); }
+const CELL_NOTE = { // [trạng thái TSH][trạng thái hormon]
+  high: { low: 'Gợi ý suy giáp nguyên phát', normal: 'Gợi ý suy giáp cận lâm sàng', high: 'Trái chiều – nên xem lại' },
+  normal: { low: 'Hormon thấp, TSH bình thường', normal: 'Bình giáp', high: 'Hormon cao, TSH bình thường' },
+  low: { low: 'Trái chiều – nên xem lại', normal: 'Gợi ý cường giáp cận lâm sàng', high: 'Gợi ý cường giáp nguyên phát' }
+};
+function pairData(A, B) {
+  const M = sampleMap(), out = [];
+  for (const [sid, o] of M) if (o[A] && o[B] && Number.isFinite(o[A].dose) && Number.isFinite(o[B].dose)) out.push({ sid, a: o[A], b: o[B], ca: classify(o[A]), cb: classify(o[B]) });
+  return out;
+}
+function matrixCard(A, B) {
+  const P = pairData(A, B);
+  if (P.length < 5) return '';
+  const thy = thyroidPair(A, B), tshIsA = /^TSH/i.test(A);
+  const logA = useLog(A, P.map(p => p.a.dose)), logB = useLog(B, P.map(p => p.b.dose));
+  const TA = v => logA ? Math.log10(Math.max(v, 1e-6)) : v, TB = v => logB ? Math.log10(Math.max(v, 1e-6)) : v;
+  const xs = P.map(p => TA(p.a.dose)).sort((a, b) => a - b), ys = P.map(p => TB(p.b.dose)).sort((a, b) => a - b);
+  const loA = refLo(A), hiA = refHi(A), loB = refLo(B), hiB = refHi(B);
+  // Trục hiển thị 1% – 99% dữ liệu (cộng giới hạn KTC); điểm ngoài khung được dồn sát mép
+  let x0 = quantile(xs, .01), x1 = quantile(xs, .99), y0 = quantile(ys, .01), y1 = quantile(ys, .99);
+  for (const v of [loA, hiA]) if (v) { x0 = Math.min(x0, TA(v)); x1 = Math.max(x1, TA(v)); }
+  for (const v of [loB, hiB]) if (v) { y0 = Math.min(y0, TB(v)); y1 = Math.max(y1, TB(v)); }
+  const dx = (x1 - x0) || 1, dy = (y1 - y0) || 1; x0 -= dx * .05; x1 += dx * .05; y0 -= dy * .05; y1 += dy * .05;
+  const W = 560, H = 440, pad = { l: 52, r: 16, t: 14, b: 40 };
+  const X = v => pad.l + (Math.min(Math.max(v, x0), x1) - x0) / (x1 - x0) * (W - pad.l - pad.r);
+  const Y = v => H - pad.b - (Math.min(Math.max(v, y0), y1) - y0) / (y1 - y0) * (H - pad.t - pad.b);
+  const K = ['low', 'normal', 'high'], cnt = {}; for (const a of K) for (const b of K) cnt[a + b] = 0;
+  for (const p of P) cnt[p.ca + p.cb]++;
+  const disc = c => thy && ((c === 'highhigh') || (c === 'lowlow'));
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px" role="img" aria-label="Ma trận ${esc(A)} × ${esc(B)}">`;
+  const xb = [x0, loA ? TA(loA) : x0, hiA ? TA(hiA) : x1, x1], yb = [y0, loB ? TB(loB) : y0, hiB ? TB(hiB) : y1, y1];
+  K.forEach((ka, i) => K.forEach((kb, j) => {
+    const c = ka + kb, xa = X(xb[i]), xz = X(xb[i + 1]), ya = Y(yb[j + 1]), yz = Y(yb[j]);
+    if (xz - xa < 1 || yz - ya < 1) return;
+    s += `<rect x="${xa}" y="${ya}" width="${xz - xa}" height="${yz - ya}" fill="${disc(c) ? 'var(--warn-soft)' : c === 'normalnormal' ? 'var(--accent-soft)' : 'transparent'}" opacity=".7" data-cell="${c}" style="cursor:pointer"><title>${esc(A)} ${ST_SHORT[ka]} · ${esc(B)} ${ST_SHORT[kb]}: ${cnt[c]} mẫu</title></rect>`;
+  }));
+  for (const v of logA ? logTicks(x0, x1) : []) s += `<text x="${X(v)}" y="${H - pad.b + 15}" text-anchor="middle">${tickLabel(v, true)}</text>`;
+  if (!logA) { const st2 = niceStep(x1 - x0); for (let v = Math.ceil(x0 / st2) * st2; v <= x1; v += st2) s += `<text x="${X(v)}" y="${H - pad.b + 15}" text-anchor="middle">${tickLabel(v, false)}</text>`; }
+  for (const v of logB ? logTicks(y0, y1) : []) s += `<text x="${pad.l - 6}" y="${Y(v) + 3}" text-anchor="end">${tickLabel(v, true)}</text>`;
+  if (!logB) { const st2 = niceStep(y1 - y0); for (let v = Math.ceil(y0 / st2) * st2; v <= y1; v += st2) s += `<text x="${pad.l - 6}" y="${Y(v) + 3}" text-anchor="end">${tickLabel(v, false)}</text>`; }
+  s += `<rect x="${pad.l}" y="${pad.t}" width="${W - pad.l - pad.r}" height="${H - pad.t - pad.b}" fill="none" stroke="var(--line)"/>`;
+  for (const v of [loA, hiA]) if (v) s += `<line x1="${X(TA(v))}" x2="${X(TA(v))}" y1="${pad.t}" y2="${H - pad.b}" stroke="var(--accent)" stroke-dasharray="4 3"/>`;
+  for (const v of [loB, hiB]) if (v) s += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(TB(v))}" y2="${Y(TB(v))}" stroke="var(--accent)" stroke-dasharray="4 3"/>`;
+  const step = P.length > 6000 ? Math.ceil(P.length / 6000) : 1;
+  for (let i = 0; i < P.length; i += step) { const p = P[i];
+    s += `<circle cx="${X(TA(p.a.dose)).toFixed(1)}" cy="${Y(TB(p.b.dose)).toFixed(1)}" r="1.9" fill="${disc(p.ca + p.cb) ? 'var(--warn)' : 'var(--ink)'}" opacity="${disc(p.ca + p.cb) ? .9 : .35}"/>`; }
+  K.forEach((ka, i) => K.forEach((kb, j) => {
+    const c = ka + kb, xa = X(xb[i]), xz = X(xb[i + 1]), ya = Y(yb[j + 1]), yz = Y(yb[j]);
+    if (xz - xa < 74 || yz - ya < 24) return;
+    s += `<text x="${(xa + xz) / 2}" y="${(ya + yz) / 2 + 4}" text-anchor="middle" style="fill:var(--ink);font-size:12px;font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:3px">${cnt[c]} · ${fmt(cnt[c] / P.length * 100, 1)}%</text>`;
+  }));
+  s += `<text x="${(pad.l + W - pad.r) / 2}" y="${H - 6}" text-anchor="middle">${esc(A)}${unitOf(A) ? ' (' + esc(unitOf(A)) + ')' : ''}${logA ? ' · log' : ''}</text>`;
+  s += `<text transform="translate(12 ${(pad.t + H - pad.b) / 2}) rotate(-90)" text-anchor="middle">${esc(B)}${unitOf(B) ? ' (' + esc(unitOf(B)) + ')' : ''}${logB ? ' · log' : ''}</text></svg>`;
+  const rows = [];
+  for (const kb of [...K].reverse()) for (const ka of K) {
+    const c = ka + kb; if (!cnt[c]) continue;
+    const tsh = tshIsA ? ka : kb, hor = tshIsA ? kb : ka;
+    rows.push(`<tr${disc(c) ? ' class="hl"' : ''}><td><button type="button" class="linkbtn" data-cellpick="${c}">${esc(A)} ${ST_SHORT[ka]} · ${esc(B)} ${ST_SHORT[kb]}</button></td><td class="num">${cnt[c]}</td><td class="num">${fmt(cnt[c] / P.length * 100, 1)}%</td>${thy ? `<td>${disc(c) ? '<span class="pill p-high">' : ''}${CELL_NOTE[tsh][hor]}${disc(c) ? '</span>' : ''}</td>` : ''}</tr>`);
+  }
+  const pick = DIST.cell && DIST.cell.k === A + '|' + B ? DIST.cell.c : null;
+  const list = pick ? P.filter(p => p.ca + p.cb === pick) : [];
+  const pi = pick ? K.flatMap(a => K.map(b => a + b)).indexOf(pick) : -1, pa = K[Math.floor(pi / 3)], pb = K[pi % 3];
+  return `<div class="card" id="matrixCard"><div class="hd"><h2>Ma trận 9 ô: ${esc(A)} × ${esc(B)}</h2><span class="sub">${P.length} Sample ID có cả hai kết quả · đường nét đứt là giới hạn KTC · bấm vào ô để xem danh sách mẫu</span></div>
+    <div class="grid2" style="align-items:start"><div class="scroll">${s}</div>
+    <div class="scroll"><table><thead><tr><th>Ô</th><th class="num">Số mẫu</th><th class="num">Tỷ lệ</th>${thy ? '<th>Gợi ý (không thay chẩn đoán)</th>' : ''}</tr></thead><tbody>${rows.join('')}</tbody></table>
+    ${thy ? `<div class="note">Ô tô vàng: TSH và hormon tuyến giáp cùng tăng hoặc cùng giảm. Kiểu này hiếm gặp về sinh lý; nên xem lại khả năng nhiễu xét nghiệm (kháng thể dị loại, biotin), nhầm mẫu, hoặc bệnh lý tuyến yên.</div>` : ''}</div></div>
+    ${pick ? `<div class="hd"><h2>Danh sách mẫu: ${esc(A)} ${ST_SHORT[pa]} · ${esc(B)} ${ST_SHORT[pb]}</h2><span class="sub">${list.length} mẫu</span></div>` : ''}
+    ${pick ? `<div class="tablebox" style="max-height:340px"><table><thead><tr><th>Sample ID</th><th>Ngày</th><th class="num">${esc(A)}</th><th class="num">${esc(B)}</th></tr></thead><tbody>${list.slice(0, 500).map(p => `<tr><td class="mono">${esc(p.sid)}</td><td class="mono">${p.b.ts.slice(0, 10)}</td><td class="num"><span class="st-${p.ca}">${esc(p.a.doseRaw)}</span></td><td class="num"><span class="st-${p.cb}">${esc(p.b.doseRaw)}</span></td></tr>`).join('')}</tbody></table></div>${list.length > 500 ? `<div class="note">Hiện 500/${list.length} mẫu.</div>` : ''}` : ''}
+  </div>`;
+}
+
+function discordantList(A, B) {
+  if (!thyroidPair(A, B)) return [];
+  return pairData(A, B).filter(p => (p.ca === 'high' && p.cb === 'high') || (p.ca === 'low' && p.cb === 'low'));
+}
+
+function fillDist() {
+  const out = document.getElementById('distOut'); if (!out) return;
+  const { withT } = runLink();
+  const T = LK.target;
+  const main = withT.map(p => p.o[T]).filter(r => r && Number.isFinite(r.dose));
+  const conds = LK.conds.filter(c => c.assay && c.state !== 'none');
+  const A = conds.length ? conds[0].assay : null;
+  const desc = conds.map(condText).join(' và ') || 'mọi mẫu';
+  let html = '';
+  const one = conds.length === 1 && conds[0].state === 'normal' && A && A !== T;
+  if (one) {
+    // So sánh hai chiều: A trong KTC → T, và T trong KTC → A
+    const M = sampleMap(), rev = [];
+    for (const [, o] of M) if (o[T] && o[A] && classify(o[T]) === 'normal' && Number.isFinite(o[A].dose)) rev.push(o[A]);
+    html += `<div class="hd"><h2>Phân bố hai chiều</h2><button type="button" class="btn" id="distSwap">Đảo chiều: ${esc(T)} trong KTC → ${esc(A)}</button></div>
+      <div class="grid2">${distCard(`${esc(T)} khi ${esc(A)} trong KTC`, T, main)}${distCard(`${esc(A)} khi ${esc(T)} trong KTC`, A, rev)}</div>`;
+  } else {
+    html += distCard(`Phân bố ${esc(T)} · ${esc(desc)}`, T, main);
+  }
+  if (A && A !== T) html += matrixCard(A, T);
+  const dl = A && A !== T ? discordantList(A, T) : [];
+  if (dl.length) html += `<div class="card"><div class="hd"><h2>Cặp kết quả trái chiều cần xem lại</h2><span class="sub">${dl.length} mẫu: ${esc(A)} và ${esc(T)} cùng tăng hoặc cùng giảm</span></div>
+    <div class="tablebox" style="max-height:360px"><table><thead><tr><th>Sample ID</th><th>Thời gian</th><th class="num">${esc(A)}</th><th class="num">${esc(T)}</th><th>Kiểu</th><th>Lô ${esc(T)}</th></tr></thead><tbody>
+    ${dl.map(p => `<tr><td class="mono">${esc(p.sid)}</td><td class="mono">${p.b.ts.slice(0, 16)}</td><td class="num"><span class="st-${p.ca}">${esc(p.a.doseRaw)}</span></td><td class="num"><span class="st-${p.cb}">${esc(p.b.doseRaw)}</span></td><td>${p.ca === 'high' ? 'Cùng tăng' : 'Cùng giảm'}</td><td class="mono">${esc(p.b.lot)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  out.innerHTML = html;
+  out.querySelectorAll('[data-scale]').forEach(b => b.onclick = () => { const [a, k] = b.dataset.scale.split('|'); if (k === 'auto') delete DIST.scale[a]; else DIST.scale[a] = k; saveScale(); fillDist(); });
+  out.querySelectorAll('[data-cuts]').forEach(el => el.addEventListener('change', e => { const a = e.target.dataset.cuts; RR[a] = { ...(RR[a] || {}), cuts: e.target.value }; saveRR(); fillDist(); }));
+  out.querySelectorAll('[data-cuts-reset]').forEach(b => b.onclick = () => { const a = b.dataset.cutsReset; if (RR[a]) delete RR[a].cuts; saveRR(); fillDist(); });
+  const sw = document.getElementById('distSwap');
+  if (sw) sw.onclick = () => { LK.conds = [{ assay: T, state: 'normal', min: '', max: '' }]; LK.target = A; renderLink(); };
+  out.querySelectorAll('[data-cell],[data-cellpick]').forEach(el => el.addEventListener('click', () => {
+    DIST.cell = { k: A + '|' + T, c: el.dataset.cell || el.dataset.cellpick }; fillDist();
+    const mc = document.getElementById('matrixCard'); if (mc && mc.scrollIntoView) mc.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }));
+}
+
+/* ===== 30-ri-core.js ===== */
+/* ---------- Ước tính khoảng tham chiếu từ dữ liệu thường quy (phương pháp gián tiếp) ----------
+   Ý tưởng theo nhóm thuật toán "truncated minimum chi-square" (TMC; Wosniok & Haeckel, CCLM 2019)
+   và refineR (Ammer và cs., Sci Rep 2021), được khuyến nghị bởi IFCC C-RIDL (Jones và cs., CCLM 2019):
+     1. Dữ liệu bệnh nhân là hỗn hợp "không bệnh lý" + "bệnh lý". Phần không bệnh lý, sau biến đổi
+        Box-Cox thích hợp, có phân bố gần chuẩn và chiếm phần lõi của dữ liệu.
+     2. Với mỗi λ (Box-Cox) và mỗi khoảng cắt [a ; b] quanh lõi, khớp phân bố chuẩn bị cắt cụt vào
+        histogram trong khoảng đó bằng tiêu chuẩn chi-bình-phương nhỏ nhất.
+     3. Chọn bộ (λ, a, b) tối ưu theo tiêu chuẩn kết hợp độ khớp và độ phủ dữ liệu.
+     4. KTC = biến đổi ngược của μ ± 1,96σ (bách phân vị 2,5 – 97,5).
+     5. Khoảng tin cậy 90% của mỗi giới hạn bằng bootstrap.
+   Toàn bộ là hàm thuần (không đụng giao diện) để kiểm thử độc lập. */
+
+const RI_CFG = {
+  lambdas: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+  q1: [0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3],
+  q2: [0.7, 0.75, 0.8, 0.85, 0.875, 0.9, 0.925, 0.95, 0.97, 0.98, 0.99, 0.995],
+  minFrac: 0.4,     // khoảng cắt phải chứa ít nhất 40% dữ liệu
+  maxP: 1.05,       // tỷ lệ "không bệnh lý" ước tính không được vượt quá ~100%
+  wCover: 5,        // trọng số ưu tiên khoảng cắt rộng (hiệu chỉnh bằng mô phỏng, xem scripts/ri_simulation)
+  boot: 100, minN: 120, z: 1.959964
+}
+
+const bc = (x, l) => l === 0 ? Math.log(x) : (x ** l - 1) / l;
+const bcInv = (y, l) => l === 0 ? Math.exp(y) : Math.max(l * y + 1, 0) ** (1 / l);
+
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const phi = z => Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+
+/* Chuẩn bị dữ liệu cho một λ: giá trị biến đổi đã sắp xếp + tổng cộng dồn (để tính trung bình/phương sai
+   của bất kỳ đoạn nào trong O(1)). */
+function prepLambda(xSorted, l) {
+  const ys = xSorted.map(v => bc(v, l)), n = ys.length, c1 = new Float64Array(n + 1), c2 = new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) { c1[i + 1] = c1[i] + ys[i]; c2[i + 1] = c2[i] + ys[i] * ys[i]; }
+  return { ys, c1, c2, l };
+}
+const lowerIdx = (ys, v) => { let lo = 0, hi = ys.length; while (lo < hi) { const m = (lo + hi) >> 1; if (ys[m] < v) lo = m + 1; else hi = m; } return lo; };
+const upperIdx = (ys, v) => { let lo = 0, hi = ys.length; while (lo < hi) { const m = (lo + hi) >> 1; if (ys[m] <= v) lo = m + 1; else hi = m; } return lo; };
+
+/* Ước lượng hợp lý cực đại của phân bố chuẩn cắt cụt hai phía (giới hạn cắt a, b đã biết):
+   cân bằng trung bình và phương sai mẫu trong [a;b] với trung bình/phương sai lý thuyết (Cohen, 1950). */
+function truncMLE(mt, vt, a, b) {
+  let m = mt, s = Math.sqrt(vt);
+  for (let it = 0; it < 120; it++) {
+    const al = (a - m) / s, be = (b - m) / s, Z = normCdf(be) - normCdf(al);
+    if (!(Z > 1e-12)) return null;
+    const pa = phi(al), pb = phi(be), d = (pa - pb) / Z, f = 1 + (al * pa - be * pb) / Z - d * d;
+    if (!(f > 1e-6)) return null;
+    const s2 = Math.sqrt(vt / f), m2 = mt - s2 * d;
+    const ds = s2 - s, dm = m2 - m;
+    s = s + 0.9 * ds; m = m + 0.9 * dm;
+    if (!(s > 0) || !Number.isFinite(m)) return null;
+    if (Math.abs(ds) < 1e-6 * s && Math.abs(dm) < 1e-6 * s) break;
+    if (s > 50 * (b - a)) return null;
+  }
+  return { m, s };
+}
+
+/* Khớp phân bố chuẩn cắt cụt trong [a ; b] và tính χ² độ khớp trên các khoảng chia đều */
+function fitTruncated(L, a, b, N) {
+  const { ys, c1, c2 } = L, i0 = lowerIdx(ys, a), i1 = upperIdx(ys, b), nIn = i1 - i0;
+  if (nIn < 30 || !(b > a)) return null;
+  const mt = (c1[i1] - c1[i0]) / nIn, vt = Math.max((c2[i1] - c2[i0]) / nIn - mt * mt, 1e-12);
+  const e = truncMLE(mt, vt, a, b); if (!e) return null;
+  const { m, s } = e, Fa = normCdf((a - m) / s), Fb = normCdf((b - m) / s), den = Fb - Fa;
+  const nb = Math.max(6, Math.min(30, Math.round(Math.sqrt(nIn) / 1.5))), w = (b - a) / nb;
+  let chi = 0, prevF = Fa, prevI = i0;
+  for (let k = 1; k <= nb; k++) {
+    const edge = a + k * w, curI = k === nb ? i1 : upperIdx(ys, edge), curF = k === nb ? Fb : normCdf((edge - m) / s);
+    const E = nIn * (curF - prevF) / den, O = curI - prevI; chi += (O - E) ** 2 / Math.max(E, 0.5);
+    prevF = curF; prevI = curI;
+  }
+  return { m, s, chi2: chi, df: Math.max(1, nb - 3), nIn, P: nIn / (N * den), frac: nIn / N };
+}
+
+// Ngưỡng chi-bình-phương (xấp xỉ Wilson–Hilferty) ứng với mức ý nghĩa 1%
+const chi2Crit = df => df * (1 - 2 / (9 * df) + 2.326 * Math.sqrt(2 / (9 * df))) ** 3;
+
+/* Duyệt (λ, a, b). Mỗi ứng viên được chấm điểm:
+     điểm = χ²/df  +  phạt "vượt đuôi"  +  wCover × (1 − tỷ lệ dữ liệu trong khoảng cắt)
+   – χ²/df: phân bố chuẩn cắt cụt có khớp phần lõi không;
+   – vượt đuôi: số mẫu không bệnh lý mà mô hình dự kiến nằm ngoài [a;b] không được nhiều hơn số mẫu thực có;
+   – độ phủ: ưu tiên khoảng cắt rộng (dùng nhiều dữ liệu hơn, ước tính ổn định hơn). */
+function riFitAll(xs, cfg = RI_CFG) {
+  const x = xs.filter(v => v > 0).sort((p, q) => p - q), N = x.length;
+  let best = null;
+  for (const l of cfg.lambdas) {
+    const L = prepLambda(x, l);
+    for (const q1 of cfg.q1) for (const q2 of cfg.q2) {
+      if (q2 - q1 < cfg.minFrac) continue;
+      const a = quantile(L.ys, q1), b = quantile(L.ys, q2);
+      const f = fitTruncated(L, a, b, N); if (!f || f.P > cfg.maxP) continue;
+      const expL = f.P * N * normCdf((a - f.m) / f.s), expR = f.P * N * (1 - normCdf((b - f.m) / f.s));
+      const over = Math.max(0, expL - q1 * N) / Math.sqrt(expL + 1) + Math.max(0, expR - (1 - q2) * N) / Math.sqrt(expR + 1);
+      const score = f.chi2 / f.df + over + cfg.wCover * (1 - f.frac);
+      if (!best || score < best.score) best = { ...f, l, q1, q2, a, b, over, score, accepted: f.chi2 <= chi2Crit(f.df) };
+    }
+  }
+  if (!best) return null;
+  best.lo = bcInv(best.m - cfg.z * best.s, best.l);
+  best.hi = bcInv(best.m + cfg.z * best.s, best.l);
+  best.N = N;
+  return best;
+}
+
+/* Ước tính đầy đủ: điểm ước tính + khoảng tin cậy 90% bằng bootstrap.
+   Mỗi lần bootstrap chạy lại TOÀN BỘ việc chọn λ và khoảng cắt, nên khoảng tin cậy phản ánh cả
+   độ bất định của bước chọn mô hình. */
+function estimateRI(xs, opt = {}) {
+  const x = xs.filter(v => Number.isFinite(v) && v > 0);
+  if (x.length < 40) return null;
+  const fit = riFitAll(x); if (!fit) return null;
+  const B = opt.boot ?? RI_CFG.boot, rnd = mulberry32(opt.seed ?? 20251014), los = [], his = [];
+  const near = (arr, v, k) => { const i = arr.indexOf(v); return arr.slice(Math.max(0, i - k), i + k + 1); };
+  const local = { ...RI_CFG, lambdas: near(RI_CFG.lambdas, fit.l, 2), q1: near(RI_CFG.q1, fit.q1, 2), q2: near(RI_CFG.q2, fit.q2, 2) };
+  for (let b = 0; b < B; b++) {
+    const s = new Array(x.length); for (let i = 0; i < x.length; i++) s[i] = x[Math.floor(rnd() * x.length)];
+    const f = riFitAll(s, local); if (!f) continue;
+    los.push(f.lo); his.push(f.hi);
+    if (opt.onProgress && b % 10 === 9) opt.onProgress((b + 1) / B);
+  }
+  los.sort((p, q) => p - q); his.sort((p, q) => p - q);
+  return { ...fit, method: 'gián tiếp', ciLo: [quantile(los, .05), quantile(los, .95)], ciHi: [quantile(his, .05), quantile(his, .95)], bootLo: los, bootHi: his, B: los.length };
+}
+
+/* Phi tham số theo CLSI EP28-A3c: loại ngoại lai Tukey (trên thang Box-Cox), bách phân vị 2,5 & 97,5
+   theo hạng r = p(n+1), khoảng tin cậy 90% theo hạng (xấp xỉ nhị thức). Cần n ≥ 120. */
+function nonparamRI(xs, lambda = 0) {
+  const x = xs.filter(v => Number.isFinite(v) && v > 0).sort((p, q) => p - q);
+  if (x.length < 20) return null;
+  const ys = x.map(v => bc(v, lambda)), q1 = quantile(ys, .25), q3 = quantile(ys, .75), iqr = q3 - q1;
+  const keep = [], out = [];
+  x.forEach((v, i) => (ys[i] < q1 - 1.5 * iqr || ys[i] > q3 + 1.5 * iqr ? out : keep).push(v));
+  const n = keep.length;
+  const at = r => { r = Math.min(Math.max(r, 1), n); const i = Math.floor(r) - 1, f = r - Math.floor(r); return keep[i] + f * ((keep[Math.min(i + 1, n - 1)]) - keep[i]); };
+  const pr = p => { const r = p * (n + 1), h = 1.645 * Math.sqrt(n * p * (1 - p)); return { v: at(r), ci: [at(Math.floor(n * p - h + 0.5)), at(Math.ceil(n * p + h + 0.5))] }; };
+  const L = pr(0.025), H = pr(0.975);
+  return { method: 'phi tham số', n, nOut: out.length, outliers: out, kept: keep, lo: L.v, hi: H.v, ciLo: L.ci, ciHi: H.ci, enough: n >= RI_CFG.minN, lambda };
+}
+
+/* So sánh giới hạn đang dùng với giá trị ước tính */
+function riVerdict(cur, est, ci, n) {
+  if (cur == null) return { k: 'na', t: 'Không có giới hạn' };
+  if (!est || !Number.isFinite(est)) return { k: 'na', t: 'Không ước tính được' };
+  if (n < RI_CFG.minN) return { k: 'few', t: 'Không đủ dữ liệu' };
+  const dev = (cur - est) / est * 100;
+  if (cur >= ci[0] && cur <= ci[1]) return { k: 'ok', t: 'Phù hợp', dev };
+  return { k: 'warn', t: `Cần xem xét: KTC ${dev > 0 ? 'cao' : 'thấp'} hơn ước tính ${fmt(Math.abs(dev), 0)}%`, dev };
+}
+
+/* ===== 31-ri-ui.js ===== */
+/* ---------- Tab "Khảo sát KTC" ---------- */
+
+const RI_REFS = [
+  'CLSI. Defining, Establishing, and Verifying Reference Intervals in the Clinical Laboratory; Approved Guideline – Third Edition. CLSI document EP28-A3c. Wayne, PA: Clinical and Laboratory Standards Institute; 2008 (tái bản có chỉnh sửa 2010).',
+  'Jones GRD, Haeckel R, Loh TP, Sikaris K, Streichert T, Katayev A, Barth JH, Ozarda Y; IFCC Committee on Reference Intervals and Decision Limits (C-RIDL). Indirect methods for reference interval determination – review and recommendations. Clin Chem Lab Med. 2019;57(1):20–29. doi:10.1515/cclm-2018-0073',
+  'Wosniok W, Haeckel R. A new indirect estimation of reference intervals: truncated minimum chi-square (TMC) approach. Clin Chem Lab Med. 2019;57(12):1933–1947. doi:10.1515/cclm-2018-1341',
+  'Ammer T, Schützenmeister A, Prokosch HU, Rauh M, Rank CM, Zierk J. refineR: A novel algorithm for reference interval estimation from real-world data. Sci Rep. 2021;11:16023. doi:10.1038/s41598-021-95301-2',
+  'Ichihara K, Boyd JC; IFCC C-RIDL. An appraisal of statistical procedures used in derivation of reference intervals. Clin Chem Lab Med. 2010;48(11):1537–1551. doi:10.1515/CCLM.2010.319',
+  'Cohen AC. Estimating the mean and variance of normal populations from singly truncated and doubly truncated samples. Ann Math Stat. 1950;21(4):557–569.'
+];
+
+// Phân loại khả năng khảo sát KTC từ log (log không có tuổi, giới, chẩn đoán)
+function riClass(assay) {
+  if (/^(HBsAg|HBeAg|aHB|anti-?HB|HCV|HIV|HAV|HEV|Syph|TPHA|Toxo|Rub|CMV|HSV|EBV|VZV|COV|SARS|Chag|HTLV|Bor|Myco|Chlam|Q-?Fever)/i.test(assay) || /IgM|IgG$/i.test(assay))
+    return { k: 'na', t: 'Không áp dụng', d: 'Xét nghiệm định tính / dùng ngưỡng cắt, không có khoảng tham chiếu.' };
+  if (/^(f?PSA|tPSA|FSH|LH|PRL|Prolact|E2|Estrad|Testo|Prog|DHEA|SHBG|AMH|hCG|bhCG|Ferr|Inhib)/i.test(assay))
+    return { k: 'lim', t: 'Hạn chế', d: 'KTC phụ thuộc giới tính, tuổi hoặc chu kỳ; log không có các thông tin này nên chỉ ước tính chung cho cả quần thể.' };
+  if (/^(CEA|AFP|CA ?(15|125|19|72)|CYFRA|NSE|SCC|HE4|ProGRP|Calcit|TG$|Thyroglob)/i.test(assay))
+    return { k: 'lim', t: 'Hạn chế', d: 'Dấu ấn ung thư: chủ yếu dùng giới hạn trên; quần thể bệnh viện có nhiều người bệnh nên ước tính gián tiếp dễ lệch.' };
+  if (/^(ALDO|Ren|Cort|ACTH|GH|Insul|C-?Pep|PTH)/i.test(assay))
+    return { k: 'lim', t: 'Hạn chế', d: 'Phụ thuộc tư thế, giờ lấy mẫu hoặc trạng thái đói; log không ghi điều kiện lấy mẫu.' };
+  return { k: 'ok', t: 'Khảo sát được', d: '' };
+}
+const RI_PAIR = { FT4: 'TSH', FT3: 'TSH', T4: 'TSH', T3: 'TSH', TSH: 'FT4' };
+function riPartner(assay) {
+  const key = Object.keys(RI_PAIR).find(k => new RegExp('^' + k + '$', 'i').test(assay));
+  if (!key) return null;
+  const want = RI_PAIR[key], av = assays();
+  return av.find(a => new RegExp('^' + want, 'i').test(a)) || null;
+}
+
+let RIS = { mode: 'pair', boot: 100, sel: '', res: new Map(), busy: false, ver: 0, verify: { assay: '', ids: '' } };
+
+/* Dữ liệu dùng để ước tính: mẫu bệnh nhân, mỗi Sample ID một kết quả (mới nhất); bỏ kết quả có dấu < >.
+   Chế độ 'pair': chỉ giữ mẫu có xét nghiệm đi kèm (vd TSH cho FT4) nằm trong KTC. */
+function riData(assay, mode) {
+  const M = new Map();
+  for (const r of S.D) {
+    if (r.cat !== 'patient' || !Number.isFinite(r.dose)) continue;
+    if (!M.has(r.sid)) M.set(r.sid, {});
+    const o = M.get(r.sid), cur = o[r.assay]; if (!cur || r.time >= cur.time) o[r.assay] = r;
+  }
+  const partner = mode === 'pair' ? riPartner(assay) : null;
+  const used = [], excl = [];
+  for (const [sid, o] of M) {
+    const r = o[assay]; if (!r) continue;
+    if (r.qual) { excl.push({ r, why: r.qual === '<' ? 'Dưới ngưỡng đo (có dấu <)' : 'Trên ngưỡng đo (có dấu >)' }); continue; }
+    if (!(r.dose > 0)) { excl.push({ r, why: 'Giá trị ≤ 0' }); continue; }
+    if (partner) {
+      const p = o[partner];
+      if (!p) { excl.push({ r, why: `Không làm ${partner}` }); continue; }
+      if (classify(p) !== 'normal') { excl.push({ r, why: `${partner} ngoài KTC (${ST_SHORT[classify(p)]})` }); continue; }
+    }
+    used.push(r);
+  }
+  const dupes = S.D.filter(r => r.cat === 'patient' && r.assay === assay).length - used.length - excl.length;
+  return { used, excl, partner, dupes: Math.max(0, dupes) };
+}
+
+function riCompute(assay) {
+  const key = `${assay}|${RIS.mode}|${RIS.boot}|${RIS.ver}`;
+  if (RIS.res.has(key)) return RIS.res.get(key);
+  const cls = riClass(assay), info = refInfo(assay), d = riData(assay, RIS.mode);
+  const x = d.used.map(r => r.dose);
+  const out = { assay, key, cls, info, data: d, n: x.length };
+  if (cls.k !== 'na' && x.length >= 40) {
+    out.ind = estimateRI(x, { boot: RIS.boot });
+    out.np = nonparamRI(x, out.ind ? out.ind.l : 0);
+    const lo = refLo(assay), hi = refHi(assay);
+    if (out.ind) {
+      out.vLo = info.lo ? riVerdict(lo, out.ind.lo, out.ind.ciLo, x.length) : { k: 'na', t: 'KTC không có giới hạn dưới' };
+      out.vHi = info.hi ? riVerdict(hi, out.ind.hi, out.ind.ciHi, x.length) : { k: 'na', t: 'KTC không có giới hạn trên' };
+      if (info.lo && !info.lo.precise && !info.lo.manual) out.vLo = { k: 'na', t: `Chưa xác định chính xác giới hạn dưới đang dùng (${fmt(info.lo.a, 4)} – ${fmt(info.lo.b, 4)})` };
+      if (info.hi && !info.hi.precise && !info.hi.manual) out.vHi = { k: 'na', t: `Chưa xác định chính xác giới hạn trên đang dùng (${fmt(info.hi.a, 4)} – ${fmt(info.hi.b, 4)})` };
+    }
+    out.outLo = lo != null ? x.filter(v => v < lo).length / x.length * 100 : null;
+    out.outHi = hi != null ? x.filter(v => v > hi).length / x.length * 100 : null;
+  }
+  RIS.res.set(key, out);
+  return out;
+}
+
+const vPill = v => !v ? '' : `<span class="pill ${v.k === 'ok' ? 'p-ok' : v.k === 'warn' ? 'p-high' : 'p-low'}">${esc(v.t)}</span>`;
+const clsPill = c => `<span class="pill ${c.k === 'ok' ? 'p-ok' : c.k === 'lim' ? 'p-high' : 'p-low'}" title="${esc(c.d)}">${esc(c.t)}</span>`;
+const f4 = v => fmt(v, 4);
+const ciTxt = ci => ci && Number.isFinite(ci[0]) ? `${f4(ci[0])} – ${f4(ci[1])}` : '–';
+
+function riAssays() { return assays().filter(a => S.D.some(r => r.assay === a && r.cat === 'patient' && Number.isFinite(r.dose) && !r.qual)); }
+
+function renderRI() {
+  const el = document.getElementById('p-ri'); if (!el) return;
+  const list = riAssays();
+  if (!RIS.sel || !list.includes(RIS.sel)) RIS.sel = list.find(a => riClass(a).k === 'ok') || list[0] || '';
+  const opt = (v, l, cur) => `<option value="${esc(v)}"${v == cur ? ' selected' : ''}>${esc(l)}</option>`;
+  const rows = list.map(a => {
+    const key = `${a}|${RIS.mode}|${RIS.boot}|${RIS.ver}`, r = RIS.res.get(key), c = riClass(a);
+    return `<tr${a === RIS.sel ? ' class="sel"' : ''}><td><button type="button" class="linkbtn" data-ri-sel="${esc(a)}">${esc(a)}</button></td><td>${clsPill(c)}</td>
+      <td class="mono">${esc(fmtRef(a))}</td>
+      <td class="num">${r ? r.n : '…'}</td>
+      <td class="num">${r && r.ind ? f4(r.ind.lo) + ' – ' + f4(r.ind.hi) : r ? '–' : '…'}</td>
+      <td>${r ? vPill(r.vLo) : ''}</td><td>${r ? vPill(r.vHi) : ''}</td></tr>`;
+  }).join('');
+  el.innerHTML = `
+  <div class="card"><div class="hd"><h2>Khảo sát mức phù hợp của khoảng tham chiếu</h2><span class="sub">Phương pháp gián tiếp từ kết quả bệnh nhân thường quy (IFCC C-RIDL 2019) và phi tham số (CLSI EP28-A3c)</span></div>
+    <div class="filters">
+      <label>Quần thể tham chiếu<select id="riMode">${opt('pair', 'Lọc theo xét nghiệm đi kèm bình thường (FT4↔TSH…)', RIS.mode)}${opt('all', 'Tất cả mẫu bệnh nhân', RIS.mode)}</select></label>
+      <label>Số vòng bootstrap<select id="riBoot">${opt(100, '100 (nhanh)', RIS.boot)}${opt(200, '200', RIS.boot)}${opt(500, '500 (chậm, chính xác hơn)', RIS.boot)}</select></label>
+      <button class="btn" type="button" id="riRun">Tính lại</button>
+      <span class="note" id="riProg"></span>
+    </div>
+    <div class="note">Log máy không có tuổi, giới tính, chẩn đoán hay tình trạng thai kỳ, và quần thể là bệnh nhân bệnh viện. Kết quả dưới đây là <b>sàng lọc dấu hiệu KTC chưa phù hợp</b>; kết luận cuối cùng cần thẩm định trực tiếp trên người khỏe (mục cuối trang).</div>
+  </div>
+  <div class="card"><div class="hd"><h2>Tóm tắt theo xét nghiệm</h2><span class="sub">Bấm tên xét nghiệm để xem chi tiết</span></div>
+    <div class="scroll"><table><thead><tr><th>Xét nghiệm</th><th>Khả năng khảo sát</th><th>KTC đang dùng (suy từ cờ)</th><th class="num">n dùng</th><th class="num">KTC ước tính (gián tiếp)</th><th>Giới hạn dưới</th><th>Giới hạn trên</th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="empty">Không có xét nghiệm định lượng.</td></tr>'}</tbody></table></div></div>
+  <div id="riDetail" class="panel"></div>
+  <div class="card" id="riVerify"></div>
+  <div class="card"><div class="hd"><h2>Phương pháp</h2></div>
+    <ol class="steps">
+      <li><b>KTC đang dùng</b> được suy ra từ cờ Above/BelowNormalRange của máy: giới hạn nằm giữa kết quả không cờ lớn nhất và kết quả có cờ nhỏ nhất (với giới hạn trên), lấy số tròn gọn nhất trong khoảng đó.</li>
+      <li><b>Dữ liệu:</b> mẫu bệnh nhân, mỗi Sample ID một kết quả (lần chạy mới nhất), bỏ kết quả có dấu &lt; / &gt;. Chế độ "lọc theo xét nghiệm đi kèm": FT4/FT3 chỉ lấy mẫu có TSH trong KTC và ngược lại.</li>
+      <li><b>Ước tính gián tiếp</b> (theo hướng TMC/refineR): dữ liệu được biến đổi Box-Cox (λ = 0 … 1); với mỗi khoảng cắt quanh phần lõi, phân bố chuẩn cắt cụt được khớp bằng hợp lý cực đại (Cohen 1950); chọn bộ λ – khoảng cắt có điểm tốt nhất theo độ khớp χ², không vượt dữ liệu ở hai đuôi và độ phủ dữ liệu. KTC = biến đổi ngược của μ ± 1,96σ.</li>
+      <li><b>Khoảng tin cậy 90%</b> cho mỗi giới hạn bằng bootstrap (chạy lại việc chọn mô hình ở mỗi vòng).</li>
+      <li><b>Phi tham số (EP28):</b> loại ngoại lai bằng quy tắc Tukey trên thang Box-Cox, bách phân vị 2,5 và 97,5 theo hạng, khoảng tin cậy 90% theo hạng; cần n ≥ 120.</li>
+      <li><b>Kết luận:</b> giới hạn đang dùng nằm trong khoảng tin cậy 90% của giá trị ước tính gián tiếp → "Phù hợp"; nằm ngoài → "Cần xem xét" (kèm % chênh lệch).</li>
+      <li><b>Kiểm chứng thuật toán</b> trên 6 kịch bản dữ liệu mô phỏng đã biết KTC thật (n = 300 – 5000, 0 – 30% mẫu bệnh lý): sai số trung bình 4,7%; khoảng tin cậy 90% chứa giá trị thật ở 81% trường hợp (hơi hẹp hơn danh nghĩa). Sai số lớn hơn khi mẫu bệnh lý chồng lấn nhiều với người khỏe.</li>
+    </ol>
+    <div class="hd"><h2>Tài liệu tham khảo</h2></div>
+    <ol class="refs">${RI_REFS.map(r => `<li>${esc(r)}</li>`).join('')}</ol>
+  </div>`;
+  el.querySelectorAll('[data-ri-sel]').forEach(b => b.onclick = () => { RIS.sel = b.dataset.riSel; renderRI(); fillRIDetail(); document.getElementById('riDetail').scrollIntoView?.({ block: 'start', behavior: 'smooth' }); });
+  document.getElementById('riMode').onchange = e => { RIS.mode = e.target.value; renderRI(); runRIQueue(); };
+  document.getElementById('riBoot').onchange = e => { RIS.boot = +e.target.value; renderRI(); runRIQueue(); };
+  document.getElementById('riRun').onclick = () => { RIS.ver++; RIS.res.clear(); renderRI(); runRIQueue(); };
+  fillRIDetail(); fillRIVerify();
+}
+
+// Tính lần lượt từng xét nghiệm, nhường cho giao diện giữa các lần tính
+function runRIQueue() {
+  if (RIS.busy) return; const list = riAssays().filter(a => !RIS.res.has(`${a}|${RIS.mode}|${RIS.boot}|${RIS.ver}`));
+  if (!list.length) return;
+  RIS.busy = true; let i = 0;
+  const step = () => {
+    const a = list[i]; const p = document.getElementById('riProg'); if (p) p.textContent = `Đang tính ${a} (${i + 1}/${list.length})…`;
+    setTimeout(() => {
+      try { riCompute(a); } catch (e) { console.error(e); }
+      i++;
+      if (i < list.length) step(); else { RIS.busy = false; renderRI(); const p2 = document.getElementById('riProg'); if (p2) p2.textContent = 'Đã tính xong.'; }
+    }, 30);
+  };
+  step();
+}
+
+/* Biểu đồ: histogram dữ liệu dùng tính + đường mô hình "không bệnh lý" + KTC đang dùng (vùng) + KTC ước tính (vạch) */
+function riChart(res, W = 700, H = 280) {
+  const { assay, ind } = res, x = res.data.used.map(r => r.dose).filter(v => v > 0).sort((a, b) => a - b);
+  if (x.length < 10) return '<div class="empty">Không đủ dữ liệu.</div>';
+  const log = useLog(assay, x), T = v => log ? Math.log10(v) : v, Ti = u => log ? 10 ** u : u;
+  const lo = refLo(assay), hi = refHi(assay);
+  let x0 = T(quantile(x, .005)), x1 = T(quantile(x, .995));
+  for (const v of [lo, hi, ind && ind.lo, ind && ind.hi]) if (v > 0) { x0 = Math.min(x0, T(v)); x1 = Math.max(x1, T(v)); }
+  const sp = x1 - x0 || 1; x0 -= sp * .04; x1 += sp * .04;
+  const NB = 40, bw = (x1 - x0) / NB, bins = Array(NB).fill(0);
+  for (const v of x) { let i = Math.floor((T(v) - x0) / bw); bins[Math.max(0, Math.min(NB - 1, i))]++; }
+  const model = ind ? bins.map((_, i) => { const a = Ti(x0 + i * bw), b = Ti(x0 + (i + 1) * bw);
+    return ind.P * ind.N * (normCdf((bc(Math.max(b, 1e-12), ind.l) - ind.m) / ind.s) - normCdf((bc(Math.max(a, 1e-12), ind.l) - ind.m) / ind.s)); }) : [];
+  const pad = { l: 44, r: 14, t: 24, b: 36 }, ymax = Math.max(1, ...bins, ...model), ys = niceStep(ymax), yt = Math.ceil(ymax / ys) * ys;
+  const X = u => pad.l + (u - x0) / (x1 - x0) * (W - pad.l - pad.r), Y = v => pad.t + (H - pad.t - pad.b) * (1 - v / yt);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px" role="img" aria-label="Phân bố ${esc(assay)} và KTC ước tính">`;
+  for (let v = 0; v <= yt; v += ys) s += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="${v ? .5 : 1}"/><text x="${pad.l - 5}" y="${Y(v) + 3}" text-anchor="end">${v}</text>`;
+  if (lo != null || hi != null) { const a = lo > 0 ? X(T(lo)) : pad.l, b = hi > 0 ? X(T(hi)) : W - pad.r;
+    s += `<rect x="${a}" y="${pad.t}" width="${Math.max(0, b - a)}" height="${H - pad.t - pad.b}" fill="var(--accent-soft)" opacity=".6"><title>KTC đang dùng ${esc(fmtRef(assay))}</title></rect>`; }
+  bins.forEach((n, i) => { if (n) s += `<rect x="${X(x0 + i * bw) + .5}" y="${Y(n)}" width="${Math.max(1, X(x0 + (i + 1) * bw) - X(x0 + i * bw) - 1)}" height="${Y(0) - Y(n)}" fill="var(--muted)" opacity=".45"><title>${tickLabel(x0 + i * bw, log)} – ${tickLabel(x0 + (i + 1) * bw, log)}: ${n}</title></rect>`; });
+  if (model.length) s += `<polyline fill="none" stroke="var(--c3)" stroke-width="2" points="${model.map((v, i) => `${X(x0 + (i + .5) * bw).toFixed(1)},${Y(Math.min(v, yt)).toFixed(1)}`).join(' ')}"><title>Mô hình phân bố "không bệnh lý" (ước tính ${fmt(ind.P * 100, 0)}% dữ liệu)</title></polyline>`;
+  for (const v of [lo, hi]) if (v > 0) s += `<line x1="${X(T(v))}" x2="${X(T(v))}" y1="${pad.t}" y2="${H - pad.b}" stroke="var(--accent)" stroke-width="1.5"/><text x="${X(T(v))}" y="${pad.t - 8}" text-anchor="middle" style="fill:var(--accent)">${f4(v)}</text>`;
+  if (ind) for (const [v, ci] of [[ind.lo, ind.ciLo], [ind.hi, ind.ciHi]]) { if (!(v > 0)) continue;
+    if (ci && ci[0] > 0) s += `<rect x="${X(T(ci[0]))}" y="${pad.t + 12}" width="${Math.max(1, X(T(ci[1])) - X(T(ci[0])))}" height="${H - pad.t - pad.b - 12}" fill="var(--c2)" opacity=".12"/>`;
+    s += `<line x1="${X(T(v))}" x2="${X(T(v))}" y1="${pad.t + 12}" y2="${H - pad.b}" stroke="var(--c2)" stroke-width="1.8" stroke-dasharray="5 3"/><text x="${X(T(v))}" y="${pad.t + 8}" text-anchor="middle" style="fill:var(--c2)">${f4(v)}</text>`; }
+  for (const v of (log ? logTicks(x0, x1) : (() => { const st = niceStep(x1 - x0), a = []; for (let v = Math.ceil(x0 / st) * st; v <= x1; v += st) a.push(+v.toPrecision(10)); return a; })()))
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H - pad.b}" y2="${H - pad.b + 4}" stroke="var(--muted)"/><text x="${X(v)}" y="${H - pad.b + 15}" text-anchor="middle">${tickLabel(v, log)}</text>`;
+  s += `<text x="${(pad.l + W - pad.r) / 2}" y="${H - 4}" text-anchor="middle">${esc(assay)}${unitOf(assay) ? ' (' + esc(unitOf(assay)) + ')' : ''}${log ? ' · thang log' : ''}</text></svg>`;
+  return s;
+}
+
+function riDetailHTML(r, forReport) {
+  const { assay, ind, np, info, data } = r, c = r.cls;
+  const exCount = {}; for (const e of data.excl) exCount[e.why] = (exCount[e.why] || 0) + 1;
+  const lim = (x) => x ? (x.manual ? `${f4(x.value)} (nhập tay)` : `${f4(x.value)} <span class="cat">(nằm trong ${f4(x.a)} – ${f4(x.b)}; ${x.nFlag} mẫu có cờ${x.conflicts ? `, ${x.conflicts} mẫu mâu thuẫn` : ''})</span>`) : '–';
+  return `<div class="card ri-detail"><div class="hd"><h2>${esc(assay)} <span class="sub">· ${esc(unitOf(assay))}${info.unitGuess && unitOf(assay) ? ' (đơn vị suy đoán)' : ''}</span></h2>${clsPill(c)}</div>
+    ${c.d ? `<div class="note">${esc(c.d)}</div>` : ''}
+    ${r.n < 40 || !ind ? `<div class="empty">Chỉ có ${r.n} kết quả dùng được – chưa đủ để ước tính (cần ít nhất 120 theo EP28; thuật toán gián tiếp cần ≥ 40 để chạy).</div>` : `
+    <div class="legend"><span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>KTC đang dùng</span><span><i style="background:var(--c2)"></i>KTC ước tính (vạch đứt) và khoảng tin cậy 90% (vùng nhạt)</span><span><i style="background:var(--c3)"></i>Mô hình phân bố không bệnh lý</span><span><i style="background:var(--muted)"></i>Dữ liệu</span></div>
+    <div class="scroll">${riChart(r)}</div>
+    <div class="scroll"><table><thead><tr><th></th><th class="num">Giới hạn dưới</th><th class="num">KTC 90%</th><th class="num">Giới hạn trên</th><th class="num">KTC 90%</th></tr></thead><tbody>
+      <tr><td>KTC đang dùng (suy từ cờ)</td><td class="num" colspan="2">${lim(info.lo)}</td><td class="num" colspan="2">${lim(info.hi)}</td></tr>
+      <tr><td><b>Ước tính gián tiếp</b> (n = ${ind.N})</td><td class="num"><b>${f4(ind.lo)}</b></td><td class="num">${ciTxt(ind.ciLo)}</td><td class="num"><b>${f4(ind.hi)}</b></td><td class="num">${ciTxt(ind.ciHi)}</td></tr>
+      ${np ? `<tr><td>Phi tham số EP28 (n = ${np.n}${np.nOut ? `, loại ${np.nOut} ngoại lai` : ''})${np.enough ? '' : ' – <span class="cat">n &lt; 120</span>'}</td><td class="num">${f4(np.lo)}</td><td class="num">${ciTxt(np.ciLo)}</td><td class="num">${f4(np.hi)}</td><td class="num">${ciTxt(np.ciHi)}</td></tr>` : ''}
+      <tr><td>Kết luận</td><td colspan="2">${vPill(r.vLo)}</td><td colspan="2">${vPill(r.vHi)}</td></tr>
+      <tr><td>Tỷ lệ dữ liệu ngoài KTC đang dùng</td><td colspan="2" class="num">${r.outLo != null ? fmt(r.outLo, 1) + '%' : '–'} <span class="cat">(kỳ vọng ≈ 2,5% nếu quần thể khỏe)</span></td><td colspan="2" class="num">${r.outHi != null ? fmt(r.outHi, 1) + '%' : '–'}</td></tr>
+    </tbody></table></div>
+    <div class="stats"><span>λ Box-Cox <b>${ind.l}</b></span><span>Khoảng cắt <b>P${fmt(ind.q1 * 100, 1)} – P${fmt(ind.q2 * 100, 1)}</b></span><span>Tỷ lệ "không bệnh lý" ước tính <b>${fmt(Math.min(ind.P, 1) * 100, 0)}%</b></span><span>χ²/df <b>${fmt(ind.chi2 / ind.df, 2)}</b>${ind.accepted ? '' : ' <span class="pill p-high">khớp kém</span>'}</span><span>Bootstrap <b>${ind.B} vòng</b></span></div>`}
+    <div class="note">Dữ liệu: ${data.used.length} kết quả dùng tính${data.partner && RIS.mode === 'pair' ? ` (chỉ mẫu có ${esc(data.partner)} trong KTC)` : ''}${data.dupes ? `; ${data.dupes} kết quả chạy lặp cùng Sample ID chỉ lấy lần mới nhất` : ''}${Object.keys(exCount).length ? '; loại: ' + Object.entries(exCount).map(([k, v]) => `${esc(k)} ${v}`).join(', ') : ''}.</div>
+  </div>`;
+}
+
+function fillRIDetail() {
+  const el = document.getElementById('riDetail'); if (!el) return;
+  if (!RIS.sel) { el.innerHTML = ''; return; }
+  const key = `${RIS.sel}|${RIS.mode}|${RIS.boot}|${RIS.ver}`, r = RIS.res.get(key);
+  if (!r) { el.innerHTML = `<div class="card"><div class="empty">Đang tính ${esc(RIS.sel)}…</div></div>`; return; }
+  el.innerHTML = riDetailHTML(r);
+}
+
+/* Thẩm định trực tiếp theo EP28: 20 người khỏe; đạt nếu ≤ 2/20 (10%) nằm ngoài KTC */
+function riVerifyResult(assay, idsText) {
+  const tokens = String(idsText).split(/[\s,;]+/).map(s => s.trim()).filter(Boolean);
+  const M = sampleMap(), rows = [];
+  for (const t of tokens) {
+    const o = M.get(t);
+    if (o && o[assay]) rows.push({ id: t, r: o[assay], v: o[assay].dose, st: classify(o[assay]) });
+    else { const v = numOr(t); if (v !== null && !/^\d{4,}$/.test(t)) rows.push({ id: '(giá trị nhập)', v, st: classifyValue(assay, v) }); else rows.push({ id: t, missing: true }); }
+  }
+  const valid = rows.filter(x => !x.missing), out = valid.filter(x => x.st !== 'normal').length;
+  let verdict = null;
+  if (valid.length >= 20) verdict = out <= Math.floor(valid.length * 0.1) ? { k: 'ok', t: `Đạt: ${out}/${valid.length} ngoài KTC (≤ 10%)` } : { k: 'warn', t: `Không đạt: ${out}/${valid.length} ngoài KTC (> 10%). Theo EP28: lấy thêm 20 mẫu khác; nếu vẫn > 2/20 thì cần xem xét lại KTC.` };
+  return { rows, valid, out, verdict };
+}
+function classifyValue(assay, v) { const lo = refLo(assay), hi = refHi(assay); return lo != null && v < lo ? 'low' : hi != null && v > hi ? 'high' : 'normal'; }
+
+function fillRIVerify() {
+  const el = document.getElementById('riVerify'); if (!el) return;
+  const list = riAssays(); if (!RIS.verify.assay || !list.includes(RIS.verify.assay)) RIS.verify.assay = RIS.sel || list[0] || '';
+  const A = RIS.verify.assay, res = RIS.verify.ids.trim() ? riVerifyResult(A, RIS.verify.ids) : null;
+  el.innerHTML = `<div class="hd"><h2>Thẩm định trực tiếp 20 mẫu (CLSI EP28-A3c)</h2><span class="sub">Chạy xét nghiệm cho 20 người khỏe, rồi dán Sample ID (hoặc giá trị) vào đây</span></div>
+    <div class="filters"><label>Xét nghiệm<select id="rvA">${list.map(a => `<option${a === A ? ' selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
+      <label style="flex:1;min-width:240px">Sample ID hoặc giá trị (cách nhau bằng dấu phẩy, khoảng trắng hoặc xuống dòng)<textarea id="rvIds" rows="3" style="width:100%;font:inherit;font-size:.86rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)">${esc(RIS.verify.ids)}</textarea></label></div>
+    <div class="note">KTC đang dùng: <b>${esc(fmtRef(A))}</b>. Tiêu chí: đạt khi không quá 2/20 kết quả (10%) nằm ngoài KTC; nếu không đạt, thử lại với 20 mẫu khác.</div>
+    ${res ? `<div>${res.verdict ? vPill(res.verdict) : `<span class="pill p-low">Mới có ${res.valid.length}/20 kết quả hợp lệ</span>`}</div>
+      <div class="tablebox" style="max-height:300px"><table><thead><tr><th>#</th><th>Sample ID</th><th class="num">Kết quả</th><th>Đánh giá</th></tr></thead><tbody>${res.rows.map((x, i) => `<tr><td class="num">${i + 1}</td><td class="mono">${esc(x.id)}</td><td class="num">${x.missing ? '<span class="cat">không tìm thấy</span>' : `<span class="st-${x.st}">${esc(x.r ? x.r.doseRaw : f4(x.v))}</span>`}</td><td>${x.missing ? '' : ST_SHORT[x.st]}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+  document.getElementById('rvA').onchange = e => { RIS.verify.assay = e.target.value; fillRIVerify(); };
+  document.getElementById('rvIds').onchange = e => { RIS.verify.ids = e.target.value; fillRIVerify(); };
+}
+
+// Mở tab thì mới tính (tốn vài giây với dữ liệu lớn)
+function riOnShow() { renderRI(); runRIQueue(); }
+
+/* ===== 40-pbrtqc.js ===== */
+/* ---------- Theo dõi chất lượng bằng kết quả bệnh nhân (PBRTQC) ----------
+   Trung vị kết quả bệnh nhân theo ngày cho từng xét nghiệm; đánh dấu ngày đổi lô thuốc thử,
+   hiệu chuẩn mới, hộp mới. So sánh trung vị 7 ngày trước và sau mỗi lần đổi lô / hiệu chuẩn
+   (kiểm định Mann–Whitney). Trung vị bệnh nhân còn phụ thuộc cơ cấu bệnh nhân từng ngày,
+   nên đây là tín hiệu cần xem xét, không phải kết luận. */
+
+const PB = { window: 7, minN: 20, minDay: 5, thr: 10 };
+
+function mannWhitney(a, b) {
+  const n1 = a.length, n2 = b.length; if (n1 < 3 || n2 < 3) return { z: NaN, p: NaN };
+  const all = a.map(v => [v, 0]).concat(b.map(v => [v, 1])).sort((x, y) => x[0] - y[0]);
+  const ranks = new Array(all.length); let tie = 0;
+  for (let i = 0; i < all.length;) { let j = i; while (j + 1 < all.length && all[j + 1][0] === all[i][0]) j++; const r = (i + j) / 2 + 1, t = j - i + 1; tie += t ** 3 - t; for (let k = i; k <= j; k++) ranks[k] = r; i = j + 1; }
+  let R1 = 0; all.forEach((x, i) => { if (x[1] === 0) R1 += ranks[i]; });
+  const U = R1 - n1 * (n1 + 1) / 2, mu = n1 * n2 / 2, N = n1 + n2;
+  const sig = Math.sqrt(n1 * n2 / 12 * ((N + 1) - tie / (N * (N - 1))));
+  const z = sig > 0 ? (U - mu) / sig : 0;
+  return { z, p: 2 * (1 - normCdf(Math.abs(z))) };
+}
+
+function pbEvents(assay) {
+  const recs = S.D.filter(r => r.assay === assay && r.cat !== 'clean').sort((a, b) => a.time - b.time);
+  const ev = []; let p = null;
+  for (const r of recs) {
+    if (p) {
+      if (r.lot !== p.lot) ev.push({ t: r.time, day: r.day, type: 'lot', txt: `Đổi lô thuốc thử ${p.lot} → ${r.lot}` });
+      else if (r.serial !== p.serial) ev.push({ t: r.time, day: r.day, type: 'serial', txt: `Hộp mới (serial ${p.serial} → ${r.serial})` });
+      if (r.calId && p.calId && r.calId !== p.calId) ev.push({ t: r.time, day: r.day, type: 'cal', txt: `Hiệu chuẩn mới (${p.calId} → ${r.calId})` });
+    }
+    p = r;
+  }
+  // Lần chạy chất chuẩn ($…$) cũng là hiệu chuẩn
+  const cal = S.D.filter(r => r.assay === assay && r.cat === 'calibrator').sort((a, b) => a.time - b.time);
+  let last = null; for (const r of cal) { if (!last || r.time - last > 3600e3) ev.push({ t: r.time, day: r.day, type: 'cal', txt: `Chạy chất chuẩn ${r.sid.replace(/\$[AB]$/, '')}` }); last = r.time; }
+  return ev.sort((a, b) => a.t - b.t);
+}
+
+function pbData(assay) {
+  const pts = S.D.filter(r => r.assay === assay && r.cat === 'patient' && !r.qual && Number.isFinite(r.dose));
+  const byDay = {}; for (const r of pts) (byDay[r.day] ||= []).push(r.dose);
+  const daysL = Object.keys(byDay).sort().map(d => { const v = byDay[d].sort((a, b) => a - b); return { day: d, n: v.length, med: quantile(v, .5), q1: quantile(v, .25), q3: quantile(v, .75) }; });
+  const ev = pbEvents(assay);
+  const cmp = ev.filter(e => e.type !== 'serial').map(e => {
+    const before = pts.filter(r => r.time < e.t && r.time >= e.t - PB.window * 864e5).map(r => r.dose);
+    const after = pts.filter(r => r.time >= e.t && r.time < +e.t + PB.window * 864e5).map(r => r.dose);
+    const mb = quantile(before.sort((a, b) => a - b), .5), ma = quantile(after.sort((a, b) => a - b), .5);
+    const d = (ma - mb) / mb * 100, mw = mannWhitney(before, after);
+    const st = before.length < PB.minN || after.length < PB.minN ? { k: 'few', t: 'Ít dữ liệu' }
+      : Math.abs(d) > PB.thr && mw.p < 0.05 ? { k: 'warn', t: `Cần xem xét (${d > 0 ? 'tăng' : 'giảm'} ${fmt(Math.abs(d), 1)}%)` } : { k: 'ok', t: 'Không thay đổi đáng kể' };
+    return { ...e, nb: before.length, na: after.length, mb, ma, d, p: mw.p, st };
+  });
+  return { assay, days: daysL, ev, cmp, n: pts.length };
+}
+
+function pbChart(D, W = 720, H = 220) {
+  const pts = D.days.filter(d => d.n >= PB.minDay); if (pts.length < 2) return '<div class="empty">Chưa đủ ngày có từ 5 kết quả trở lên.</div>';
+  const log = useLog(D.assay, pts.map(p => p.med)), T = v => log ? Math.log10(Math.max(v, 1e-9)) : v;
+  const t0 = +new Date(D.days[0].day + 'T00:00:00'), t1 = +new Date(D.days[D.days.length - 1].day + 'T23:59:59');
+  let y0 = Math.min(...pts.map(p => T(p.q1))), y1 = Math.max(...pts.map(p => T(p.q3)));
+  const sp = y1 - y0 || 1; y0 -= sp * .1; y1 += sp * .1;
+  const pad = { l: 50, r: 12, t: 16, b: 26 };
+  const X = t => pad.l + (t - t0) / Math.max(1, t1 - t0) * (W - pad.l - pad.r), Y = v => pad.t + (H - pad.t - pad.b) * (1 - (v - y0) / (y1 - y0));
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px" role="img" aria-label="Trung vị bệnh nhân theo ngày ${esc(D.assay)}">`;
+  const ticks = log ? logTicks(y0, y1) : (() => { const st = niceStep(y1 - y0), a = []; for (let v = Math.ceil(y0 / st) * st; v <= y1; v += st) a.push(+v.toPrecision(10)); return a; })();
+  for (const v of ticks) s += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width=".5"/><text x="${pad.l - 5}" y="${Y(v) + 3}" text-anchor="end">${tickLabel(v, log)}</text>`;
+  for (const e of D.ev) { const x = X(+e.t); if (x < pad.l || x > W - pad.r) continue;
+    const c = e.type === 'lot' ? 'var(--crit)' : e.type === 'cal' ? 'var(--c3)' : 'var(--line)';
+    s += `<line x1="${x}" x2="${x}" y1="${pad.t}" y2="${H - pad.b}" stroke="${c}" stroke-width="${e.type === 'serial' ? 1 : 1.6}" stroke-dasharray="${e.type === 'serial' ? '2 3' : '5 3'}"><title>${esc(e.day)}: ${esc(e.txt)}</title></line>`; }
+  s += `<path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(+new Date(p.day + 'T12:00:00')).toFixed(1)} ${Y(T(p.q3)).toFixed(1)}`).join(' ')} ${pts.slice().reverse().map(p => `L${X(+new Date(p.day + 'T12:00:00')).toFixed(1)} ${Y(T(p.q1)).toFixed(1)}`).join(' ')} Z" fill="var(--accent-soft)" opacity=".7"><title>Khoảng tứ phân vị</title></path>`;
+  s += `<polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="${pts.map(p => `${X(+new Date(p.day + 'T12:00:00')).toFixed(1)},${Y(T(p.med)).toFixed(1)}`).join(' ')}"/>`;
+  for (const p of pts) s += `<circle cx="${X(+new Date(p.day + 'T12:00:00')).toFixed(1)}" cy="${Y(T(p.med)).toFixed(1)}" r="${Math.min(5, 1.8 + Math.sqrt(p.n) / 4)}" fill="var(--accent)"><title>${p.day}: trung vị ${fmt(p.med, 4)} (n = ${p.n})</title></circle>`;
+  const nd = Math.round((t1 - t0) / 864e5), every = Math.max(1, Math.ceil(nd / 10));
+  for (let i = 0; i <= nd; i += every) { const t = t0 + i * 864e5 + 432e5, d = new Date(t); if (X(t) > W - pad.r - 14) continue; s += `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}</text>`; }
+  return s + '</svg>';
+}
+
+function pbCard(D) {
+  const rows = D.cmp.map(c => `<tr><td class="mono">${c.day}</td><td>${esc(c.txt)}</td><td class="num">${fmt(c.mb, 4)} <span class="cat">(${c.nb})</span></td><td class="num">${fmt(c.ma, 4)} <span class="cat">(${c.na})</span></td><td class="num">${Number.isFinite(c.d) ? (c.d > 0 ? '+' : '') + fmt(c.d, 1) + '%' : '–'}</td><td class="num">${Number.isFinite(c.p) ? (c.p < 0.001 ? '< 0,001' : fmt(c.p, 3)) : '–'}</td><td><span class="pill ${c.st.k === 'warn' ? 'p-high' : c.st.k === 'ok' ? 'p-ok' : 'p-low'}">${esc(c.st.t)}</span></td></tr>`).join('');
+  return `<div class="card"><div class="hd"><h2>${esc(D.assay)} <span class="sub">· trung vị kết quả bệnh nhân theo ngày (${D.n} kết quả)</span></h2></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Trung vị ngày (chấm to = nhiều mẫu)</span><span><i style="background:var(--accent-soft)"></i>Tứ phân vị 25–75%</span><span><i style="background:var(--crit)"></i>Đổi lô</span><span><i style="background:var(--c3)"></i>Hiệu chuẩn</span><span><i style="background:var(--line)"></i>Hộp mới</span></div>
+    <div class="scroll">${pbChart(D)}</div>
+    ${rows ? `<div class="scroll"><table><thead><tr><th>Ngày</th><th>Sự kiện</th><th class="num">Trung vị 7 ngày trước (n)</th><th class="num">7 ngày sau (n)</th><th class="num">Chênh lệch</th><th class="num">p (Mann–Whitney)</th><th>Đánh giá</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="note">Không có lần đổi lô hay hiệu chuẩn trong khoảng thời gian của log.</div>'}
+  </div>`;
+}
+
+function pbAssays() { return assays().filter(a => S.D.filter(r => r.assay === a && r.cat === 'patient' && !r.qual && Number.isFinite(r.dose)).length >= 60); }
+
+function fillPBRTQC() {
+  const el = document.getElementById('pbrtqc'); if (!el) return;
+  const list = (QCV.assay ? [QCV.assay] : pbAssays()).filter(a => pbAssays().includes(a));
+  el.innerHTML = `<div class="hd"><h2>Theo dõi bằng kết quả bệnh nhân</h2><span class="sub">Trung vị bệnh nhân theo ngày và so sánh trước/sau đổi lô, hiệu chuẩn. Chênh &gt; ${PB.thr}% và p &lt; 0,05 (mỗi phía ≥ ${PB.minN} mẫu) được đánh dấu cần xem xét. Trung vị còn phụ thuộc cơ cấu bệnh nhân từng ngày.</span></div>
+    ${list.length ? list.map(a => pbCard(pbData(a))).join('') : '<div class="empty">Cần ít nhất 60 kết quả bệnh nhân cho một xét nghiệm.</div>'}`;
+}
+
+/* ===== 50-xlsx.js ===== */
+/* ---------- Ghi file Excel (.xlsx) không cần thư viện ngoài ----------
+   Tạo gói ZIP (kiểu "store", không nén) chứa các phần XML tối thiểu của SpreadsheetML.
+   Mỗi sheet: { name, rows: [[...], ...] } – dòng đầu là tiêu đề (in đậm, có bộ lọc, cố định khi cuộn). */
+
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+function zipStore(files) { // files: [{name, data:Uint8Array}]
+  const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+  const dt = new Date(), dosTime = (dt.getHours() << 11) | (dt.getMinutes() << 5) | (dt.getSeconds() >> 1), dosDate = ((dt.getFullYear() - 1980) << 9) | ((dt.getMonth() + 1) << 5) | dt.getDate();
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true);
+    lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), nm, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true);
+    ch.setUint16(28, nm.length, true); ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), nm);
+    offset += 30 + nm.length + sz;
+  }
+  const cdSize = central.reduce((s, p) => s + p.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+
+const xmlEsc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+function colName(i) { let s = ''; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+
+function sheetXml(rows) {
+  const ncol = Math.max(1, ...rows.map(r => r.length));
+  const widths = Array(ncol).fill(8);
+  for (const r of rows.slice(0, 500)) r.forEach((v, i) => { const l = v == null ? 0 : String(typeof v === 'number' ? +v.toPrecision(8) : v).length; widths[i] = Math.min(60, Math.max(widths[i], l + 2)); });
+  let x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
+  x += '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
+  x += '<cols>' + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('') + '</cols><sheetData>';
+  rows.forEach((r, ri) => {
+    x += `<row r="${ri + 1}">`;
+    r.forEach((v, ci) => {
+      if (v == null || v === '') return;
+      const ref = colName(ci) + (ri + 1), st = ri === 0 ? ' s="1"' : '';
+      if (typeof v === 'number' && Number.isFinite(v)) x += `<c r="${ref}"${st}><v>${v}</v></c>`;
+      else x += `<c r="${ref}" t="inlineStr"${st}><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+    });
+    x += '</row>';
+  });
+  x += '</sheetData>';
+  if (rows.length > 1) x += `<autoFilter ref="A1:${colName(ncol - 1)}${rows.length}"/>`;
+  return x + '</worksheet>';
+}
+
+function xlsxBlob(sheets) {
+  const enc = new TextEncoder(), used = new Set();
+  const names = sheets.map(s => { let n = String(s.name).replace(/[\[\]:*?/\\]/g, ' ').slice(0, 31) || 'Sheet'; let k = 2; const b = n; while (used.has(n.toLowerCase())) n = (b.slice(0, 28) + ' ' + k++); used.add(n.toLowerCase()); return n; });
+  const files = [];
+  const add = (name, s) => files.push({ name, data: enc.encode(s) });
+  add('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' + names.map((n, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>');
+  add('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>');
+  add('docProps/core.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>LabLog Analyzer</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().slice(0, 19)}Z</dcterms:created></cp:coreProperties>`);
+  add('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + names.map((n, i) => `<sheet name="${xmlEsc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets>' +
+    (() => { const d = names.map((n, i) => sheets[i].rows.length > 1 ? `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${xmlEsc(n).replace(/'/g, "''")}'!$A$1:$${colName(Math.max(1, ...sheets[i].rows.map(r => r.length)) - 1)}$${sheets[i].rows.length}</definedName>` : '').join(''); return d ? `<definedNames>${d}</definedNames>` : ''; })() + '</workbook>');
+  add('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + names.map((n, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') + `<Relationship Id="rId${names.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
+  add('xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0B7480"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+  names.forEach((n, i) => add(`xl/worksheets/sheet${i + 1}.xml`, sheetXml(sheets[i].rows)));
+  return zipStore(files);
+}
+
+function csvBlob(rows) {
+  const q = v => v == null ? '' : /[",;\n\r]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+  return new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+}
+
+/* ===== 60-report.js ===== */
+/* ---------- Xuất báo cáo: PDF (bản in A4), Excel (.xlsx), CSV ---------- */
+
+const APP_VERSION = '1.1.0';
+let LAB = { org: '', dept: '', instrument: '', author: '', reviewer: '', approver: '' };
+try { Object.assign(LAB, JSON.parse(localStorage.getItem('lablog-lab') || '{}')); } catch (e) {}
+const saveLab = () => { try { localStorage.setItem('lablog-lab', JSON.stringify(LAB)); } catch (e) {} };
+
+const RP_SECTIONS = {
+  activity: 'Tổng hợp hoạt động',
+  qc: 'Kiểm soát chất lượng (QC, Levey-Jennings, PBRTQC)',
+  reagent: 'Thuốc thử & hiệu chuẩn',
+  maint: 'Bảo trì (CLEAN)',
+  dist: 'Phân bố & đối chiếu theo Sample ID',
+  ri: 'Khảo sát khoảng tham chiếu',
+  alerts: 'Cảnh báo'
+};
+const RP_TEMPLATES = {
+  qc: { t: 'Báo cáo QC', s: ['qc', 'reagent'] },
+  maint: { t: 'Báo cáo bảo trì', s: ['maint'] },
+  dist: { t: 'Báo cáo phân bố kết quả', s: ['dist'] },
+  ri: { t: 'Báo cáo khảo sát khoảng tham chiếu', s: ['ri'] },
+  alerts: { t: 'Báo cáo cảnh báo', s: ['alerts'] },
+  activity: { t: 'Báo cáo tổng hợp hoạt động', s: ['activity', 'maint', 'alerts'] },
+  full: { t: 'Báo cáo tổng hợp đầy đủ', s: Object.keys(RP_SECTIONS) }
+};
+let RP = { tpl: 'qc', secs: new Set(RP_TEMPLATES.qc.s), from: '', to: '', mask: true, raw: true, last: null };
+
+// Ẩn bớt Sample ID bệnh nhân (giữ duy nhất, để ghép cặp xét nghiệm vẫn đúng)
+function makeMasker() {
+  const map = new Map(), used = new Set();
+  return sid => {
+    if (map.has(sid)) return map.get(sid);
+    let base = sid.length > 6 ? sid.slice(0, 4) + '***' + sid.slice(-2) : sid.length > 2 ? sid[0] + '***' + sid.slice(-1) : '***';
+    let m = base, k = 2; while (used.has(m)) m = base + '·' + k++;
+    used.add(m); map.set(sid, m); return m;
+  };
+}
+
+function periodData(from, to, mask) {
+  const inR = r => (!from || r.day >= from) && (!to || r.day <= to);
+  const mk = mask ? makeMasker() : null;
+  const cp = r => (mk && r.cat === 'patient') ? { ...r, sid: mk(r.sid), key: [mk(r.sid), r.assay, r.rep, r.cycle].join('|') } : r;
+  return { D: S.D.filter(inR).map(cp), R: S.R.filter(inR).map(cp), files: S.files, stats: S.stats, sample: S.sample };
+}
+
+/* Chạy hàm f với tập dữ liệu thay thế (kỳ báo cáo / ẩn ID), sau đó khôi phục */
+async function withData(data, f) {
+  assays().forEach(refInfo);                          // KTC suy từ cờ luôn tính trên toàn bộ dữ liệu
+  const saved = { S, ver: RIS.ver, qa: QCV.assay, cell: DIST.cell };
+  S = data; RIS.ver = 'rp' + Date.now(); QCV.assay = ''; DIST.cell = null;
+  try { return await f(); }
+  finally { S = saved.S; RIS.ver = saved.ver; QCV.assay = saved.qa; DIST.cell = saved.cell; renderAll(); }
+}
+
+// Lấy HTML một panel sau khi dựng với dữ liệu kỳ báo cáo; bỏ phần điều khiển, rút gọn bảng quá dài
+function snapshot(html, maxRows = 40) {
+  const d = document.createElement('div'); d.innerHTML = html;
+  d.querySelectorAll('button:not(.linkbtn), input, select, textarea, .filters, .seg, label.cat, #riProg').forEach(e => e.remove());
+  d.querySelectorAll('.linkbtn').forEach(b => { const s = document.createElement('span'); s.textContent = b.textContent; b.replaceWith(s); });
+  d.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+  d.querySelectorAll('tbody').forEach(tb => { const rows = tb.querySelectorAll(':scope > tr'); if (rows.length > maxRows) { for (let i = maxRows; i < rows.length; i++) rows[i].remove(); const tr = document.createElement('tr'); tr.innerHTML = `<td colspan="20" class="note">… còn ${rows.length - maxRows} dòng, xem đầy đủ trong file Excel kèm theo.</td>`; tb.appendChild(tr); } });
+  // Danh sách cảnh báo dài: giữ 30 mục đầu mỗi nhóm
+  const groups = new Map(); d.querySelectorAll('.alert').forEach(a => { const p = a.parentElement; if (!groups.has(p)) groups.set(p, []); groups.get(p).push(a); });
+  for (const [, L] of groups) if (L.length > 30) { L.slice(30).forEach(a => a.remove()); const n = document.createElement('div'); n.className = 'note'; n.textContent = `… còn ${L.length - 30} cảnh báo, xem đầy đủ trong file Excel kèm theo.`; L[29].after(n); }
+  return d.innerHTML;
+}
+
+/* ---------- Dữ liệu cho Excel ---------- */
+const r4 = v => Number.isFinite(v) ? +(+v).toPrecision(6) : '';
+function sheetsRaw() {
+  return [{ name: 'Kết quả (raw)', rows: [['Thời gian', 'Ngày', 'Sample ID', 'Loại mẫu', 'Xét nghiệm', 'Lần', 'RLU', 'Dose (gốc)', 'Dấu', 'Giá trị', 'Đơn vị', 'Đánh giá KTC', 'Cờ của máy', 'Lô', 'Serial', 'CalibrationID', 'Hệ số pha loãng', 'File']]
+    .concat(S.D.map(r => [r.ts, r.day, r.sid, CAT_LABEL[r.cat], r.assay, r.rep, r.rlu, r.doseRaw, r.qual, r4(r.dose), unitOf(r.assay), r.cat === 'clean' ? '' : ST_SHORT[classify(r)], r.flags.join(' '), r.lot, r.serial, r.calId, r.dil, r.file])) }];
+}
+function sheetsActivity() {
+  const res = S.D.filter(r => r.cat !== 'clean'), as = assays(), dl = days(res);
+  return [
+    { name: 'Số kết quả theo ngày', rows: [['Ngày', ...as, 'Tổng']].concat(dl.map(d => { const c = as.map(a => res.filter(r => r.day === d && r.assay === a).length); return [d, ...c, c.reduce((s, x) => s + x, 0)]; })) },
+    { name: 'Theo xét nghiệm', rows: [['Xét nghiệm', 'Đơn vị', 'KTC đang dùng', 'Mẫu BN', 'QC', 'Chuẩn', 'Dưới KTC', 'Trong KTC', 'Trên KTC', 'Dưới ngưỡng đo', 'Trên ngưỡng đo']].concat(as.map(a => {
+      const L = res.filter(r => r.assay === a), P = L.filter(r => r.cat === 'patient'), c = { low: 0, normal: 0, high: 0 }; P.forEach(r => c[classify(r)]++);
+      return [a, unitOf(a), fmtRef(a), P.length, L.filter(r => r.cat === 'control').length, L.filter(r => r.cat === 'calibrator').length, c.low, c.normal, c.high, P.filter(r => r.flags.includes('BelowAssayRange')).length, P.filter(r => r.flags.includes('AboveAssayRange')).length];
+    })) }];
+}
+function sheetsQC() {
+  const G = controlGroups(), stat = [['Xét nghiệm', 'Control', 'n', 'TB', 'SD', 'CV%', 'Thấp nhất', 'Cao nhất', 'Nguồn giới hạn', 'Vi phạm loại', 'Cảnh báo 1-2s', 'Lần chạy cuối']], data = [['Thời gian', 'Xét nghiệm', 'Control', 'Dose', 'Giá trị', 'z', 'Quy tắc vi phạm', 'Cờ của máy', 'Lô', 'Serial']];
+  for (const g of G) {
+    const t = qcTarget(g.assay, g.sid, g.L), pts = westgard(g.L, t);
+    stat.push([g.assay, g.sid, pts.length, r4(t.m), r4(t.s), r4(t.s / t.m * 100), r4(Math.min(...pts.map(p => p.r.dose))), r4(Math.max(...pts.map(p => p.r.dose))), t.src,
+      pts.filter(p => p.rules.some(x => RULES[x].sev === 'rej')).length, pts.filter(p => p.rules.length && !p.rules.some(x => RULES[x].sev === 'rej')).length, g.L.at(-1).ts]);
+    for (const p of pts) data.push([p.r.ts, g.assay, g.sid, p.r.doseRaw, r4(p.r.dose), r4(p.z), p.rules.join(' '), p.r.flags.join(' '), p.r.lot, p.r.serial]);
+  }
+  const fq = [['Xét nghiệm', 'Số mức', 'Lần chạy QC', 'Ngày có QC', 'Ngày có BN', 'Ngày BN có QC (%)', 'TB ngày giữa 2 lần QC', 'Max BN giữa 2 lần QC', 'QC gần nhất', 'BN sau QC cuối', 'Ngày chạy BN không có QC']].concat(qcFrequency(G).map(f => [f.assay, f.levels, f.nQC, f.qcDays.size, f.patDays.size, f.patDays.size ? r4([...f.patDays].filter(d => f.qcDays.has(d)).length / f.patDays.size * 100) : '', r4(f.meanGap), f.maxRun, f.lastQC ? f.lastQC.ts : '', f.after, f.noQC.join(' ')]));
+  const pbd = [['Xét nghiệm', 'Ngày', 'n', 'Trung vị', 'P25', 'P75']], pbe = [['Xét nghiệm', 'Ngày', 'Sự kiện', 'n trước', 'Trung vị trước', 'n sau', 'Trung vị sau', 'Chênh lệch %', 'p (Mann–Whitney)', 'Đánh giá']];
+  for (const a of pbAssays()) { const D = pbData(a); D.days.forEach(d => pbd.push([a, d.day, d.n, r4(d.med), r4(d.q1), r4(d.q3)])); D.cmp.forEach(c => pbe.push([a, c.day, c.txt, c.nb, r4(c.mb), c.na, r4(c.ma), r4(c.d), r4(c.p), c.st.t])); }
+  const cal = S.D.filter(r => r.cat === 'calibrator'), runs = {}; for (const r of cal) (runs[r.assay + '|' + r.ts + '|' + r.sid] ||= []).push(r);
+  const calRows = [['Thời gian', 'Xét nghiệm', 'Chuẩn', 'n', 'RLU TB', 'SD', 'CV%', 'Dose các lần', 'CalibrationID']].concat(Object.values(runs).map(L => { const rl = L.map(r => r.rlu), m = mean(rl), s = sd(rl); return [L[0].ts, L[0].assay, L[0].sid, L.length, r4(m), r4(s), r4(s / m * 100), L.map(r => r.doseRaw).join(' · '), L[0].calId]; }));
+  return [{ name: 'QC thống kê', rows: stat }, { name: 'QC dữ liệu', rows: data }, { name: 'QC tần suất', rows: fq }, { name: 'PBRTQC theo ngày', rows: pbd }, { name: 'PBRTQC sự kiện', rows: pbe }, { name: 'Chạy chuẩn', rows: calRows }];
+}
+function sheetsReagent() {
+  const res = S.D.filter(r => r.cat !== 'clean'), g = {};
+  for (const r of res) (g[[r.assay, r.article, r.lot, r.serial].join('|')] ||= []).push(r);
+  return [{ name: 'Thuốc thử', rows: [['Xét nghiệm', 'Mã hàng', 'Lô', 'Serial', 'Tổng test', 'BN', 'Dùng lần đầu', 'Dùng lần cuối', 'CalibrationID', 'Kết quả cờ hết hạn']].concat(Object.values(g).map(L => [L[0].assay, L[0].article, L[0].lot, L[0].serial, L.length, L.filter(r => r.cat === 'patient').length, L[0].ts, L.at(-1).ts, [...new Set(L.map(r => r.calId))].join(' '), L.filter(r => r.flags.some(f => /Expired/.test(f))).length])) }];
+}
+function sheetsMaint() {
+  const ss = cleanSessions(), testDays = new Set(S.D.filter(r => r.cat !== 'clean').map(r => r.day)), cd = new Set(ss.map(s => s.day));
+  return [{ name: 'CLEAN phiên', rows: [['Bắt đầu', 'Số lần chạy', 'Ra kết quả', 'Giờ từ phiên trước', 'Test kể từ phiên trước', 'Lô/Serial']].concat(ss.map(s => [s.ts, s.total, s.done, r4(s.gapH), s.testsSince, s.kits.join(' ')])) },
+    { name: 'Ngày thiếu CLEAN', rows: [['Ngày', 'Số test']].concat([...testDays].filter(d => !cd.has(d)).sort().map(d => [d, S.D.filter(r => r.day === d && r.cat !== 'clean').length])) }];
+}
+function sheetsDist() {
+  const { pass, withT } = runLink(), T = LK.target, conds = LK.conds.filter(c => c.assay && c.state !== 'none'), A = conds.length ? conds[0].assay : null;
+  const recs = withT.map(p => p.o[T]), n = recs.length, c3 = { low: 0, normal: 0, high: 0 }; recs.forEach(r => c3[classify(r)]++);
+  const grp = [['Điều kiện', 'Xét nghiệm', 'Nhóm', 'Số mẫu', 'Tỷ lệ %']];
+  const addG = (cond, a, L) => { const k = { low: 0, normal: 0, high: 0 }; L.forEach(r => k[classify(r)]++); const N = L.length || 1;
+    grp.push([cond, a, 'Dưới KTC', k.low, r4(k.low / N * 100)], [cond, a, 'Trong KTC', k.normal, r4(k.normal / N * 100)], [cond, a, 'Trên KTC', k.high, r4(k.high / N * 100)]);
+    groupCounts(L, cutsOf(a)).forEach(x => grp.push([cond, a, x.label, x.n, r4(x.n / N * 100)])); };
+  const desc = conds.map(condText).join(' và ') || 'mọi mẫu';
+  addG(desc, T, recs);
+  if (conds.length === 1 && conds[0].state === 'normal' && A && A !== T) { const M = sampleMap(), rev = []; for (const [, o] of M) if (o[T] && o[A] && classify(o[T]) === 'normal') rev.push(o[A]); addG(`${T} trong KTC`, A, rev); }
+  const cols = [...new Set([...conds.map(c => c.assay), T])];
+  const data = [['Sample ID', ...cols.flatMap(a => [a, a + ' đánh giá'])]].concat(pass.map(p => [p.sid, ...cols.flatMap(a => { const r = p.o[a]; return r ? [r.doseRaw, ST_SHORT[classify(r)]] : ['', '']; })]));
+  const out = [{ name: 'Phân bố nhóm', rows: grp }, { name: 'Phân bố dữ liệu', rows: data }];
+  if (A && A !== T) {
+    const P = pairData(A, T), K = ['low', 'normal', 'high'], m = [['Ô', A, T, 'Số mẫu', 'Tỷ lệ %']];
+    for (const ka of K) for (const kb of K) { const k = P.filter(p => p.ca === ka && p.cb === kb).length; m.push([`${A} ${ST_SHORT[ka]} · ${T} ${ST_SHORT[kb]}`, ST_SHORT[ka], ST_SHORT[kb], k, r4(k / (P.length || 1) * 100)]); }
+    out.push({ name: 'Ma trận 9 ô', rows: m });
+    const dl = discordantList(A, T); if (dl.length) out.push({ name: 'Cặp trái chiều', rows: [['Sample ID', 'Thời gian', A, T, 'Kiểu', 'Lô ' + T]].concat(dl.map(p => [p.sid, p.b.ts, p.a.doseRaw, p.b.doseRaw, p.ca === 'high' ? 'Cùng tăng' : 'Cùng giảm', p.b.lot])) });
+  }
+  return out;
+}
+function sheetsAlerts() { return [{ name: 'Cảnh báo', rows: [['Mức', 'Thời gian', 'Nội dung', 'Chi tiết']].concat(buildAlerts().map(a => [a.sev === 'crit' ? 'Cần xử lý' : a.sev === 'warn' ? 'Cần xem lại' : 'Ghi nhận', a.time ? new Date(a.time).toLocaleString('vi-VN') : '', a.t, a.d])) }]; }
+const limCell = x => !x ? '' : (x.precise || x.manual) ? r4(x.value) : `≈${r4(x.value)} (trong khoảng ${r4(x.a)} – ${r4(x.b)}, chưa xác định chính xác)`;
+function sheetsRI(results) {
+  const sum = [['Xét nghiệm', 'Khả năng khảo sát', 'Đơn vị', 'KTC đang dùng: dưới', 'KTC đang dùng: trên', 'Quần thể', 'n dùng', 'Gián tiếp: dưới', 'CI90 dưới (thấp)', 'CI90 dưới (cao)', 'Gián tiếp: trên', 'CI90 trên (thấp)', 'CI90 trên (cao)', 'Phi tham số: dưới', 'Phi tham số: trên', 'n phi tham số', 'Kết luận giới hạn dưới', 'Kết luận giới hạn trên', '% dưới KTC', '% trên KTC']];
+  const dat = [['Xét nghiệm', 'Sample ID', 'Thời gian', 'Giá trị', 'Dùng tính', 'Lý do loại']], boot = [['Xét nghiệm', 'Vòng', 'Giới hạn dưới', 'Giới hạn trên']];
+  const par = [['Xét nghiệm', 'λ Box-Cox', 'Khoảng cắt (bách phân vị)', 'a (thang Box-Cox)', 'b (thang Box-Cox)', 'μ', 'σ', 'Tỷ lệ không bệnh lý', 'χ²', 'df', 'Khớp χ² (1%)', 'N', 'Số vòng bootstrap', 'Hạt giống ngẫu nhiên']];
+  for (const r of results) {
+    const i = r.ind, np = r.np;
+    sum.push([r.assay, r.cls.t, unitOf(r.assay), limCell(r.info.lo), limCell(r.info.hi), RIS.mode === 'pair' && r.data.partner ? `Lọc theo ${r.data.partner} bình thường` : 'Tất cả mẫu BN', r.n,
+      i ? r4(i.lo) : '', i ? r4(i.ciLo[0]) : '', i ? r4(i.ciLo[1]) : '', i ? r4(i.hi) : '', i ? r4(i.ciHi[0]) : '', i ? r4(i.ciHi[1]) : '', np ? r4(np.lo) : '', np ? r4(np.hi) : '', np ? np.n : '', r.vLo ? r.vLo.t : '', r.vHi ? r.vHi.t : '', r4(r.outLo), r4(r.outHi)]);
+    r.data.used.forEach(x => dat.push([r.assay, x.sid, x.ts, r4(x.dose), 'Có', '']));
+    r.data.excl.forEach(e => dat.push([r.assay, e.r.sid, e.r.ts, e.r.doseRaw, 'Không', e.why]));
+    if (i) { i.bootLo.forEach((v, k) => boot.push([r.assay, k + 1, r4(v), r4(i.bootHi[k])])); par.push([r.assay, i.l, `P${r4(i.q1 * 100)} – P${r4(i.q2 * 100)}`, r4(i.a), r4(i.b), r4(i.m), r4(i.s), r4(i.P), r4(i.chi2), i.df, i.accepted ? 'Đạt' : 'Không đạt', i.N, i.B, 20251014]); }
+  }
+  return [{ name: 'KTC tóm tắt', rows: sum }, { name: 'KTC tham số', rows: par }, { name: 'KTC dữ liệu', rows: dat }, { name: 'KTC bootstrap', rows: boot },
+    { name: 'KTC tài liệu', rows: [['Tài liệu tham khảo']].concat(RI_REFS.map(x => [x])) }];
+}
+
+/* ---------- Dựng báo cáo ---------- */
+async function buildReport(onProg = () => {}) {
+  const secs = Object.keys(RP_SECTIONS).filter(k => RP.secs.has(k));
+  const data = periodData(RP.from, RP.to, RP.mask);
+  const tpl = RP_TEMPLATES[RP.tpl] || RP_TEMPLATES.full;
+  return withData(data, async () => {
+    const parts = [], sheets = [];
+    const period = `${RP.from || days(S.D)[0] || ''} → ${RP.to || days(S.D).at(-1) || ''}`;
+    sheets.push({ name: 'Thông tin', rows: [['Mục', 'Nội dung'], ['Báo cáo', tpl.t], ['Đơn vị', LAB.org], ['Khoa/phòng', LAB.dept], ['Máy', LAB.instrument], ['Kỳ báo cáo', period], ['Người lập', LAB.author], ['Ngày tạo', new Date().toLocaleString('vi-VN')],
+      ['Sample ID bệnh nhân', RP.mask ? 'Đã ẩn bớt' : 'Đầy đủ'], ['Số kết quả trong kỳ', S.D.length], ['File log', S.files.map(f => f.label || f.name).join(', ')], ['Phần mềm', 'LabLog Analyzer ' + APP_VERSION], ['Ghi chú', 'KTC đang dùng được suy ra từ cờ Above/BelowNormalRange trong log (trừ khi nhập tay). Đơn vị là suy đoán theo độ lớn nếu không nhập.']] });
+    let no = 0;
+    for (const k of secs) {
+      no++; onProg(`Đang dựng: ${RP_SECTIONS[k]}…`); await new Promise(r => setTimeout(r, 20));
+      let html = '';
+      if (k === 'activity') { renderOverview(); html = snapshot($('#p-overview').innerHTML); sheets.push(...sheetsActivity()); }
+      if (k === 'qc') { renderQC(); html = snapshot($('#p-qc').innerHTML); sheets.push(...sheetsQC()); }
+      if (k === 'reagent') { renderReagent(); html = snapshot($('#p-reagent').innerHTML); sheets.push(...sheetsReagent()); }
+      if (k === 'maint') { renderMaint(); html = snapshot($('#p-maint').innerHTML); sheets.push(...sheetsMaint()); }
+      if (k === 'alerts') { renderAlerts(); html = snapshot($('#p-alerts').innerHTML, 400); sheets.push(...sheetsAlerts()); }
+      if (k === 'dist') { renderLink(); html = `<div class="note">Điều kiện: ${esc(LK.conds.filter(c => c.assay).map(condText).join(' và ') || 'mọi mẫu')} · xét nghiệm đánh giá: <b>${esc(LK.target)}</b></div>` + snapshot($('#linkOut').innerHTML + $('#distOut').innerHTML); sheets.push(...sheetsDist()); }
+      if (k === 'ri') {
+        const list = riAssays(), results = [];
+        for (let i = 0; i < list.length; i++) { onProg(`Khảo sát KTC: ${list[i]} (${i + 1}/${list.length})…`); await new Promise(r => setTimeout(r, 20)); results.push(riCompute(list[i])); }
+        RIS.sel = ''; renderRI();
+        const top = document.createElement('div'); top.innerHTML = $('#p-ri').innerHTML;
+        const cards = top.querySelectorAll(':scope > .card');
+        html = snapshot(cards[1] ? cards[1].outerHTML : '') + results.filter(r => r.ind).map(r => snapshot(riDetailHTML(r, true))).join('') + snapshot(cards[cards.length - 1] ? cards[cards.length - 1].outerHTML : '');
+        html = `<div class="note">Quần thể tham chiếu: ${RIS.mode === 'pair' ? 'lọc theo xét nghiệm đi kèm bình thường (FT4/FT3 ↔ TSH)' : 'tất cả mẫu bệnh nhân'}; bootstrap ${RIS.boot} vòng. Log không có tuổi, giới tính, chẩn đoán; kết quả là sàng lọc, cần thẩm định trực tiếp trước khi thay đổi KTC.</div>` + html;
+        sheets.push(...sheetsRI(results));
+      }
+      parts.push(`<section class="rp-sec${no > 1 ? ' rp-break' : ''}"><h1 class="rp-h">${no}. ${esc(RP_SECTIONS[k])}</h1>${html}</section>`);
+    }
+    if (RP.raw) sheets.push(...sheetsRaw());
+    const head = `<header class="rp-head"><div class="rp-org"><b>${esc(LAB.org || 'Tên đơn vị')}</b><span>${esc(LAB.dept || 'Khoa / phòng xét nghiệm')}</span></div>
+      <div class="rp-title"><h1>${esc(tpl.t)}</h1><div>Kỳ báo cáo: <b>${esc(period)}</b>${LAB.instrument ? ` · Máy: <b>${esc(LAB.instrument)}</b>` : ''}</div>
+      <div class="rp-meta">Dữ liệu: ${esc(S.files.map(f => f.label || f.name).join(', '))} · ${S.D.length} kết quả · ${RP.mask ? 'Sample ID bệnh nhân đã được ẩn bớt' : 'Sample ID đầy đủ'} · tạo lúc ${new Date().toLocaleString('vi-VN')}</div></div></header>`;
+    const sign = `<section class="rp-sign"><table><tr><th>Người lập</th><th>Người kiểm tra</th><th>Trưởng khoa / phụ trách</th></tr>
+      <tr class="rp-sp"><td></td><td></td><td></td></tr><tr><td>${esc(LAB.author)}</td><td>${esc(LAB.reviewer)}</td><td>${esc(LAB.approver)}</td></tr></table>
+      <div class="rp-meta">Báo cáo tạo bằng LabLog Analyzer ${APP_VERSION}. Số liệu tính từ file log FinishedJobs của máy; phần đánh giá mang tính hỗ trợ rà soát, không thay thế quy trình QC và quyết định chuyên môn của phòng xét nghiệm.</div></section>`;
+    const ascii = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+    const fname = `${ascii(tpl.t).replace(/\s+/g, '-')}_${(RP.from || days(S.D)[0] || '').replace(/-/g, '')}-${(RP.to || days(S.D).at(-1) || '').replace(/-/g, '')}`;
+    return { html: head + parts.join('') + sign, sheets, fname, title: tpl.t };
+  });
+}
+
+/* ---------- Giao diện ---------- */
+function monthsOf() { return [...new Set(S.D.map(r => r.day.slice(0, 7)))].sort(); }
+
+function openReportDialog() {
+  let dlg = document.getElementById('rpDlg');
+  if (!dlg) { dlg = document.createElement('div'); dlg.id = 'rpDlg'; dlg.className = 'modal'; document.body.appendChild(dlg); }
+  const dl = days(S.D); if (!RP.from && dl.length) RP.from = dl[0]; if (!RP.to && dl.length) RP.to = dl.at(-1);
+  const opt = (v, l, cur) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`;
+  const fld = (k, l, ph) => `<label>${l}<input type="text" data-lab="${k}" value="${esc(LAB[k] || '')}" placeholder="${esc(ph)}"></label>`;
+  dlg.innerHTML = `<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="rpTitle">
+    <div class="hd"><h2 id="rpTitle">Xuất báo cáo</h2><button class="btn" type="button" data-rp="close" aria-label="Đóng">Đóng</button></div>
+    <div class="rp-grid">
+      <div class="rp-col">
+        <h3>Nội dung</h3>
+        <label>Mẫu báo cáo<select id="rpTpl">${Object.entries(RP_TEMPLATES).map(([k, v]) => opt(k, v.t, RP.tpl)).join('')}</select></label>
+        <div class="rp-checks">${Object.entries(RP_SECTIONS).map(([k, v]) => `<label class="chk"><input type="checkbox" data-sec="${k}" ${RP.secs.has(k) ? 'checked' : ''}> ${esc(v)}</label>`).join('')}</div>
+        <h3>Kỳ báo cáo</h3>
+        <div class="filters"><label>Tháng<select id="rpMonth">${opt('', 'Tuỳ chọn', '')}${monthsOf().map(m => opt(m, m.slice(5) + '/' + m.slice(0, 4), '')).join('')}${opt('all', 'Toàn bộ dữ liệu', '')}</select></label>
+          <label>Từ ngày<input type="date" id="rpFrom" value="${esc(RP.from)}"></label><label>Đến ngày<input type="date" id="rpTo" value="${esc(RP.to)}"></label></div>
+        <label class="chk"><input type="checkbox" id="rpMask" ${RP.mask ? 'checked' : ''}> Ẩn bớt Sample ID bệnh nhân (vd 2510***16)</label>
+        <label class="chk"><input type="checkbox" id="rpRaw" ${RP.raw ? 'checked' : ''}> Kèm toàn bộ kết quả gốc (raw) trong file Excel</label>
+        ${RP.secs.has('dist') ? `<div class="note">Phần phân bố dùng điều kiện đang chọn ở tab "Lọc theo Sample ID": ${esc(LK.conds.filter(c => c.assay).map(condText).join(' và ') || 'mọi mẫu')} → ${esc(LK.target || '')}.</div>` : ''}
+        ${RP.secs.has('ri') ? `<div class="note">Phần khảo sát KTC dùng thiết lập ở tab "Khảo sát KTC" (quần thể, số vòng bootstrap); có thể mất vài giây đến vài chục giây.</div>` : ''}
+      </div>
+      <div class="rp-col">
+        <h3>Thông tin đơn vị (in ở đầu và cuối báo cáo)</h3>
+        <div class="rp-fields">${fld('org', 'Tên đơn vị', 'Bệnh viện …')}${fld('dept', 'Khoa / phòng', 'Khoa Xét nghiệm')}${fld('instrument', 'Máy', 'LIAISON XL – số máy …')}${fld('author', 'Người lập', 'Họ tên')}${fld('reviewer', 'Người kiểm tra', 'Họ tên')}${fld('approver', 'Trưởng khoa / phụ trách', 'Họ tên')}</div>
+        <div class="note">Thông tin này được nhớ trên máy này.</div>
+      </div>
+    </div>
+    <div class="rp-actions"><span class="note" id="rpProg"></span>
+      <button class="btn" type="button" data-rp="csv">Tải CSV kết quả gốc</button>
+      <button class="btn" type="button" data-rp="xlsx">Xuất Excel</button>
+      <button class="btn primary" type="button" data-rp="preview">Xem trước & lưu PDF</button></div>
+  </div>`;
+  dlg.hidden = false;
+  const q = s => dlg.querySelector(s);
+  q('#rpTpl').onchange = e => { RP.tpl = e.target.value; RP.secs = new Set(RP_TEMPLATES[RP.tpl].s); openReportDialog(); };
+  dlg.querySelectorAll('[data-sec]').forEach(c => c.onchange = () => { c.checked ? RP.secs.add(c.dataset.sec) : RP.secs.delete(c.dataset.sec); openReportDialog(); });
+  q('#rpMonth').onchange = e => { const m = e.target.value; if (m === 'all') { RP.from = dl[0]; RP.to = dl.at(-1); } else if (m) { RP.from = m + '-01'; const d = new Date(+m.slice(0, 4), +m.slice(5), 0); RP.to = `${m}-${String(d.getDate()).padStart(2, '0')}`; } openReportDialog(); };
+  q('#rpFrom').onchange = e => { RP.from = e.target.value; }; q('#rpTo').onchange = e => { RP.to = e.target.value; };
+  q('#rpMask').onchange = e => { RP.mask = e.target.checked; }; q('#rpRaw').onchange = e => { RP.raw = e.target.checked; };
+  dlg.querySelectorAll('[data-lab]').forEach(i => i.oninput = () => { LAB[i.dataset.lab] = i.value; saveLab(); });
+  const prog = t => { const p = q('#rpProg'); if (p) p.textContent = t; };
+  const busy = on => dlg.querySelectorAll('.rp-actions .btn').forEach(b => b.disabled = on);
+  dlg.onclick = async e => {
+    const b = e.target.closest('[data-rp]'); if (!b) { if (e.target === dlg) dlg.hidden = true; return; }
+    const act = b.dataset.rp;
+    if (act === 'close') { dlg.hidden = true; return; }
+    if (!RP.secs.size && act !== 'csv') { prog('Chọn ít nhất một phần nội dung.'); return; }
+    busy(true);
+    try {
+      if (act === 'csv') { const rep = await withData(periodData(RP.from, RP.to, RP.mask), async () => sheetsRaw()[0]); downloadBlob(csvBlob(rep.rows), `Ket-qua-goc_${RP.from}_${RP.to}.csv`); prog('Đã tạo file CSV.'); }
+      else { const rep = await buildReport(prog); RP.last = rep;
+        if (act === 'xlsx') { downloadBlob(xlsxBlob(rep.sheets), rep.fname + '.xlsx'); prog(`Đã tạo file Excel (${rep.sheets.length} sheet).`); }
+        else { prog(''); dlg.hidden = true; showReport(rep); } }
+    } catch (err) { console.error(err); prog('Không tạo được báo cáo: ' + err.message); }
+    busy(false);
+  };
+}
+
+function showReport(rep) {
+  let v = document.getElementById('rpView');
+  if (!v) { v = document.createElement('div'); v.id = 'rpView'; document.body.appendChild(v); }
+  v.innerHTML = `<div class="rp-toolbar"><b>${esc(rep.title)}</b><span class="note">Xem trước bản in khổ A4</span><span style="flex:1"></span>
+      <button class="btn" type="button" data-v="xlsx">Xuất Excel</button><button class="btn primary" type="button" data-v="pdf">Lưu PDF / In</button><button class="btn" type="button" data-v="close">Đóng</button></div>
+    <div class="rp-paper"><div id="report" class="report">${rep.html}</div></div>`;
+  v.hidden = false; document.body.classList.add('rp-open');
+  v.onclick = async e => {
+    const b = e.target.closest('[data-v]'); if (!b) return;
+    if (b.dataset.v === 'close') { v.hidden = true; document.body.classList.remove('rp-open'); }
+    if (b.dataset.v === 'xlsx') downloadBlob(xlsxBlob(rep.sheets), rep.fname + '.xlsx');
+    if (b.dataset.v === 'pdf') {
+      if (window.lablogDesktop && window.lablogDesktop.savePDF) { b.disabled = true; try { const r = await window.lablogDesktop.savePDF(rep.fname + '.pdf'); if (r) toast('Đã lưu ' + r); } finally { b.disabled = false; } }
+      else window.print();
+    }
+  };
+}
+
+
+function renderAll(){ renderOverview(); renderResults(); renderLink(); renderRI(); renderMaint(); renderQC(); renderReagent(); renderAlerts();
+  const pr=document.getElementById('p-ri'); if(pr && !pr.hidden) runRIQueue(); }
 
 /* ---------- UI wiring ---------- */
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));
-  document.querySelectorAll('.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
+  document.querySelectorAll('section.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
+  if(t.dataset.tab==='ri') riOnShow();
 }));
 async function readFiles(list){
   const files=[...list]; if(!files.length) return;
@@ -1016,6 +2300,7 @@ function addEntries(entries){
 $('#fileIn').addEventListener('change',e=>{readFiles(e.target.files); e.target.value='';});
 $('#btnSample').onclick=()=>load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
 $('#btnClear').onclick=()=>load([],false);
+$('#btnReport').onclick=()=>{ if(!S.D.length){ toast('Chưa có dữ liệu. Hãy nạp file log trước.'); return; } openReportDialog(); };
 $('#fileList').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const f=S.files.slice(); f.splice(+b.dataset.rm,1); load(f, S.sample && f.length>0); });
 document.querySelector('label[for="fileIn"]').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#fileIn').click(); } });
 const drop=$('#drop');

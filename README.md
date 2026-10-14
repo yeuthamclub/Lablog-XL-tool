@@ -43,18 +43,53 @@ Muốn phân tích nhiều tháng: lấy file lưu trữ của từng tháng và
 - **Nạp nhiều file log:** mỗi lần mở được cộng dồn. Kết quả trùng giữa các file chỉ tính một lần.
 - **Tổng quan:** số kết quả theo ngày, theo xét nghiệm và theo giờ.
 - **Kết quả:** tra cứu, lọc, sao chép CSV.
-- **Lọc theo Sample ID:** ví dụ "trong các mẫu có FT4 trong khoảng tham chiếu, bao nhiêu % có TSH vượt?".
+- **Lọc theo Sample ID:**
+  - Đặt câu hỏi giữa các xét nghiệm, ví dụ "trong các mẫu có FT4 trong khoảng tham chiếu, bao nhiêu % có TSH vượt?".
+  - **Biểu đồ chuông** cho cả hai chiều (FT4 trong KTC → TSH, và TSH trong KTC → FT4), có thang log cho TSH.
+  - Tỷ lệ các nhóm Thấp / Trong / Cao và các nhóm lâm sàng có mốc tuỳ chỉnh (TSH < 0,1 · 0,1–0,3 · 0,3–3,6 · 3,6–10 · > 10).
+  - **Ma trận 9 ô** TSH × FT4, kèm gợi ý kiểu kết quả và danh sách mẫu trong từng ô.
+  - **Cặp kết quả trái chiều** cần xem lại (TSH và FT4 cùng tăng hoặc cùng giảm).
+- **Khảo sát KTC:** đánh giá mức phù hợp của khoảng tham chiếu từ chính dữ liệu bệnh nhân. Xem mục riêng bên dưới.
 - **Bảo trì (CLEAN):** tần suất, giờ chạy, những ngày chạy mẫu mà không có CLEAN.
-- **QC & chuẩn:** biểu đồ Levey-Jennings cho từng xét nghiệm, quy tắc Westgard, lịch tần suất QC, danh sách mẫu có cờ, độ lặp lại khi chạy chuẩn.
+- **QC & chuẩn:**
+  - Biểu đồ Levey-Jennings cho từng xét nghiệm, quy tắc Westgard.
+  - Lịch tần suất QC, danh sách mẫu có cờ, độ lặp lại khi chạy chuẩn.
+  - **Theo dõi bằng kết quả bệnh nhân (PBRTQC):** trung vị bệnh nhân theo ngày, so sánh 7 ngày trước và sau khi đổi lô hoặc hiệu chuẩn (kiểm định Mann–Whitney).
 - **Thuốc thử & hiệu chuẩn:** lô, serial, starter.
 - **Cảnh báo:** thuốc thử hoặc hiệu chuẩn hết hạn, vượt ngưỡng đo, mẫu chạy lặp, đổi hộp thuốc thử.
+- **Xuất báo cáo:**
+  - 7 mẫu: QC, bảo trì, phân bố, khảo sát KTC, cảnh báo, tổng hợp hoạt động, đầy đủ.
+  - Chọn kỳ báo cáo theo tháng hoặc từ ngày đến ngày.
+  - **PDF khổ A4** có thông tin đơn vị và ô ký duyệt.
+  - **Excel** nhiều sheet, kèm toàn bộ dữ liệu gốc; **CSV**.
+  - Tuỳ chọn ẩn bớt Sample ID bệnh nhân.
+
+## Khoảng tham chiếu (KTC)
+
+**KTC đang dùng** được suy ra từ cờ AboveNormalRange / BelowNormalRange của máy, vì log không ghi con số KTC. Giới hạn nằm giữa kết quả không cờ lớn nhất và kết quả có cờ nhỏ nhất; công cụ lấy số tròn gọn nhất trong khoảng đó, ví dụ 3,598–3,602 → 3,6. Đơn vị được suy đoán theo độ lớn của giá trị và sửa được. Kết quả có dấu < / > (ngoài ngưỡng đo, máy không gắn cờ KTC) được xếp nhóm theo KTC suy ra này.
+
+**Khảo sát mức phù hợp** dựa trên các hướng dẫn sau:
+
+- CLSI EP28-A3c: phương pháp phi tham số, và thẩm định trực tiếp 20 mẫu (đạt khi ≤ 2/20 mẫu ngoài KTC).
+- IFCC C-RIDL: Jones và cs., *Clin Chem Lab Med* 2019;57:20–29. Phương pháp gián tiếp từ dữ liệu thường quy.
+- Thuật toán gián tiếp theo hướng TMC (Wosniok & Haeckel, *CCLM* 2019) và refineR (Ammer và cs., *Sci Rep* 2021):
+  - biến đổi Box-Cox;
+  - khớp phân bố chuẩn cắt cụt bằng hợp lý cực đại;
+  - khoảng tin cậy 90% bằng bootstrap.
+
+Kiểm chứng thuật toán trên 6 kịch bản mô phỏng đã biết KTC thật (n = 300 – 5000, 0 – 30% mẫu bệnh lý):
+- sai số trung bình 4,7%;
+- khoảng tin cậy 90% chứa giá trị thật ở 81% trường hợp.
+
+Log không có tuổi, giới tính, chẩn đoán, và quần thể là bệnh nhân bệnh viện. Vì vậy kết quả là **sàng lọc dấu hiệu KTC chưa phù hợp**; cần thẩm định trực tiếp trước khi thay đổi KTC.
 
 ## Cấu trúc mã nguồn
 
 ```
-src/template.html          Giao diện và toàn bộ logic phân tích (một file HTML/JS)
+src/template.html          Giao diện và logic chính (HTML/CSS/JS)
+src/modules/*.js           Mô-đun: KTC suy từ cờ, phân bố, khảo sát KTC, PBRTQC, Excel, báo cáo
 samples/                   Log mẫu giả lập
-scripts/build.py           Dựng web/index.html và desktop/app/index.html từ template
+scripts/build.py           Dựng web/index.html và desktop/app/index.html từ template + mô-đun
 scripts/gen_demo.py        Sinh lại log mẫu giả lập
 web/                       Bản web / PWA (xuất bản lên GitHub Pages)
 desktop/                   Bản cài đặt Electron cho Windows, macOS, Linux
