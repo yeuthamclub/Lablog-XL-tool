@@ -1,6 +1,6 @@
 /* ---------- Xuất báo cáo: PDF (bản in A4), Excel (.xlsx), CSV ---------- */
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 let LAB = { org: '', dept: '', instrument: '', author: '', reviewer: '', approver: '' };
 try { Object.assign(LAB, JSON.parse(localStorage.getItem('lablog-lab') || '{}')); } catch (e) {}
 const saveLab = () => { try { localStorage.setItem('lablog-lab', JSON.stringify(LAB)); } catch (e) {} };
@@ -9,7 +9,8 @@ const RP_SECTIONS = {
   activity: 'Tổng hợp hoạt động',
   qc: 'Kiểm soát chất lượng (QC, Levey-Jennings, PBRTQC)',
   reagent: 'Thuốc thử & hiệu chuẩn',
-  maint: 'Bảo trì (CLEAN)',
+  maint: 'Bảo trì (CLEAN và nhật ký máy)',
+  ops: 'Vận hành máy (TAT, huỷ test, nhiệt độ, thuốc thử, pha loãng, LIS)',
   dist: 'Phân bố & đối chiếu theo Sample ID',
   ri: 'Khảo sát khoảng tham chiếu',
   alerts: 'Cảnh báo'
@@ -20,6 +21,7 @@ const RP_TEMPLATES = {
   dist: { t: 'Báo cáo phân bố kết quả', s: ['dist'] },
   ri: { t: 'Báo cáo khảo sát khoảng tham chiếu', s: ['ri'] },
   alerts: { t: 'Báo cáo cảnh báo', s: ['alerts'] },
+  ops: { t: 'Báo cáo vận hành', s: ['ops', 'maint', 'alerts'] },
   activity: { t: 'Báo cáo tổng hợp hoạt động', s: ['activity', 'maint', 'alerts'] },
   full: { t: 'Báo cáo tổng hợp đầy đủ', s: Object.keys(RP_SECTIONS) }
 };
@@ -40,16 +42,22 @@ function periodData(from, to, mask) {
   const inR = r => (!from || r.day >= from) && (!to || r.day <= to);
   const mk = mask ? makeMasker() : null;
   const cp = r => (mk && r.cat === 'patient') ? { ...r, sid: mk(r.sid), key: [mk(r.sid), r.assay, r.rep, r.cycle].join('|') } : r;
-  return { D: S.D.filter(inR).map(cp), R: S.R.filter(inR).map(cp), files: S.files, stats: S.stats, sample: S.sample };
+  // Nhật ký máy: cắt theo kỳ, ẩn Sample ID bệnh nhân giống kết quả
+  const inT = e => { const d = dStr(e.t); return (!from || d >= from) && (!to || d <= to); };
+  const ms = sid => mk && sid && !/^[#$]/.test(sid) && sid !== 'CLEAN' ? mk(sid) : sid;
+  const M = emptyM();
+  for (const k in M) M[k] = (S.M[k] || []).filter(inT).map(e => e.sids ? { ...e, sids: e.sids.map(ms) } : e.sid !== undefined ? { ...e, sid: ms(e.sid) } : e);
+  M.has = S.M.has;
+  return { D: S.D.filter(inR).map(cp), R: S.R.filter(inR).map(cp), files: S.files, stats: S.stats, sample: S.sample, serials: S.serials, M };
 }
 
 /* Chạy hàm f với tập dữ liệu thay thế (kỳ báo cáo / ẩn ID), sau đó khôi phục */
 async function withData(data, f) {
   assays().forEach(refInfo);                          // KTC suy từ cờ luôn tính trên toàn bộ dữ liệu
-  const saved = { S, ver: RIS.ver, qa: QCV.assay, cell: DIST.cell };
-  S = data; RIS.ver = 'rp' + Date.now(); QCV.assay = ''; DIST.cell = null;
+  const saved = { S, ver: RIS.ver, qa: QCV.assay, cell: DIST.cell, ops: { ...OPS } };
+  S = data; RIS.ver = 'rp' + Date.now(); QCV.assay = ''; DIST.cell = null; Object.assign(OPS, { assay: '', from: '', to: '', cache: null });
   try { return await f(); }
-  finally { S = saved.S; RIS.ver = saved.ver; QCV.assay = saved.qa; DIST.cell = saved.cell; renderAll(); }
+  finally { S = saved.S; RIS.ver = saved.ver; QCV.assay = saved.qa; DIST.cell = saved.cell; Object.assign(OPS, saved.ops, { cache: null }); renderAll(); }
 }
 
 // Lấy HTML một panel sau khi dựng với dữ liệu kỳ báo cáo; bỏ phần điều khiển, rút gọn bảng quá dài
@@ -162,6 +170,14 @@ async function buildReport(onProg = () => {}) {
       if (k === 'qc') { renderQC(); html = snapshot($('#p-qc').innerHTML); sheets.push(...sheetsQC()); }
       if (k === 'reagent') { renderReagent(); html = snapshot($('#p-reagent').innerHTML); sheets.push(...sheetsReagent()); }
       if (k === 'maint') { renderMaint(); html = snapshot($('#p-maint').innerHTML); sheets.push(...sheetsMaint()); }
+      if (k === 'ops') {
+        const M = S.M, has = M.has || {}, sub = [];
+        if (has.log) sub.push(['Thời gian trả kết quả (TAT)', opsTAT()], ['Huỷ test và lỗi', opsErr()], ['Nhiệt độ và trạng thái máy', opsState()], ['Thuốc thử và vật tư', opsReag()]);
+        sub.push(['Pha loãng', opsDil()]);
+        if (has.lis) sub.push(['Giao tiếp LIS', opsLIS()]);
+        html = (has.log || has.lis ? '' : '<div class="note">Dữ liệu chỉ có FinishedJobs: nạp file sao lưu .zip để có đủ phần vận hành.</div>') + sub.map(([t, h]) => `<h2 class="rp-h2">${esc(t)}</h2>` + snapshot(h, 30)).join('');
+        sheets.push(...sheetsOps());
+      }
       if (k === 'alerts') { renderAlerts(); html = snapshot($('#p-alerts').innerHTML, 400); sheets.push(...sheetsAlerts()); }
       if (k === 'dist') { renderLink(); html = `<div class="note">Điều kiện: ${esc(LK.conds.filter(c => c.assay).map(condText).join(' và ') || 'mọi mẫu')} · xét nghiệm đánh giá: <b>${esc(LK.target)}</b></div>` + snapshot($('#linkOut').innerHTML + $('#distOut').innerHTML); sheets.push(...sheetsDist()); }
       if (k === 'ri') {

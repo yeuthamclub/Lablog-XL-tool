@@ -160,6 +160,7 @@ ol.refs{color:var(--muted);font-size:.8rem}
 .rp-meta{font-size:9.5px;color:var(--muted)}
 .rp-sec{display:flex;flex-direction:column;gap:10px}
 .rp-h{font-family:var(--f-display);font-size:15px;margin:8px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.rp-h2{font-family:var(--f-display);font-size:13px;margin:14px 0 6px;color:var(--accent)}
 .rp-sign{margin-top:18px;display:flex;flex-direction:column;gap:8px;break-inside:avoid}
 .rp-sign table{width:100%;border-collapse:collapse;text-align:center}
 .rp-sign th{position:static;text-align:center;font-size:10.5px;text-transform:none;letter-spacing:0;color:var(--ink);border:0}
@@ -179,6 +180,11 @@ body.rp-open{overflow:hidden}
 }
 .filters label{max-width:100%;min-width:0}
 .filters select,.filters input[type=text]{max-width:100%}
+#pwIn{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%}
+#pwDlg label{display:flex;flex-direction:column;gap:4px;font-size:.8rem}
+tr.muted td{opacity:.5}
+label.inst{flex-direction:row;align-items:center;gap:6px}
+table.cal td,table.cal th{padding:3px 4px;min-width:22px;border:1px solid var(--sunk)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:.85rem}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -187,23 +193,22 @@ body.rp-open{overflow:hidden}
   <header class="top">
     <h1><small>Phân tích log máy miễn dịch · FinishedJobs</small>LabLog Analyzer</h1>
     <div class="src">
-      <label class="btn primary" for="fileIn" tabindex="0">Thêm file log…</label>
-      <input id="fileIn" type="file" accept=".txt,.log,text/plain,application/octet-stream" multiple hidden>
+      <label class="btn primary" for="fileIn" tabindex="0">Thêm file…</label>
+      <input id="fileIn" type="file" accept=".zip,.txt,.log,.trc,.TRC,application/zip,application/x-zip-compressed,text/plain,application/octet-stream" multiple hidden>
       <button class="btn" id="btnSample" type="button">Dùng dữ liệu mẫu</button>
       <button class="btn" id="btnClear" type="button">Xoá tất cả file</button>
       <button class="btn" id="btnReport" type="button">Xuất báo cáo…</button>
     </div>
   </header>
-  <div class="drop" id="drop">Kéo thả một hoặc nhiều file FinishedJobs vào đây. File mới được cộng thêm vào các file đang mở, kết quả trùng giữa các file tự loại bỏ. Dữ liệu chỉ xử lý trong trình duyệt của bạn.</div>
+  <div class="drop" id="drop">Kéo thả tối đa 30 file vào đây: nên dùng nguyên file sao lưu <b>.zip</b> của máy (vd 2210005303_temp_archive_2026_09.zip, kèm file …archiveLisLas….zip nếu có), hoặc file FinishedJobs.txt đã giải nén. File mới được cộng thêm, kết quả trùng tự loại bỏ. Dữ liệu chỉ xử lý trong trình duyệt của bạn, không gửi đi đâu.</div>
   <details class="help" id="howto">
-    <summary>Lấy file FinishedJobs.txt từ máy LIAISON XL như thế nào?</summary>
+    <summary>Lấy dữ liệu từ máy LIAISON XL như thế nào?</summary>
     <ol>
-      <li>Trên máy LIAISON XL, vào phần <b>Backup</b> và xuất file lưu trữ về máy tính. File có dạng <code>2210006840_temp_archive_2025_05.zip</code> (số máy, năm, tháng).</li>
-      <li>Giải nén file <code>.zip</code> đó.</li>
-      <li>Mở thư mục <b>Log</b> bên trong, tìm file <b>FinishedJobs.txt</b>.</li>
-      <li>Nạp vào công cụ: bấm <b>Thêm file log…</b> hoặc kéo thả file vào trang này.</li>
+      <li>Trên máy LIAISON XL, vào phần <b>Backup</b> và xuất file lưu trữ về máy tính. File có dạng <code>2210006840_temp_archive_2025_05.zip</code> (số máy, năm, tháng). Nếu máy xuất thêm file <code>…_temp_archiveLisLas_….zip</code> (giao tiếp LIS), lấy luôn file này.</li>
+      <li><b>Không cần giải nén</b>: bấm <b>Thêm file…</b> hoặc kéo thả thẳng file <code>.zip</code> vào trang. Công cụ chỉ đọc các phần cần thiết trong zip: <b>FinishedJobs.txt</b> (kết quả), <b>LogFile_*.txt</b> (nạp ống, hút mẫu, huỷ, bảo trì, nhiệt độ, thuốc thử), <b>DilutionLog.txt</b> (pha loãng) và <b>C2R*.TRC</b> (LIS). File zip LIS thường có mật khẩu: công cụ sẽ hỏi, mật khẩu không được lưu lại.</li>
+      <li>Cách cũ vẫn dùng được: giải nén, mở thư mục <b>Log</b>, nạp file <b>FinishedJobs.txt</b> (và LogFile_*.txt nếu muốn).</li>
     </ol>
-    <p>Muốn xem nhiều tháng: làm lại các bước trên với file lưu trữ của từng tháng và nạp lần lượt. Các file đều tên FinishedJobs.txt nhưng công cụ vẫn giữ riêng từng file, đánh số (2), (3)… và chỉ tính một lần các kết quả trùng.</p>
+    <p>Nạp tối đa 30 file một lúc (vd 12 tháng × 2 file zip, hoặc nhiều máy). Kết quả trùng giữa các file chỉ tính một lần. Nếu file thuộc nhiều máy, chọn máy cần xem ở ô <b>Máy</b> trong danh sách file.</p>
   </details>
   <div class="card" id="fileList"></div>
 
@@ -215,6 +220,7 @@ body.rp-open{overflow:hidden}
     <button class="tab" role="tab" data-tab="maint" aria-selected="false">Bảo trì (CLEAN)</button>
     <button class="tab" role="tab" data-tab="qc" aria-selected="false">QC &amp; chuẩn</button>
     <button class="tab" role="tab" data-tab="reagent" aria-selected="false">Thuốc thử &amp; hiệu chuẩn</button>
+    <button class="tab" role="tab" data-tab="ops" aria-selected="false">Vận hành máy</button>
     <button class="tab" role="tab" data-tab="alerts" aria-selected="false">Cảnh báo<span class="n" id="alertN" hidden></span></button>
   </nav>
 
@@ -225,6 +231,7 @@ body.rp-open{overflow:hidden}
   <section class="panel" id="p-maint" hidden></section>
   <section class="panel" id="p-qc" hidden></section>
   <section class="panel" id="p-reagent" hidden></section>
+  <section class="panel" id="p-ops" hidden></section>
   <section class="panel" id="p-alerts" hidden></section>
 </div>
 
@@ -291,44 +298,66 @@ function parseText(text, file=''){
   }
   return {D,R};
 }
+let INST=''; // máy đang xem khi nạp dữ liệu của nhiều máy ('' = tất cả)
+function entryFromText(name, text){
+  // File .txt lẻ (FinishedJobs, LogFile, DilutionLog, C2R*.TRC) đã đọc thành văn bản
+  const en={name, size:text.length, kind:'txt', text:'', M:emptyM(), parts:{}, serial:'', month:''}, info={};
+  let kind=srcKind(name);
+  if(!kind) kind=/^[RD]-\|\(\d{4}\//m.test(text)?'fj':/^\d{4}\.\d{2}\.\d{2}_\d{2}:\d{2}:\d{2}\.\d{3} - \(/m.test(text)?'log':/\t(<-|->) [HQOR]\|/.test(text)?'lis':'';
+  if(kind==='fj') en.text=text; else if(kind==='log') parseLogFile(text,en.M,info); else if(kind==='dil') parseDilution(text,en.M); else if(kind==='lis') parseASTM(text,en.M);
+  if(kind) en.parts[kind]=1;
+  en.serial=info.serial||''; for(const k in en.M) en.M[k].sort((a,b)=>a.t-b.t);
+  const ts=text.match(/\((\d{4})\/(\d{2})\//); if(ts) en.month=`${ts[1]}-${ts[2]}`;
+  en.hasData=!!en.text||Object.values(en.M).some(a=>a.length);
+  return en;
+}
 function load(entries, isSample){
-  // entries: [{name,text}] — gộp, loại dòng trùng giữa các file
+  // entries: [{name,label,text,M,serial,…}] — gộp, loại dòng trùng giữa các file
+  entries = entries.map(e=>e.M?e:{...entryFromText(e.name,e.text),label:e.label});
+  const serials=[...new Set(entries.map(e=>e.serial).filter(Boolean))].sort();
+  if(INST && !serials.includes(INST)) INST='';
+  const use = e=>!INST || !e.serial || e.serial===INST;
   const seen = new Set(), D=[], R=[], stats=[];
   for(const e of entries){
-    const p = parseText(e.text, e.label||e.name); let added=0, dup=0;
-    for(const r of [...p.D,...p.R]){ const k=r.type+r.ts+r.key; if(seen.has(k)){ if(r.type==='D') dup++; continue; } seen.add(k); (r.type==='D'?D:R).push(r); if(r.type==='D') added++; }
-    const ds=p.D.map(r=>r.ts).sort(); stats.push({name:e.name, label:e.label||e.name, size:e.text.length, total:p.D.length, added, dup, from:ds[0]||'', to:ds.at(-1)||'', assays:[...new Set(p.D.filter(r=>r.cat!=='clean').map(r=>r.assay))].sort(), pats:new Set(p.D.filter(r=>r.cat==='patient').map(r=>r.sid)).size});
+    const p = e.text ? parseText(e.text, e.label||e.name) : {D:[],R:[]}; let added=0, dup=0;
+    if(use(e)) for(const r of [...p.D,...p.R]){ r.inst=e.serial||''; const k=r.type+r.ts+r.key; if(seen.has(k)){ if(r.type==='D') dup++; continue; } seen.add(k); (r.type==='D'?D:R).push(r); if(r.type==='D') added++; }
+    const ds=p.D.map(r=>r.ts).sort(), ev=Object.values(e.M||{}).reduce((a,x)=>a+x.length,0);
+    stats.push({name:e.name, label:e.label||e.name, size:e.size||e.text.length, kind:e.kind||'txt', serial:e.serial||'', month:e.month||'', parts:e.parts||{}, ev, warn:e.warn||'', used:use(e), total:p.D.length, added, dup, from:ds[0]||'', to:ds.at(-1)||'', assays:[...new Set(p.D.filter(r=>r.cat!=='clean').map(r=>r.assay))].sort(), pats:new Set(p.D.filter(r=>r.cat==='patient').map(r=>r.sid)).size});
   }
   D.sort((a,b)=>a.time-b.time); R.sort((a,b)=>a.time-b.time);
-  S = {D,R,files:entries,stats,sample:isSample};
-  resetRefCache(); RIS.res.clear(); RIS.ver++;
+  S = {D,R,files:entries,stats,sample:isSample,serials,M:mergeMachine(entries.filter(use))};
+  buildLisUnits();
+  resetRefCache(); RIS.res.clear(); RIS.ver++; OPS.cache=null;
   F = {assay:'',cat:'',flag:'',q:'',from:'',to:'',file:''};
   renderFiles(); renderAll();
 }
 function renderFiles(){
   const el = document.getElementById('fileList');
-  const head = `<div class="hd"><h2>File log đã nạp <span class="sub">(${S.files.length})</span></h2><span class="sub">${S.sample?'Đang xem dữ liệu mẫu. File đầu tiên bạn thêm sẽ thay thế dữ liệu mẫu.':'Mọi số liệu bên dưới là tổng hợp của tất cả file trong danh sách.'}</span></div>`;
+  const multi = S.serials && S.serials.length>1;
+  const head = `<div class="hd"><h2>File đã nạp <span class="sub">(${S.files.length}/${ZIP_MAX_FILES})</span></h2><span class="sub">${S.sample?'Đang xem dữ liệu mẫu. File đầu tiên bạn thêm sẽ thay thế dữ liệu mẫu.':'Mọi số liệu bên dưới là tổng hợp của tất cả file trong danh sách'+(multi?' thuộc máy đang chọn.':'.')}</span>
+    ${multi?`<label class="inst">Máy<select id="instSel"><option value="">Tất cả ${S.serials.length} máy</option>${S.serials.map(x=>`<option value="${esc(x)}"${x===INST?' selected':''}>${esc(x)}</option>`).join('')}</select></label>`:''}</div>`;
   const how=document.getElementById('howto'); if(how && !S.files.length) how.open=true;
-  if(!S.files.length){ el.innerHTML = head+'<div class="empty">Chưa có file nào. Bấm “Thêm file log…” hoặc kéo thả file vào trang.</div>'; return; }
+  if(!S.files.length){ el.innerHTML = head+'<div class="empty">Chưa có file nào. Bấm “Thêm file…” hoặc kéo thả file sao lưu .zip / FinishedJobs.txt vào trang.</div>'; return; }
   const kb = n=>n>1048576?fmt(n/1048576,1)+' MB':fmt(n/1024,0)+' KB';
   const allD = S.D.map(r=>r.ts);
-  const rows = S.stats.map((s,i)=>`<tr>
-    <td class="num">${i+1}</td><td class="mono">${esc(s.label)}</td><td class="num">${kb(s.size)}</td>
+  const partTxt = s=>Object.entries(s.parts).map(([k,n])=>`<span class="pill p-ok" title="${esc(KIND_LABEL[k]||k)}">${esc({fj:'Kết quả',log:'LogFile',dil:'Pha loãng',lis:'LIS'}[k]||k)}${n>1?' ×'+n:''}</span>`).join(' ')||'<span class="pill p-high">Không có dữ liệu dùng được</span>';
+  const rows = S.stats.map((s,i)=>`<tr${s.used?'':' class="muted"'}>
+    <td class="num">${i+1}</td><td class="mono">${esc(s.label)}${s.warn?`<div class="cat">${esc(s.warn)}</div>`:''}</td>
+    <td class="mono">${esc(s.serial||'–')}</td><td class="mono" style="white-space:nowrap">${esc(s.month||'–')}</td><td class="num">${kb(s.size)}</td><td style="min-width:150px">${partTxt(s)}</td>
     <td class="mono" style="white-space:nowrap">${s.from.slice(0,16)}</td><td class="mono" style="white-space:nowrap">${s.to.slice(0,16)}</td>
     <td class="num">${s.total}</td><td class="num">${s.added}</td><td class="num">${s.dup?`<span class="pill p-low">${s.dup}</span>`:'0'}</td>
-    <td class="num">${s.pats}</td><td style="min-width:220px">${esc(s.assays.join(', '))}</td>
+    <td class="num">${s.ev?fmt(s.ev,0):'–'}</td><td class="num">${s.pats}</td><td style="min-width:200px">${esc(s.assays.join(', '))}</td>
     <td><button class="btn" type="button" data-rm="${i}" aria-label="Bỏ file ${esc(s.label)}">Bỏ</button></td></tr>`).join('');
   const sumPat = new Set(S.D.filter(r=>r.cat==='patient').map(r=>r.sid)).size;
   el.innerHTML = head + `<div class="scroll"><table>
-    <thead><tr><th class="num">#</th><th>Tên file</th><th class="num">Dung lượng</th><th>Từ</th><th>Đến</th><th class="num">Kết quả trong file</th><th class="num">Được tính</th><th class="num">Trùng file trước</th><th class="num">Mẫu BN</th><th>Xét nghiệm</th><th></th></tr></thead>
+    <thead><tr><th class="num">#</th><th>Tên file</th><th>Số máy</th><th>Tháng</th><th class="num">Dung lượng</th><th>Dữ liệu tìm thấy</th><th>Từ</th><th>Đến</th><th class="num">Kết quả trong file</th><th class="num">Được tính</th><th class="num">Trùng file trước</th><th class="num">Sự kiện máy</th><th class="num">Mẫu BN</th><th>Xét nghiệm</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
-    <tfoot><tr class="sum"><td></td><td><b>Tổng hợp</b></td><td class="num">${kb(S.stats.reduce((a,s)=>a+s.size,0))}</td>
+    <tfoot><tr class="sum"><td></td><td><b>Tổng hợp</b></td><td class="mono">${esc(INST||S.serials.join(', ')||'–')}</td><td></td><td class="num">${kb(S.stats.reduce((a,s)=>a+s.size,0))}</td><td></td>
       <td class="mono" style="white-space:nowrap">${(allD[0]||'').slice(0,16)}</td><td class="mono" style="white-space:nowrap">${(allD.at(-1)||'').slice(0,16)}</td>
       <td class="num">${S.stats.reduce((a,s)=>a+s.total,0)}</td><td class="num"><b>${S.D.length}</b></td><td class="num">${S.stats.reduce((a,s)=>a+s.dup,0)}</td>
-      <td class="num">${sumPat}</td><td style="min-width:220px">${esc(assays().join(', '))}</td><td></td></tr></tfoot></table></div>
-    <div class="note">“Được tính” là số kết quả mới mà file đó đóng góp. Kết quả đã có trong file nạp trước (cùng thời điểm, mã mẫu, xét nghiệm, lần lặp, chu kỳ) được đếm ở cột “Trùng” và chỉ tính một lần.</div>`;
+      <td class="num">${fmt(Object.values(S.M).reduce((a,x)=>a+(Array.isArray(x)?x.length:0),0),0)}</td><td class="num">${sumPat}</td><td style="min-width:200px">${esc(assays().join(', '))}</td><td></td></tr></tfoot></table></div>
+    <div class="note">“Được tính” là số kết quả mới mà file đó đóng góp; kết quả đã có trong file nạp trước được đếm ở cột “Trùng” và chỉ tính một lần. Với file sao lưu .zip, chỉ các phần cần cho phân tích được giải nén (FinishedJobs, LogFile, DilutionLog, vết LIS); dữ liệu kỹ thuật (C1R*.trc, PIP, LLC, COP, FlashCurves…) được bỏ qua.${multi?' Dòng mờ là file của máy khác đang không được tính.':''}</div>`;
 }
-
 /* ---------- Helpers ---------- */
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -376,6 +405,7 @@ function buildAlerts(){
   for(const r of S.D){ if(r.cat==='clean') continue; const p=lastBy[r.assay]; const cur=r.lot+'/'+r.serial;
     if(p && p!==cur) A.push({sev:'info', time:r.time, t:`Đổi hộp thuốc thử ${r.assay}`, d:`${r.ts} · ${p} → ${cur} (lô/serial). Nên chạy control sau khi thay hộp.`});
     lastBy[r.assay]=cur; }
+  if(S.M && S.M.has) A.push(...opsAlerts());
   const order={crit:0,warn:1,info:2};
   return A.sort((a,b)=>order[a.sev]-order[b.sev] || b.time-a.time);
 }
@@ -390,12 +420,12 @@ function stackedBars(cats, series, h=200){
   const y = v=>pad.t+(h-pad.t-pad.b)*(1-v/top);
   const bw = (W-pad.l-pad.r)/cats.length;
   let s = `<svg viewBox="0 0 ${W} ${h}" width="100%" style="min-width:${Math.min(W,560)}px;display:block" role="img">`;
-  for(let v=0; v<=top; v+=step) s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="${v?0.6:1}"/><text x="${pad.l-6}" y="${y(v)+3}" text-anchor="end">${v}</text>`;
+  for(let v=0; v<=top; v+=step) s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="${v?0.6:1}"/><text x="${pad.l-6}" y="${y(v)+3}" text-anchor="end">${+v.toPrecision(10)}</text>`;
   cats.forEach((c,i)=>{
     let acc=0; const x=pad.l+i*bw+bw*0.18, w=bw*0.64;
     for(const se of series){ const v=se.values[i]; if(!v) continue;
       s+=`<rect x="${x}" y="${y(acc+v)}" width="${w}" height="${y(acc)-y(acc+v)}" fill="${se.color}"><title>${esc(c)} · ${esc(se.name)}: ${v}</title></rect>`; acc+=v; }
-    if(tot[i]) s+=`<text x="${x+w/2}" y="${y(tot[i])-3}" text-anchor="middle" style="fill:var(--ink)">${tot[i]}</text>`;
+    if(tot[i]) s+=`<text x="${x+w/2}" y="${y(tot[i])-3}" text-anchor="middle" style="fill:var(--ink)">${+tot[i].toFixed(1)}</text>`;
     s+=`<text x="${x+w/2}" y="${h-8}" text-anchor="middle">${esc(c)}</text>`;
   });
   return s+'</svg>';
@@ -670,13 +700,14 @@ function renderQC(){
     const enough = gs.some(g=>g.L.length>=3);
     const pill = st==='rej'?'<span class="pill p-crit">Có vi phạm</span>':st==='warn'?'<span class="pill p-high">Cảnh báo 1-2s</span>':enough?'<span class="pill p-ok">Đạt</span>':'<span class="pill p-low">Ít dữ liệu</span>';
     const vRows = viol.sort((a,b)=>a.p.r.time-b.p.r.time).map(v=>`<tr><td class="mono">${v.p.r.ts.slice(0,16)}</td><td><span class="legend"><span><i style="background:${v.color}"></i>${esc(v.sid)}</span></span></td><td class="num">${esc(v.p.r.doseRaw)}</td><td class="num">${fmt(v.p.z,2)}</td>
-      <td>${v.p.rules.map(x=>`<span class="pill ${RULES[x].sev==='rej'?'p-crit':'p-high'}" title="${esc(RULES[x].d)}">${x}</span>`).join('')}${flagPills(v.p.r.flags)}</td></tr>`).join('')
-      + cx.map(c=>`<tr><td class="mono">${c.day}</td><td>Giữa các mức</td><td></td><td></td><td><span class="pill p-crit">${c.rule}</span> ${esc(c.d)}</td></tr>`).join('');
+      <td>${v.p.rules.map(x=>`<span class="pill ${RULES[x].sev==='rej'?'p-crit':'p-high'}" title="${esc(RULES[x].d)}">${x}</span>`).join('')}${flagPills(v.p.r.flags)}</td>
+      <td><button class="btn sm" type="button" data-evt="${+v.p.r.time}" data-evt-assay="${esc(assay)}" data-evt-title="QC ${esc(assay)} ${esc(v.sid)}: ${esc(v.p.r.doseRaw)}${v.p.rules.length?' · '+esc(v.p.rules.join(', ')):''}">Sự kiện ±24h</button></td></tr>`).join('')
+      + cx.map(c=>`<tr><td class="mono">${c.day}</td><td>Giữa các mức</td><td></td><td></td><td><span class="pill p-crit">${c.rule}</span> ${esc(c.d)}</td><td><button class="btn sm" type="button" data-evt="${+new Date(c.day+'T12:00:00')}" data-evt-assay="${esc(assay)}" data-evt-title="QC ${esc(assay)}: ${esc(c.rule)}">Sự kiện ±24h</button></td></tr>`).join('');
     return `<div class="card"><div class="hd"><h2>${esc(assay)} <span class="sub">· ${gs.length} mức control · ${all.length} lần chạy</span></h2>${pill}</div>
       <div class="legend">${levels.map(l=>`<span><i style="background:${l.color}"></i>${esc(l.name)}</span>`).join('')}<span class="cat">Trục tung tính theo SD của từng mức · hình thoi đỏ: vi phạm · vòng nét đứt: kết quả có cờ</span></div>
       <div class="scroll">${ljMulti(levels,t0,t1)}</div>
       <div class="scroll"><table><thead><tr><th>Mức</th><th class="num">n</th><th class="num">TB</th><th class="num">SD</th><th class="num">CV</th><th class="num">Thấp – cao</th><th>Lần chạy cuối</th><th>Giới hạn</th></tr></thead><tbody>${statRows.join('')}</tbody></table></div>
-      ${vRows?`<div class="scroll"><table><thead><tr><th>Thời điểm</th><th>Mức</th><th class="num">Giá trị</th><th class="num">z</th><th>Quy tắc / cờ</th></tr></thead><tbody>${vRows}</tbody></table></div>`:''}
+      ${vRows?`<div class="scroll"><table><thead><tr><th>Thời điểm</th><th>Mức</th><th class="num">Giá trị</th><th class="num">z</th><th>Quy tắc / cờ</th><th></th></tr></thead><tbody>${vRows}</tbody></table></div>`:''}
       ${!enough?'<div class="note">Mỗi mức mới có 1–2 lần chạy nên TB/SD chưa đại diện; biểu đồ sẽ có ý nghĩa hơn khi gộp thêm file log.</div>':''}
     </div>`;
   }).join('');
@@ -1012,11 +1043,12 @@ function renderMaint(){
       ${missing.length?`<div class="tablebox" style="max-height:420px"><table><thead><tr><th>Ngày</th><th>Thứ</th><th class="num">Số test</th></tr></thead><tbody>${missing.map(d=>`<tr><td class="mono">${d}</td><td>${['CN','T2','T3','T4','T5','T6','T7'][new Date(d+'T00:00:00').getDay()]}</td><td class="num">${S.D.filter(r=>r.day===d&&r.cat!=='clean').length}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Mọi ngày có chạy mẫu đều có CLEAN.</div>'}
       <div class="note">Chỉ đối chiếu theo log. Lịch bảo trì bắt buộc tuỳ quy trình của phòng và hướng dẫn của hãng.</div></div>
   </div>` : '<div class="empty">Không có lần chạy CLEAN nào trong các file đang mở.</div>';
+  $('#p-maint').insertAdjacentHTML('beforeend', maintLogHTML());
 }
 
 /*__MODULES__*/
 
-function renderAll(){ renderOverview(); renderResults(); renderLink(); renderRI(); renderMaint(); renderQC(); renderReagent(); renderAlerts();
+function renderAll(){ renderOverview(); renderResults(); renderLink(); renderRI(); renderMaint(); renderQC(); renderReagent(); renderOps(); renderAlerts();
   const pr=document.getElementById('p-ri'); if(pr && !pr.hidden) runRIQueue(); }
 
 /* ---------- UI wiring ---------- */
@@ -1025,32 +1057,58 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('section.panel').forEach(p=>p.hidden = p.id!=='p-'+t.dataset.tab);
   if(t.dataset.tab==='ri') riOnShow();
 }));
+let LOADING=false;
 async function readFiles(list){
-  const files=[...list]; if(!files.length) return;
-  const texts = await Promise.all(files.map(f=>f.text()));
-  addEntries(files.map((f,i)=>({name:f.name, text:texts[i]})));
+  let files=[...list]; if(!files.length) return;
+  if(LOADING){ toast('Đang đọc file, vui lòng chờ.'); return; }
+  const have = S.sample ? 0 : S.files.length, room = ZIP_MAX_FILES - have;
+  if(room<=0){ toast(`Đã đủ ${ZIP_MAX_FILES} file. Bỏ bớt file trong danh sách trước khi thêm.`); return; }
+  if(files.length>room){ toast(`Chỉ nạp được tối đa ${ZIP_MAX_FILES} file: lấy ${room} file đầu, bỏ ${files.length-room} file.`); files=files.slice(0,room); }
+  // Ưu tiên file .zip; nếu có cả zip và FinishedJobs.txt của cùng tháng thì kết quả trùng sẽ tự loại
+  files.sort((a,b)=>(/\.zip$/i.test(b.name)-/\.zip$/i.test(a.name)));
+  LOADING=true; const out=[], bad=[]; const prog=progressBox();
+  try{
+    for(const [i,f] of files.entries()){
+      prog(`Đang đọc ${i+1}/${files.length}: ${f.name}`);
+      try{
+        if(!/\.zip$/i.test(f.name) && f.size>300*1048576){ bad.push(f.name+' (quá lớn)'); continue; }
+        const en=await readSource(f,{ask:askZipPassword},m=>prog(`Đang đọc ${i+1}/${files.length}: ${m}`));
+        if(en.hasData) out.push(en); else bad.push(f.name);
+      }catch(err){ bad.push(`${f.name} (${err.code==='NOT_ZIP'?'không phải zip':err.message})`); }
+      await new Promise(r=>setTimeout(r,0));
+    }
+  } finally { LOADING=false; prog(null); }
+  if(bad.length) toast(`Bỏ qua ${bad.join(', ')}: không tìm thấy FinishedJobs, LogFile, DilutionLog hoặc vết LIS.`);
+  if(out.length) addEntries(out, !bad.length);
 }
-function addEntries(entries){
+function progressBox(){
+  let el=document.getElementById('loadProg');
+  if(!el){ el=document.createElement('div'); el.id='loadProg'; el.className='toast'; el.setAttribute('role','status'); document.body.appendChild(el); }
+  return msg=>{ if(msg==null){ el.hidden=true; return; } el.hidden=false; el.textContent=msg; };
+}
+function addEntries(entries, quiet){
   const good=[], bad=[];
-  entries.forEach(f=> parseText(f.text).D.length ? good.push({name:f.name,text:f.text}) : bad.push(f.name));
-  if(bad.length) toast(`Bỏ qua ${bad.join(', ')}: không có dòng kết quả dạng “D-|(yyyy/mm/dd hh:mm:ss)|SampleID: …”.`);
+  entries.forEach(f=>{ const en=f.M?f:entryFromText(f.name,f.text); (en.hasData?good:bad).push(en.hasData?en:f.name); });
+  if(bad.length) toast(`Bỏ qua ${bad.join(', ')}: không có dòng kết quả “D-|(yyyy/mm/dd hh:mm:ss)|…” hay nhật ký máy nhận dạng được.`);
   if(!good.length) return;
   const base = S.sample ? [] : S.files.slice();
-  // Máy luôn đặt tên FinishedJobs.txt: giữ cả hai file trùng tên, chỉ bỏ file có nội dung y hệt
+  // Máy luôn đặt tên FinishedJobs.txt: giữ cả hai file trùng tên, chỉ bỏ file y hệt (cùng tên, dung lượng, nội dung)
   const fresh = [];
   for(const g of good){
-    if(base.concat(fresh).some(e=>e.text===g.text)){ toast(`${g.name} đã được nạp trước đó, bỏ qua.`); continue; }
+    if(base.length+fresh.length>=ZIP_MAX_FILES){ toast(`Đã đủ ${ZIP_MAX_FILES} file, bỏ qua phần còn lại.`); break; }
+    if(base.concat(fresh).some(e=>e.name===g.name && (e.size||0)===(g.size||0) && e.text===g.text && JSON.stringify(e.parts)===JSON.stringify(g.parts))){ toast(`${g.name} đã được nạp trước đó, bỏ qua.`); continue; }
     const same = base.concat(fresh).filter(e=>e.name===g.name).length;
     fresh.push({...g, label: same?`${g.name} (${same+1})`:g.name});
   }
-  good.length=0; good.push(...fresh); if(!good.length) return;
-  load(base.concat(good), false);
-  if(!bad.length) toast(`Đã thêm ${good.length} file · tổng ${S.files.length} file`);
+  if(!fresh.length) return;
+  load(base.concat(fresh), false);
+  if(quiet!==false && !bad.length) toast(`Đã thêm ${fresh.length} file · tổng ${S.files.length} file`);
 }
 $('#fileIn').addEventListener('change',e=>{readFiles(e.target.files); e.target.value='';});
 $('#btnSample').onclick=()=>load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
 $('#btnClear').onclick=()=>load([],false);
 $('#btnReport').onclick=()=>{ if(!S.D.length){ toast('Chưa có dữ liệu. Hãy nạp file log trước.'); return; } openReportDialog(); };
+$('#fileList').addEventListener('change',e=>{ if(e.target.id==='instSel'){ INST=e.target.value; load(S.files,S.sample); } });
 $('#fileList').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const f=S.files.slice(); f.splice(+b.dataset.rm,1); load(f, S.sample && f.length>0); });
 document.querySelector('label[for="fileIn"]').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#fileIn').click(); } });
 const drop=$('#drop');
@@ -1067,7 +1125,7 @@ if(window.lablogDesktop){
   window.lablogDesktop.onOpenFiles(list=>addEntries(list));
   window.lablogDesktop.onCommand(c=>{ if(c==='clear') load([],false); if(c==='sample') $('#btnSample').click(); });
 } else {
-  if(matchMedia('(pointer: coarse)').matches) $('#drop').textContent='Chạm “Thêm file log…” để chọn một hoặc nhiều file FinishedJobs từ ứng dụng Tệp (Files), iCloud Drive hoặc Google Drive. File mới được cộng thêm vào các file đang mở. Dữ liệu chỉ xử lý trên thiết bị này.';
+  if(matchMedia('(pointer: coarse)').matches) $('#drop').textContent='Chạm “Thêm file…” để chọn tối đa 30 file sao lưu .zip hoặc FinishedJobs.txt từ ứng dụng Tệp (Files), iCloud Drive hoặc Google Drive. File mới được cộng thêm vào các file đang mở. Dữ liệu chỉ xử lý trên thiết bị này.';
   load([{name:'FinishedJobs.txt',label:'FinishedJobs.txt (mẫu)',text:SAMPLE}],true);
 }
 </script>

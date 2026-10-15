@@ -49,7 +49,9 @@ function pbData(assay) {
       : Math.abs(d) > PB.thr && mw.p < 0.05 ? { k: 'warn', t: `Cần xem xét (${d > 0 ? 'tăng' : 'giảm'} ${fmt(Math.abs(d), 1)}%)` } : { k: 'ok', t: 'Không thay đổi đáng kể' };
     return { ...e, nb: before.length, na: after.length, mb, ma, d, p: mw.p, st };
   });
-  return { assay, days: daysL, ev, cmp, n: pts.length };
+  let mev = [];
+  if (S.M && S.M.has && S.M.has.log && daysL.length) mev = machEvents(+new Date(daysL[0].day + 'T00:00:00'), +new Date(daysL.at(-1).day + 'T23:59:59'), { types: ['maint', 'temp'] }).filter(e => e.type !== 'maint' || e.bad || /Månad|Month|Week|Vecko|tháng|tuần/i.test(e.txt));
+  return { assay, days: daysL, ev, cmp, n: pts.length, mev };
 }
 
 function pbChart(D, W = 720, H = 220) {
@@ -66,6 +68,7 @@ function pbChart(D, W = 720, H = 220) {
   for (const e of D.ev) { const x = X(+e.t); if (x < pad.l || x > W - pad.r) continue;
     const c = e.type === 'lot' ? 'var(--crit)' : e.type === 'cal' ? 'var(--c3)' : 'var(--line)';
     s += `<line x1="${x}" x2="${x}" y1="${pad.t}" y2="${H - pad.b}" stroke="${c}" stroke-width="${e.type === 'serial' ? 1 : 1.6}" stroke-dasharray="${e.type === 'serial' ? '2 3' : '5 3'}"><title>${esc(e.day)}: ${esc(e.txt)}</title></line>`; }
+  for (const e of D.mev || []) { const x = X(e.t); if (x < pad.l || x > W - pad.r) continue; s += `<line x1="${x}" x2="${x}" y1="${pad.t}" y2="${H - pad.b}" stroke="${EVT[e.type][0]}" stroke-width="1" stroke-dasharray="1 3"><title>${esc(tStr(e.t))}: ${esc(e.txt)}</title></line>`; }
   s += `<path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(+new Date(p.day + 'T12:00:00')).toFixed(1)} ${Y(T(p.q3)).toFixed(1)}`).join(' ')} ${pts.slice().reverse().map(p => `L${X(+new Date(p.day + 'T12:00:00')).toFixed(1)} ${Y(T(p.q1)).toFixed(1)}`).join(' ')} Z" fill="var(--accent-soft)" opacity=".7"><title>Khoảng tứ phân vị</title></path>`;
   s += `<polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="${pts.map(p => `${X(+new Date(p.day + 'T12:00:00')).toFixed(1)},${Y(T(p.med)).toFixed(1)}`).join(' ')}"/>`;
   for (const p of pts) s += `<circle cx="${X(+new Date(p.day + 'T12:00:00')).toFixed(1)}" cy="${Y(T(p.med)).toFixed(1)}" r="${Math.min(5, 1.8 + Math.sqrt(p.n) / 4)}" fill="var(--accent)"><title>${p.day}: trung vị ${fmt(p.med, 4)} (n = ${p.n})</title></circle>`;
@@ -77,7 +80,7 @@ function pbChart(D, W = 720, H = 220) {
 function pbCard(D) {
   const rows = D.cmp.map(c => `<tr><td class="mono">${c.day}</td><td>${esc(c.txt)}</td><td class="num">${fmt(c.mb, 4)} <span class="cat">(${c.nb})</span></td><td class="num">${fmt(c.ma, 4)} <span class="cat">(${c.na})</span></td><td class="num">${Number.isFinite(c.d) ? (c.d > 0 ? '+' : '') + fmt(c.d, 1) + '%' : '–'}</td><td class="num">${Number.isFinite(c.p) ? (c.p < 0.001 ? '< 0,001' : fmt(c.p, 3)) : '–'}</td><td><span class="pill ${c.st.k === 'warn' ? 'p-high' : c.st.k === 'ok' ? 'p-ok' : 'p-low'}">${esc(c.st.t)}</span></td></tr>`).join('');
   return `<div class="card"><div class="hd"><h2>${esc(D.assay)} <span class="sub">· trung vị kết quả bệnh nhân theo ngày (${D.n} kết quả)</span></h2></div>
-    <div class="legend"><span><i style="background:var(--accent)"></i>Trung vị ngày (chấm to = nhiều mẫu)</span><span><i style="background:var(--accent-soft)"></i>Tứ phân vị 25–75%</span><span><i style="background:var(--crit)"></i>Đổi lô</span><span><i style="background:var(--c3)"></i>Hiệu chuẩn</span><span><i style="background:var(--line)"></i>Hộp mới</span></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Trung vị ngày (chấm to = nhiều mẫu)</span><span><i style="background:var(--accent-soft)"></i>Tứ phân vị 25–75%</span><span><i style="background:var(--crit)"></i>Đổi lô</span><span><i style="background:var(--c3)"></i>Hiệu chuẩn</span><span><i style="background:var(--line)"></i>Hộp mới</span>${[...new Set((D.mev || []).map(e => e.type))].map(k => `<span><i style="background:${EVT[k][0]}"></i>${EVT[k][1]} (máy)</span>`).join('')}</div>
     <div class="scroll">${pbChart(D)}</div>
     ${rows ? `<div class="scroll"><table><thead><tr><th>Ngày</th><th>Sự kiện</th><th class="num">Trung vị 7 ngày trước (n)</th><th class="num">7 ngày sau (n)</th><th class="num">Chênh lệch</th><th class="num">p (Mann–Whitney)</th><th>Đánh giá</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="note">Không có lần đổi lô hay hiệu chuẩn trong khoảng thời gian của log.</div>'}
   </div>`;

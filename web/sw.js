@@ -1,5 +1,5 @@
 // Bộ nhớ đệm để LabLog Analyzer mở được khi không có mạng (sau lần mở đầu tiên)
-const CACHE = 'lablog-v1.1.0';
+const CACHE = 'lablog-v1.2.0';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'fonts/fonts.css',
   'fonts/BeVietnamPro-Regular.ttf', 'fonts/BeVietnamPro-Medium.ttf', 'fonts/BeVietnamPro-SemiBold.ttf', 'fonts/BeVietnamPro-Bold.ttf',
   'fonts/IBMPlexMono-Regular.ttf', 'fonts/IBMPlexMono-Medium.ttf',

@@ -22,21 +22,18 @@ Bấm **Dùng dữ liệu mẫu** để xem thử. Dữ liệu mẫu là log **g
 - **Windows:** nếu hiện "Windows protected your PC", bấm **More info › Run anyway**. Bộ cài chưa được ký số.
 - **macOS:** nhấp phải vào ứng dụng › **Mở**. Trên macOS 15 trở lên, nếu không mở được, vào **System Settings › Privacy & Security › Open Anyway**. Ứng dụng chưa được Apple công chứng.
 
-## Lấy file FinishedJobs.txt từ máy LIAISON XL
+## Lấy dữ liệu từ máy LIAISON XL
 
-1. Trên máy LIAISON XL, vào phần **Backup** và xuất file lưu trữ về máy tính. File có dạng `2210006840_temp_archive_2025_05.zip` (số máy, năm, tháng).
-2. Giải nén file `.zip` đó.
-3. Mở thư mục **Log** bên trong, tìm file **FinishedJobs.txt**.
-4. Nạp vào công cụ: bấm **Thêm file log…** (bản cài đặt: **Tệp › Mở file log…**), hoặc kéo thả file vào cửa sổ.
+**Bản web (từ v1.2): nạp thẳng file .zip, không cần giải nén.**
 
-```
-2210006840_temp_archive_2025_05.zip
-└── (giải nén)
-    └── Log/
-        └── FinishedJobs.txt   ← file cần nạp
-```
+1. Trên máy LIAISON XL, vào phần **Backup** và xuất file lưu trữ về máy tính, dạng `2210006840_temp_archive_2025_05.zip` (số máy, năm, tháng). Nếu có file `…_temp_archiveLisLas_….zip` (giao tiếp LIS) thì lấy luôn.
+2. Bấm **Thêm file…** hoặc kéo thả các file `.zip` vào trang. Tối đa **30 file** mỗi lần (vd 12 tháng × 2 file, hoặc nhiều máy).
+3. Công cụ chỉ đọc phần cần dùng trong zip: `Log/FinishedJobs.txt` (kết quả), `Log/LogFile_*.txt` (nạp ống, hút mẫu, huỷ test, bảo trì, nhiệt độ, thuốc thử, LIS không phản hồi), `DilutionLog.txt` (pha loãng), `lis/C2R*.TRC` (bản ghi ASTM gửi/nhận LIS). Dữ liệu kỹ thuật (C1R*.trc, PIP, LLC, COP, FlashCurves…) được bỏ qua.
+4. File zip LIS thường có mật khẩu (ZipCrypto): công cụ hỏi mật khẩu khi cần; mật khẩu chỉ giữ trong phiên làm việc, không lưu, không gửi đi đâu.
 
-Muốn phân tích nhiều tháng: lấy file lưu trữ của từng tháng và nạp lần lượt. Các file đều tên `FinishedJobs.txt`, nhưng công cụ vẫn giữ riêng từng file, đánh số (2), (3)… và chỉ tính một lần các kết quả trùng.
+Cách cũ vẫn dùng được (và là cách duy nhất ở bản cài đặt v1.1): giải nén, mở thư mục **Log**, nạp `FinishedJobs.txt` (có thể nạp thêm `LogFile_*.txt`).
+
+Nếu dữ liệu thuộc nhiều máy (số máy lấy từ tên file hoặc dòng "Analyzer Serial Number" trong LogFile), chọn máy cần xem ở ô **Máy** trên danh sách file.
 
 ## Chức năng
 
@@ -56,9 +53,19 @@ Muốn phân tích nhiều tháng: lấy file lưu trữ của từng tháng và
   - Lịch tần suất QC, danh sách mẫu có cờ, độ lặp lại khi chạy chuẩn.
   - **Theo dõi bằng kết quả bệnh nhân (PBRTQC):** trung vị bệnh nhân theo ngày, so sánh 7 ngày trước và sau khi đổi lô hoặc hiệu chuẩn (kiểm định Mann–Whitney).
 - **Thuốc thử & hiệu chuẩn:** lô, serial, starter.
+- **Vận hành máy** (cần file sao lưu .zip):
+  - **Thời gian trả kết quả (TAT)** từ lúc nạp ống tới khi có kết quả, theo xét nghiệm / giờ / thứ / ngày; mục tiêu TAT tuỳ chỉnh (mặc định 60 phút); chia pha chờ hút, ủ & đo, gửi LIS; danh sách test chậm kèm nguyên nhân có thể (chạy lại, huỷ, pha loãng, LIS chậm, máy dừng, nhiệt độ).
+  - **Huỷ test & lỗi** theo lý do (cục đông, hết thuốc thử/Starter, lỗi cơ khí…) × xét nghiệm, theo ngày.
+  - **Bảo trì & kiểm tra:** lịch bảo trì ngày/tuần/tháng theo nhật ký máy, xu hướng BGW và Light Check trái/phải (cũng hiện trong tab Bảo trì).
+  - **Nhiệt độ & trạng thái:** các lần ngoài khoảng nhiệt độ (tách riêng lúc khởi động), giờ chạy / chờ / bảo trì / dừng mỗi ngày.
+  - **Thuốc thử & vật tư:** test còn lại trên máy và dự báo ngày hết, số test thực tế mỗi hộp, Starter, cảnh báo vàng/đỏ của vật tư.
+  - **Pha loãng:** kết quả ">" chưa chạy lại pha loãng.
+  - **LIS:** thời gian LIS trả y lệnh, lần không phản hồi, kết quả chưa gửi, y lệnh chưa có kết quả, bảng mã LIS ↔ máy; đơn vị LIS gửi được dùng làm đơn vị chính thức.
+  - **Hành trình mẫu:** mọi bước của một Sample ID (nạp ống → hỏi LIS → y lệnh → hút → pha loãng → kết quả → gửi LIS).
+  - Sự kiện máy (bảo trì, nhiệt độ, đổi lô, hiệu chuẩn) được vẽ thành mốc trên biểu đồ TAT và PBRTQC; mỗi lần QC vi phạm có nút **Sự kiện ±24h**.
 - **Cảnh báo:** thuốc thử hoặc hiệu chuẩn hết hạn, vượt ngưỡng đo, mẫu chạy lặp, đổi hộp thuốc thử.
 - **Xuất báo cáo:**
-  - 7 mẫu: QC, bảo trì, phân bố, khảo sát KTC, cảnh báo, tổng hợp hoạt động, đầy đủ.
+  - 8 mẫu: QC, bảo trì, phân bố, khảo sát KTC, cảnh báo, **vận hành**, tổng hợp hoạt động, đầy đủ.
   - Chọn kỳ báo cáo theo tháng hoặc từ ngày đến ngày.
   - **PDF khổ A4** có thông tin đơn vị và ô ký duyệt.
   - **Excel** nhiều sheet, kèm toàn bộ dữ liệu gốc; **CSV**.
@@ -87,7 +94,7 @@ Log không có tuổi, giới tính, chẩn đoán, và quần thể là bệnh 
 
 ```
 src/template.html          Giao diện và logic chính (HTML/CSS/JS)
-src/modules/*.js           Mô-đun: KTC suy từ cờ, phân bố, khảo sát KTC, PBRTQC, Excel, báo cáo
+src/modules/*.js           Mô-đun: đọc zip, KTC suy từ cờ, phân bố, khảo sát KTC, PBRTQC, Excel, báo cáo, nhật ký máy & vận hành
 samples/                   Log mẫu giả lập
 scripts/build.py           Dựng web/index.html và desktop/app/index.html từ template + mô-đun
 scripts/gen_demo.py        Sinh lại log mẫu giả lập

@@ -66,6 +66,7 @@ function refInfo(assay) {
   if (mlo !== null || mhi !== null) res.src = 'nhập tay';
   const hint = UNIT_HINTS.find(([re]) => re.test(assay));
   if (man.unit) { res.unit = man.unit; res.unitGuess = false; }
+  else if (typeof LISU !== 'undefined' && LISU[assay]) { res.unit = LISU[assay]; res.unitGuess = false; res.unitSrc = 'LIS'; }
   else if (hint) { res.unit = hint[1](res.hi ? res.hi.value : null); res.unitGuess = true; }
   else { res.unit = ''; res.unitGuess = true; }
   res.hasRef = !!(res.lo || res.hi);
