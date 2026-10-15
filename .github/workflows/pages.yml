@@ -1,6 +1,6 @@
 name: Web (GitHub Pages)
 
-# Mỗi lần đẩy code lên nhánh main: dựng lại giao diện và xuất bản bản web
+# Trang chuyển hướng sang https://lablog-xl.web.app
 on:
   push:
     branches: [main]
@@ -23,11 +23,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Dựng giao diện
-        run: python3 scripts/build.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
